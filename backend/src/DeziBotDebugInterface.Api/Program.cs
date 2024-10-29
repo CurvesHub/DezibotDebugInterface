@@ -1,44 +1,44 @@
+using DeziBotDebugInterface.Api.Clients;
+using DeziBotDebugInterface.Api.Endpoints.Common;
+using DeziBotDebugInterface.Api.Repositories;
+using Serilog;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+// Swagger
+builder.Services
+    .AddEndpointsApiExplorer()
+    .AddSwaggerGen();
+
+// Logging
+Log.Logger = new LoggerConfiguration()
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .MinimumLevel.Information()
+    .CreateLogger();
+builder.Services.AddSerilog(Log.Logger);
+
+// Services
+builder.Services
+    .AddEndpoints(typeof(Program))
+    .AddScoped<HttpProblemDetailsService>()
+    .AddScoped<IDezibotRepository, DezibotRepository>()
+    .AddScoped<ICommandRepository, CommandRepository>()
+    .AddScoped<ISensorRepository, SensorRepository>()
+    .AddScoped<IDezibotClient, DezibotClient>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// Swagger
+app.UseSwagger();
+app.UseSwaggerUI();
+app.Map("/", () => Results.Redirect("/swagger/index.html"));
 
-app.UseHttpsRedirection();
+// Endpoints
+app.MapEndpoints(app.MapGroup("/api"));
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+// Exception handling
+app.MapErrorEndpoint();
+app.UseExceptionHandler(ErrorEndpoint.ErrorRoute);
 
-app.MapGet("/weatherforecast", () =>
-    {
-        var forecast = Enumerable.Range(1, 5).Select(index =>
-                new WeatherForecast
-                (
-                    DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    Random.Shared.Next(-20, 55),
-                    summaries[Random.Shared.Next(summaries.Length)]
-                ))
-            .ToArray();
-        return forecast;
-    })
-    .WithName("GetWeatherForecast")
-    .WithOpenApi();
-
-app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+await app.RunAsync();
