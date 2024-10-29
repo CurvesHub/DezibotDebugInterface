@@ -4,10 +4,15 @@
         <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="ErrorOr" Version="2.0.1" />
+        <PackageReference Include="JetBrains.Annotations" Version="2024.3.0" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.10"/>
+        <PackageReference Include="Serilog" Version="4.1.1-dev-02314" />
+        <PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2"/>
     </ItemGroup>
 
