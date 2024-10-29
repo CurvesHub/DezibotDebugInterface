@@ -5,21 +5,20 @@
 ### Dezibot
 
 - `GET /api/dezibot` - Get all Dezibots
-- `GET /api/dezibot/[serialNumber]` - Get a Dezibot by serial number
-- `POST /api/dezibot` - Create a new Dezibot
-- `POST /api/dezibot/broadcast` - Receive data from Dezibots
+- `GET /api/dezibot/[ip]` - Get a Dezibot by ip adress
+- `PUT /api/dezibot/broadcast` - Receive data from Dezibots (Websocket)
 - `POST /api/dezibot/command` - Send a command to all Dezibots
-- `POST /api/dezibot/command/[serialNumber]` - Send a command to a specific Dezibot
+- `POST /api/dezibot/command/[ip]` - Send a command to a specific Dezibot
 
 ### Sensor
 
 - `GET /api/sensor` - Get all sensors
-- `GET /api/sensor/[serialNumber]` - Get all sensors for a specific Dezibot
+- `GET /api/sensor/[ip]` - Get all sensors for a specific Dezibot
 
 ### Command
 
 - `GET /api/command` - Get all commands
-- `GET /api/command/[serialNumber]` - Get all commands for a specific Dezibot
+- `GET /api/command/[ip]` - Get all commands for a specific Dezibot
 
 ## Requests and Responses
 
@@ -35,7 +34,7 @@
 ```json
 [
     {
-        "serialNumber": "string",   // Unique identifier
+        "ip": "string",   // Unique identifier
         "status": "string",         // online or offline
         "lastConnection": "string", // Last connection timestamp
         "components": [             // List of components
