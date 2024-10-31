@@ -1,0 +1,3 @@
+[submodule "dezibot"]
+	path = dezibot
+	url = https://github.com/CurvesHub/dezibot.git
