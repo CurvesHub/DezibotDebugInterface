@@ -18,14 +18,14 @@ All services are dockerized and can be started with docker-compose. Follow the i
 - Clone the repository
 - Run `docker-compose up` in the root directory of the project
 - The front-end is available at `http://localhost:3000`
-- The back-end is available at `http://localhost:5000`
-- The back-end API documentation is available at `http://localhost:5000/api/scalar`
+- The back-end is available at `http://localhost:5012`
+- The back-end API documentation is available at `http://localhost:5012/api`
 
 ## Back-end API
 
 The back-end provides the following endpoints:
 
-- `GET /api/scalar` - A UI to view the openapi documentation of the API and test the endpoints
+- `/api` - A UI to view the openapi documentation of the API and test the endpoints
 
 
 - `GET /api/dezibot` - Get all Dezibots
@@ -51,15 +51,27 @@ The back-end provides the following endpoints:
         "lastConnectionUtc": "string",
         "components": [
             {
+                "name": "string",
                 "properties": [
                     {
-                        "propertyName": "value"
+                        "name": "string",
+                        "values": [
+                            {
+                                "timestampUtc": "string",
+                                "value": "string"
+                            }
+                        ]
                     }
                 ],
-                "messages": [
+                "logs": [
                     {
                         "message": "string",
-                        "data": "string"
+                        "values": [
+                            {
+                                "timestampUtc": "string",
+                                "value": "string"
+                            }
+                        ]
                     }
                 ]
             }
@@ -80,26 +92,45 @@ The back-end provides the following endpoints:
                 "name": "DISPLAY",
                 "properties": [
                     {
-                        "updatedAtUtc": "01.01.2024 11.50.000Z",
-                        "displayFlipped": "true",
-                        "currentLine": "10",
-                        "...": "..."
+                        "name": "displayFlipped",
+                        "values": [
+                            {
+                                "timestampUtc": "01.01.2024 11.50.000Z",
+                                "value": "true"
+                            },
+                            {
+                                "timestampUtc": "01.01.2024 11.55.000Z",
+                                "value": "false"
+                            }
+                        ]
                     },
                     {
-                        "updatedAtUtc": "01.01.2024 11.51.000Z",
-                        "displayFlipped": "false",
-                        "currentLine": "12", 
-                        "...": "..."
+                        "name": "currentLine",
+                        "values": [
+                            {
+                                "timestampUtc": "01.01.2024 11.50.000Z",
+                                "value": "10"
+                            },
+                            {
+                                "timestampUtc": "01.01.2024 11.55.000Z",
+                                "value": "18"
+                            }
+                        ]
                     }
                 ],
-                "messages": [
-                    {   // Example color detection log
-                        "message": "read double register",
-                        "data": "1:14"
-                    },
-                    {   // Example color detection log 2
-                        "message": "read double register",
-                        "data": "1:18"
+                "logs": [
+                    {
+                        "message": "read double register", // Example color detection log
+                        "values": [
+                            {
+                                "timestampUtc": "01.01.2024 11.50.000Z",
+                                "value": "1:14"
+                            },
+                            {
+                                "timestampUtc": "01.01.2024 11.55.000Z",
+                                "value": "1:18"
+                            }
+                        ]
                     }
                 ]
             }
@@ -108,7 +139,45 @@ The back-end provides the following endpoints:
 ]
 ```
 
-### PUT Dezibot broadcast
+### PUT Dezibot broadcast (Same model but without lists)
+
+**Example:**
+
+```json5
+{
+  "ip": "1.2.3.4",
+  "lastConnectionUtc": "2024-11-11T11:45:30.000Z",
+  "components": [
+    {
+      "name": "DISPLAY",
+      "properties": [
+        {
+          "name": "displayFlipped",
+          "values": [
+            {
+              "timestampUtc": "2024-11-11T11:45:30.000Z",
+              "value": "true"
+            }
+          ]
+        }
+      ],
+      "logs": [
+        {
+          "message": "read double register",
+          "values": [
+            {
+              "timestampUtc": "2024-11-11T11:45:30.000Z",
+              "value": "1:14"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+### PUT Dezibot broadcast (Other Model)
 
 **Model:**
 
