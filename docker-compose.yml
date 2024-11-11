@@ -1,0 +1,11 @@
+﻿services:
+  dezibotdebuginterface.api:
+    image: dezibotdebuginterface.api:latest
+    container_name: dezibotdebuginterface.api
+    build:
+      context: .
+      dockerfile: backend/DezibotDebugInterface.Api/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+    ports:
+      - "5012:8080"
