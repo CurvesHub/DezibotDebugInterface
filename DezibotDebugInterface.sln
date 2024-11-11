@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DezibotDebugInterface.Api", "backend\DezibotDebugInterface.Api\DezibotDebugInterface.Api.csproj", "{FFE92739-D229-4FF7-8AA3-45D0D825DCB2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{CBE29D64-0568-45AD-B00C-91F139589DF0}"
+	ProjectSection(SolutionItems) = preProject
+		docker-compose.yml = docker-compose.yml
+		.dockerignore = .dockerignore
+		.gitignore = .gitignore
+		.gitmodules = .gitmodules
+		README.md = README.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FFE92739-D229-4FF7-8AA3-45D0D825DCB2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FFE92739-D229-4FF7-8AA3-45D0D825DCB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FFE92739-D229-4FF7-8AA3-45D0D825DCB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FFE92739-D229-4FF7-8AA3-45D0D825DCB2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
