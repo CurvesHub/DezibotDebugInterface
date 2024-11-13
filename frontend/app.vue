@@ -1,19 +1,16 @@
 <template>
   <NuxtLayout>
-    <div>
-      <div v-for="bot in data" style="background-color: antiquewhite; max-width: 50%;">
-        {{ bot.ip }}
-        <div v-for="comp in bot.components" style="background-color: antiquewhite;">
-          component: {{ comp }}
-        </div>
-      </div>
-    </div>
+    <NuxtPage/>
   </NuxtLayout>
 </template>
 
 <script setup lang="ts">
-import {Dezibot} from "~/types/Dezibot"
+import type { Component, Dezibot } from './types/Dezibot'
+import { useIntervalFn } from '@vueuse/core'
 
-const {data} = await useFetch('/api/bots')
+const { data, error, refresh } = await useFetch<Dezibot[]>('/api/bots')
+useIntervalFn(async () => {
+  refresh()
+}, 300);
 
 </script>

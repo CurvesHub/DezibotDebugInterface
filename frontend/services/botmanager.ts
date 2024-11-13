@@ -21,4 +21,22 @@ export const addOrUpdateBotProp = (ip: string, comp: string, property: string, v
     }
 }
 
-export const getBots = () => bots
+export const addLogToBot = (ip: string, comp: string, message: string, value: string) => {
+    const foundBot = bots.find((bot) => bot.ip == ip)
+    if(foundBot) {
+        const foundComponent = foundBot.components.get(comp)
+        if (foundComponent) {
+            foundComponent.messages.push([message, value])
+        }else {
+            const newComp = new Component(comp)
+            newComp.messages.push([message, value])
+            foundBot.components.set(comp, newComp)
+        }
+    } else {
+        const newBot = new Dezibot(ip)
+        const newComp = new Component(comp)
+        newComp.messages.push([message, value])
+        newBot.components.set(comp, newComp)
+        bots.push(newBot)
+    }
+}
