@@ -154,21 +154,10 @@ public class EndpointTests
             {
                 options.HttpMessageHandlerFactory = _ => _factory.Server.CreateHandler();
             })
-            .ConfigureLogging(logging =>
-            {
-                logging.AddConsole();
-                logging.SetMinimumLevel(LogLevel.Debug);
-            })
             .Build();
         
-        var disposable = connection.On("SendDezibotUpdateAsync", (Dezibot dezibot) =>
-        {
-            dezibot.Ip.Should().Be(logBroadcastRequest.Ip);
-            dezibot.Logs.Should().ContainSingle(log =>
-                log.TimestampUtc == DateTime.Parse(logBroadcastRequest.TimestampUtc, CultureInfo.InvariantCulture) &&
-                log.LogLevel == logBroadcastRequest.LogLevel &&
-                log.Message == logBroadcastRequest.Message);
-        });
+        List<Dezibot> dezibotMessages = [];
+        connection.On("SendDezibotUpdateAsync", (Dezibot dezibot) => dezibotMessages.Add(dezibot));
 
         await connection.StartAsync();
         connection.State.Should().Be(HubConnectionState.Connected);
@@ -178,9 +167,14 @@ public class EndpointTests
         
         // Assert
         response.EnsureSuccessStatusCode();
-        disposable.Dispose();
         await connection.StopAsync();
         connection.State.Should().Be(HubConnectionState.Disconnected);
+
+        dezibotMessages.Should().ContainSingle(dezibot => dezibot.Ip == logBroadcastRequest.Ip).Which
+            .Logs.Should().ContainSingle(log =>
+                log.TimestampUtc == DateTime.Parse(logBroadcastRequest.TimestampUtc, CultureInfo.InvariantCulture) &&
+                log.LogLevel == logBroadcastRequest.LogLevel &&
+                log.Message == logBroadcastRequest.Message);
     }
 
     private static List<Dezibot> CreateDezibots(int amount = 10)
