@@ -30,6 +30,7 @@ The back-end provides the following endpoints:
 
 - `GET /api/dezibot` - Get all Dezibots
 - `GET /api/dezibot/[ip]` - Get a Dezibot by ip address
+- `WS /dezibot-hub` - "ws://localhost:port/dezibot-hub" - Websocket for the front-end to receive data
 
 
 - `PUT /api/dezibot/broadcast` - Receive data from Dezibots (Websocket)

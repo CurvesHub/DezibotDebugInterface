@@ -1,12 +1,21 @@
-using DezibotDebugInterface.Api.DataAccess;
-using DezibotDebugInterface.Api.Endpoints;
+using DezibotDebugInterface.Api.Broadcast;
+using DezibotDebugInterface.Api.Broadcast.DezibotHubs;
+using DezibotDebugInterface.Api.Common.DataAccess;
+using DezibotDebugInterface.Api.GetDezibots;
+
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.SignalR;
+
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
-builder.Services.AddSingleton<IDezibotRepository, DezibotInMemoryRepository>();
+
+builder.Services.AddSignalR();
+
+builder.Services.AddScoped<IBroadcastService, BroadcastService>();
+builder.Services.AddSingleton<IDezibotRepository, DezibotRepositoryInMemory>();
 
 var app = builder.Build();
 
@@ -17,7 +26,9 @@ app.Map("/", () => Results.Redirect("/scalar/v1"));
 app.Map("/api", () => Results.Redirect("/scalar/v1"));
 
 app.MapGetDezibotEndpoints();
-app.MapPutDezibotEndpoints();
+app.MapBroadcastEndpoint();
+
+app.MapHub<DezibotHub>("/dezibot-hub");
 
 app.UseExceptionHandler("/error");
 app.Map("/error", (HttpContext context) => Results.Problem(
@@ -25,3 +36,5 @@ app.Map("/error", (HttpContext context) => Results.Problem(
     statusCode: 500));
 
 app.Run();
+
+public partial class Program;
