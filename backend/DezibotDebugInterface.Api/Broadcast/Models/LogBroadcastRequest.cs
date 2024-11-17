@@ -9,4 +9,4 @@ namespace DezibotDebugInterface.Api.Broadcast.Models;
 /// <param name="LogLevel">The log level of the message.</param>
 /// <param name="Message">The message to log.</param>
 [PublicAPI]
-public record LogBroadcastRequest(string Ip, string TimestampUtc, string LogLevel, string Message);
+public record LogBroadcastRequest(string Ip, DateTime TimestampUtc, string LogLevel, string Message);

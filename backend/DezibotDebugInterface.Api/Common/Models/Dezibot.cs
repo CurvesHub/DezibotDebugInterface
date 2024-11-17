@@ -18,6 +18,39 @@ public class Dezibot
         Logs = logs ?? [];
     }
     
+    public static void Update(Dezibot dezibotToUpdate, Dezibot newDezibot)
+    {
+        dezibotToUpdate.LastConnectionUtc = newDezibot.LastConnectionUtc;
+
+        foreach (var newDebuggable in newDezibot.Debuggables)
+        {
+            var existingDebuggable = dezibotToUpdate.Debuggables.FirstOrDefault(debuggable => debuggable.Name == newDebuggable.Name);
+            
+            if (existingDebuggable is null)
+            {
+                dezibotToUpdate.Debuggables.Add(newDebuggable);
+                continue;
+            }
+
+            foreach (var newProperty in newDebuggable.Properties)
+            {
+                var existingProperty = existingDebuggable.Properties.FirstOrDefault(property => property.Name == newProperty.Name);
+
+                if (existingProperty is null)
+                {
+                    existingDebuggable.Properties.Add(newProperty);
+                    continue;
+                }
+
+                var newTimeValues = newProperty.Values.Where(timeValue => !existingProperty.Values.Contains(timeValue));
+                existingProperty.Values.AddRange(newTimeValues);
+            }
+        }
+        
+        var newLogEntries = newDezibot.Logs.Where(logEntry => !dezibotToUpdate.Logs.Contains(logEntry));
+        dezibotToUpdate.Logs.AddRange(newLogEntries);
+    }
+    
     public record LogEntry(DateTime TimestampUtc, string LogLevel, string Message);
 
     public record Debuggable(string Name, List<Debuggable.Property> Properties)

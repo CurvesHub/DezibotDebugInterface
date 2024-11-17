@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using System.Globalization;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -12,7 +11,6 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace DezibotDebugInterface.Api.Tests;
 
@@ -48,7 +46,7 @@ public class EndpointTests
         // Arrange
         var logBroadcastRequest = new LogBroadcastRequest(
             Ip: "1.1.1.1",
-            TimestampUtc: DateTime.UtcNow.ToString("O"),
+            TimestampUtc: DateTime.UtcNow,
             LogLevel: "INFO",
             Message: "Test message");
         
@@ -57,7 +55,10 @@ public class EndpointTests
 
         if (botExists)
         {
-            await dezibotRepository.UpdateAsync(new Dezibot(logBroadcastRequest.Ip, DateTime.UtcNow));
+            await dezibotRepository.UpdateAsync(logBroadcastRequest.Ip, logs:
+            [
+                new Dezibot.LogEntry(logBroadcastRequest.TimestampUtc, logBroadcastRequest.LogLevel, logBroadcastRequest.Message)
+            ]);
         }
         
         // Act
@@ -69,7 +70,7 @@ public class EndpointTests
         var dezibot = await dezibotRepository.GetByIpAsync(logBroadcastRequest.Ip);
         dezibot.Should().NotBeNull();
         dezibot!.Logs.Should().ContainSingle(log =>
-            log.TimestampUtc == DateTime.Parse(logBroadcastRequest.TimestampUtc, CultureInfo.InvariantCulture) &&
+            log.TimestampUtc == logBroadcastRequest.TimestampUtc &&
             log.LogLevel == logBroadcastRequest.LogLevel &&
             log.Message == logBroadcastRequest.Message);
     }
@@ -98,7 +99,7 @@ public class EndpointTests
         
         if (botExists)
         {
-            await dezibotRepository.UpdateAsync(new Dezibot(stateBroadcastRequest.Ip, DateTime.UtcNow));
+            await dezibotRepository.UpdateAsync(stateBroadcastRequest.Ip, stateBroadcastRequest.Debuggables);
         }
 
         // Act
@@ -123,7 +124,7 @@ public class EndpointTests
         
         foreach (var dezibot in dezibots)
         {
-            await dezibotRepository.UpdateAsync(dezibot);
+            await dezibotRepository.UpdateAsync(dezibot.Ip, dezibot.Debuggables, dezibot.Logs);
         }
         
         // Act
@@ -145,7 +146,7 @@ public class EndpointTests
         // Arrange
         var logBroadcastRequest = new LogBroadcastRequest(
             Ip: "1.1.1.1",
-            TimestampUtc: DateTime.UtcNow.ToString("O"),
+            TimestampUtc: DateTime.UtcNow,
             LogLevel: "INFO",
             Message: "Test message");
 
@@ -172,7 +173,7 @@ public class EndpointTests
 
         dezibotMessages.Should().ContainSingle(dezibot => dezibot.Ip == logBroadcastRequest.Ip).Which
             .Logs.Should().ContainSingle(log =>
-                log.TimestampUtc == DateTime.Parse(logBroadcastRequest.TimestampUtc, CultureInfo.InvariantCulture) &&
+                log.TimestampUtc == logBroadcastRequest.TimestampUtc &&
                 log.LogLevel == logBroadcastRequest.LogLevel &&
                 log.Message == logBroadcastRequest.Message);
     }

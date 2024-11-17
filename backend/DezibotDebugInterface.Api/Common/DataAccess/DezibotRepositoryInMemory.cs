@@ -20,52 +20,21 @@ public class DezibotRepositoryInMemory : IDezibotRepository
     }
 
     /// <inheritdoc />
-    public Task UpdateAsync(Dezibot dezibot)
+    public Task<Dezibot> UpdateAsync(string ip, List<Dezibot.Debuggable>? debuggables = null, List<Dezibot.LogEntry>? logs = null)
     {
-        var existingDezibot = _dezibots.FirstOrDefault(d => d.Ip == dezibot.Ip);
+        var newDezibot = new Dezibot(ip, DateTime.UtcNow, debuggables, logs);
+        
+        var existingDezibot = _dezibots.FirstOrDefault(dezibot => dezibot.Ip == ip);
 
         if (existingDezibot is null)
         {
-            _dezibots.Add(dezibot);
+            _dezibots.Add(newDezibot);
         }
         else
         {
-            UpdateDeziBot(existingDezibot, dezibot);
+            Dezibot.Update(existingDezibot, newDezibot);
         }
 
-        return Task.CompletedTask;
-    }
-    
-    private static void UpdateDeziBot(Dezibot existingDezibot, Dezibot newDezibot)
-    {
-        existingDezibot.LastConnectionUtc = newDezibot.LastConnectionUtc;
-
-        foreach (var newDebuggable in newDezibot.Debuggables)
-        {
-            var existingDebuggable = existingDezibot.Debuggables.FirstOrDefault(debuggable => debuggable.Name == newDebuggable.Name);
-            
-            if (existingDebuggable is null)
-            {
-                existingDezibot.Debuggables.Add(newDebuggable);
-                continue;
-            }
-
-            foreach (var newProperty in newDebuggable.Properties)
-            {
-                var existingProperty = existingDebuggable.Properties.FirstOrDefault(property => property.Name == newProperty.Name);
-
-                if (existingProperty is null)
-                {
-                    existingDebuggable.Properties.Add(newProperty);
-                    continue;
-                }
-
-                var newTimeValues = newProperty.Values.Where(timeValue => !existingProperty.Values.Contains(timeValue));
-                existingProperty.Values.AddRange(newTimeValues);
-            }
-        }
-        
-        var newLogEntries = newDezibot.Logs.Where(logEntry => !existingDezibot.Logs.Contains(logEntry));
-        existingDezibot.Logs.AddRange(newLogEntries);
+        return Task.FromResult(existingDezibot ?? newDezibot);
     }
 }

@@ -4,17 +4,13 @@ using DezibotDebugInterface.Api.Common.DataAccess;
 using DezibotDebugInterface.Api.GetDezibots;
 
 using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.SignalR;
 
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
-
 builder.Services.AddSignalR();
-
-builder.Services.AddScoped<IBroadcastService, BroadcastService>();
 builder.Services.AddSingleton<IDezibotRepository, DezibotRepositoryInMemory>();
 
 var app = builder.Build();

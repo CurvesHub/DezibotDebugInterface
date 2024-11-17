@@ -1,7 +1,12 @@
 using System.Net;
 
+using DezibotDebugInterface.Api.Broadcast.DezibotHubs;
 using DezibotDebugInterface.Api.Broadcast.Models;
 using DezibotDebugInterface.Api.Common.Constants;
+using DezibotDebugInterface.Api.Common.DataAccess;
+using DezibotDebugInterface.Api.Common.Models;
+
+using Microsoft.AspNetCore.SignalR;
 
 namespace DezibotDebugInterface.Api.Broadcast;
 
@@ -35,15 +40,17 @@ public static class BroadcastEndpoints
             .WithOpenApi();
     }
 
-    private static async Task<IResult> HandleStateBroadcastDataAsync(StateBroadcastRequest request, IBroadcastService broadcastService)
+    private static async Task<IResult> HandleStateBroadcastDataAsync(StateBroadcastRequest request, IDezibotRepository dezibotRepository, IHubContext<DezibotHub, IDezibotHubClient> hubContext)
     {
-        await broadcastService.HandleStateBroadcastDataAsync(request);
+        var dezibot = await dezibotRepository.UpdateAsync(request.Ip, request.Debuggables);
+        await hubContext.Clients.All.SendDezibotUpdateAsync(dezibot);
         return Results.NoContent();
     }
     
-    private static async Task<IResult> HandleLogBroadcastDataAsync(LogBroadcastRequest request, IBroadcastService broadcastService)
+    private static async Task<IResult> HandleLogBroadcastDataAsync(LogBroadcastRequest request, IDezibotRepository dezibotRepository, IHubContext<DezibotHub, IDezibotHubClient> hubContext)
     {
-        await broadcastService.HandleLogBroadcastDataAsync(request);
+        var dezibot = await dezibotRepository.UpdateAsync(request.Ip, logs: [new Dezibot.LogEntry(request.TimestampUtc, request.LogLevel, request.Message)]);
+        await hubContext.Clients.All.SendDezibotUpdateAsync(dezibot);
         return Results.NoContent();
     }
 }

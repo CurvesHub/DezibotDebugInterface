@@ -23,7 +23,9 @@ public interface IDezibotRepository
     /// <summary>
     /// Update or add a Dezibot.
     /// </summary>
-    /// <param name="dezibot">The Dezibot to update or add.</param>
-    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    Task UpdateAsync(Dezibot dezibot);
+    /// <param name="ip">The IP of the Dezibot to update or add.</param>
+    /// <param name="debuggables">The debuggables to update or add.</param>
+    /// <param name="logs">The logs to update or add.</param>
+    /// <returns>The updated or added <see cref="Dezibot"/>.</returns>
+    Task<Dezibot> UpdateAsync(string ip, List<Dezibot.Debuggable>? debuggables = null, List<Dezibot.LogEntry>? logs = null);
 }
