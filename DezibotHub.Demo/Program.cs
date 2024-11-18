@@ -23,7 +23,20 @@ connection.On<Dezibot>("SendDezibotUpdateAsync", dezibot =>
     Console.WriteLine($"Message count: {counter++}");
 });
 
-await connection.StartAsync();
+
+int maxRetries = 25;
+while (connection.State != HubConnectionState.Connected && maxRetries-- > 0)
+{
+    try
+    {
+        await connection.StartAsync();
+    }
+    catch (Exception e)
+    {
+        Console.WriteLine(e.Message);
+    }
+}
+
 
 app.Run();
 
