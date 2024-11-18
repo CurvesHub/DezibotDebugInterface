@@ -19,13 +19,21 @@ All services are dockerized and can be started with docker-compose. Follow the i
 - Run `docker-compose up` in the root directory of the project
 - The front-end is available at `http://localhost:3000`
 - The back-end is available at `http://localhost:5160`
-- The back-end API documentation is available at `http://localhost:5012/api`
+- The back-end API documentation is available at `http://localhost:5160/api`
+
+## Usage
+
+- Start the Dezibot code on a device
+- Start the back-end server
+- Start the front-end server
+- Open the front-end in a browser
+- The front-end will display the data of the Dezibots
 
 ## Back-end API
 
 The back-end provides the following endpoints:
 
-- `/api` - A UI to view the openapi documentation of the API and test the endpoints
+- `/api` - A UI to view the open api documentation of the API and test the endpoints
 
 
 - `GET /api/dezibot` - Get all Dezibots
@@ -33,142 +41,119 @@ The back-end provides the following endpoints:
 - `WS /dezibot-hub` - "ws://localhost:port/dezibot-hub" - Websocket for the front-end to receive data
 
 
-- `PUT /api/dezibot/broadcast` - Receive data from Dezibots (Websocket)
+- `PUT /api/broadcast/states` - Receives periodically state data from debuggables (components) including properties 
+  and their values from Dezibots
+- `PUT /api/broadcast/logs` - Receives log messages from debuggables (components) from Dezibots
 
-**HTTP Status Codes:**
-- 200: OK
-- 400: Bad Request
-- 404: Not Found
-- 500: Internal Server Error
 
-### GET Dezibots
+### Models
 
-**Model:**
+#### GET Dezibot 
 
-```json5
+- `GET /api/dezibot`
+- `GET /api/dezibot/[ip]`
+- `/dezibot-hub`
+
+```json
 [
-    {
-        "ip": "string", // Unique identifier
-        "lastConnectionUtc": "string",
-        "components": [
-            {
-                "name": "string",
-                "properties": [
-                    {
-                        "name": "string",
-                        "values": [
-                            {
-                                "timestampUtc": "string",
-                                "value": "string"
-                            }
-                        ]
-                    }
-                ],
-                "logs": [
-                    {
-                        "message": "string",
-                        "values": [
-                            {
-                                "timestampUtc": "string",
-                                "value": "string"
-                            }
-                        ]
-                    }
-                ]
-            }
+  {
+    "ip": "1.1.1.1",
+    "lastConnectionUtc": "2024-11-18T16:44:58.9018651Z",
+    "debuggables": [
+      {
+        "name": "Display",
+        "properties": [
+          {
+            "name": "currentLine",
+            "values": [
+              {
+                "timestampUtc": "2024-01-01T12:00:00Z",
+                "value": "12"
+              },
+              {
+                "timestampUtc": "2024-01-01T12:00:10Z",
+                "value": "18"
+              },
+              {
+                "timestampUtc": "2024-01-01T12:00:20Z",
+                "value": "0"
+              }
+            ]
+          },
+          {
+            "name": "isFlipped",
+            "values": [
+              {
+                "timestampUtc": "2024-01-01T12:00:00Z",
+                "value": "false"
+              },
+              {
+                "timestampUtc": "2024-01-01T12:00:10Z",
+                "value": "false"
+              },
+              {
+                "timestampUtc": "2024-01-01T12:00:20Z",
+                "value": "true"
+              }
+            ]
+          }
         ]
-    }
+      },
+      {
+        "name": "Motor",
+        "properties": [
+          {
+            "name": "speed",
+            "values": [
+              {
+                "timestampUtc": "2024-01-01T12:00:00Z",
+                "value": "25"
+              }
+            ]
+          },
+          {
+            "name": "voltage",
+            "values": [
+              {
+                "timestampUtc": "2024-01-01T12:00:00Z",
+                "value": "1.5"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "logs": [
+      {
+        "timestampUtc": "2024-01-01T12:00:00Z",
+        "logLevel": "INFO",
+        "message": "This is a test message."
+      },
+      {
+        "timestampUtc": "2024-01-02T12:00:00Z",
+        "logLevel": "INFO",
+        "message": "This is a test message one day later."
+      }
+    ]
+  }
 ]
 ```
 
-**Example:**
+#### `PUT /api/broadcast/states`
 
-```json5
-[
-    {
-        "ip": "1.2.3.4",
-        "lastConnectionUtc": "01.01.2024 12.00.000Z",
-        "components": [
-            {
-                "name": "DISPLAY",
-                "properties": [
-                    {
-                        "name": "displayFlipped",
-                        "values": [
-                            {
-                                "timestampUtc": "01.01.2024 11.50.000Z",
-                                "value": "true"
-                            },
-                            {
-                                "timestampUtc": "01.01.2024 11.55.000Z",
-                                "value": "false"
-                            }
-                        ]
-                    },
-                    {
-                        "name": "currentLine",
-                        "values": [
-                            {
-                                "timestampUtc": "01.01.2024 11.50.000Z",
-                                "value": "10"
-                            },
-                            {
-                                "timestampUtc": "01.01.2024 11.55.000Z",
-                                "value": "18"
-                            }
-                        ]
-                    }
-                ],
-                "logs": [
-                    {
-                        "message": "read double register", // Example color detection log
-                        "values": [
-                            {
-                                "timestampUtc": "01.01.2024 11.50.000Z",
-                                "value": "1:14"
-                            },
-                            {
-                                "timestampUtc": "01.01.2024 11.55.000Z",
-                                "value": "1:18"
-                            }
-                        ]
-                    }
-                ]
-            }
-        ]
-    }
-]
-```
-
-### PUT Dezibot broadcast (Same model but without lists)
-
-**Example:**
-
-```json5
+```json
 {
-  "ip": "1.2.3.4",
-  "lastConnectionUtc": "2024-11-11T11:45:30.000Z",
-  "components": [
+  "ip": "1.1.1.1",
+  "debuggables": [
     {
-      "name": "DISPLAY",
+      "name": "Display",
       "properties": [
         {
-          "name": "displayFlipped",
+          "name": "currentLine",
           "values": [
             {
-              "timestampUtc": "2024-11-11T11:45:30.000Z",
-              "value": "true"
-            }
-          ]
-        }
-      ],
-      "logs": [
-        {
-          "message": "read double register",
-          "values": [
-            {
-              "timestampUtc": "2024-11-11T11:45:30.000Z",
-              "value": "1:14"
+              "timestampUtc": "2024-01-01T12:00:00.000Z",
+              "value": "12"
             }
           ]
         }
@@ -178,43 +163,13 @@ The back-end provides the following endpoints:
 }
 ```
 
-### PUT Dezibot broadcast (Other Model)
+#### `PUT /api/broadcast/logs`
 
-**Model:**
-
-```json5
+```json
 {
-  "ip": "string", // Unique identifier
-  "event": "string",
-  "class": "string",
-  "propName": "string", // nullable
-  "message": "string", // nullable 
-  "value": "string"
-}
-```
-
-**Example:**
-
-Event: `propertyChanged`
-```json5
-{
-  "ip": "1.2.3.4",
-  "event": "propertyChanged",
-  "class": "DISPLAY",
-  "propName": "displayText",
-  // "message": "string",
-  "value": "Hello from dezibot!"
-}
-```
-
-Event: `message`
-```json5 
-{
-  "ip": "1.2.3.4",
-  "event": "message",
-  "class": "DISPLAY",
-  // "propName": "string",
-  "message": "read double register",
-  "value": "1:18"
+  "ip": "1.1.1.1",
+  "timestampUtc": "2024-01-01T12:00:00.000Z",
+  "logLevel": "INFO",
+  "message": "This is a test message."
 }
 ```
