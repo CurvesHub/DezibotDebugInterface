@@ -27,9 +27,31 @@ app.MapBroadcastEndpoint();
 app.MapHub<DezibotHub>("/dezibot-hub");
 
 app.UseExceptionHandler("/error");
-app.Map("/error", (HttpContext context) => Results.Problem(
-    detail: context.Features.Get<IExceptionHandlerFeature>()?.Error.Message ?? "An error occurred.",
-    statusCode: 500));
+app.Map("/error", (HttpContext context) =>
+{
+    var ex = context.Features.Get<IExceptionHandlerFeature>()?.Error;
+
+    if (ex is null)
+    {
+        return Results.Problem(detail: "An error occurred.", statusCode: 500);
+    }
+
+    if (ex.InnerException is null)
+    {
+        return Results.Problem(detail: ex.Message, statusCode: 500);
+    }
+    
+    var message = ex.Message;
+    
+    var innerEx = ex.InnerException;
+    while (innerEx != null)
+    {
+        ex = innerEx;
+        innerEx = ex.InnerException;
+    }
+    
+    return Results.Problem(detail: message + $" Detailed Error: {ex.Message}", statusCode: 500);
+});
 
 app.Run();
 
