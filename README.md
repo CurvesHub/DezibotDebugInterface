@@ -18,7 +18,7 @@ All services are dockerized and can be started with docker-compose. Follow the i
 - Clone the repository
 - Run `docker-compose up` in the root directory of the project
 - The front-end is available at `http://localhost:3000`
-- The back-end is available at `http://localhost:5012`
+- The back-end is available at `http://localhost:5160`
 - The back-end API documentation is available at `http://localhost:5012/api`
 
 ## Back-end API
@@ -30,6 +30,7 @@ The back-end provides the following endpoints:
 
 - `GET /api/dezibot` - Get all Dezibots
 - `GET /api/dezibot/[ip]` - Get a Dezibot by ip address
+- `WS /dezibot-hub` - "ws://localhost:port/dezibot-hub" - Websocket for the front-end to receive data
 
 
 - `PUT /api/dezibot/broadcast` - Receive data from Dezibots (Websocket)
