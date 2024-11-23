@@ -1,30 +1,57 @@
-using DezibotDebugInterface.Api.Broadcast;
-using DezibotDebugInterface.Api.Broadcast.DezibotHubs;
-using DezibotDebugInterface.Api.Common.DataAccess;
-using DezibotDebugInterface.Api.GetDezibots;
+using DezibotDebugInterface.Api.DataAccess;
+using DezibotDebugInterface.Api.Endpoints.GetDezibots;
+using DezibotDebugInterface.Api.Endpoints.UpdateDezibot;
+using DezibotDebugInterface.Api.SignalRHubs;
 
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.EntityFrameworkCore;
 
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var connectionString = builder.Configuration.GetConnectionString("DezibotSQLite")
+    ?? throw new InvalidOperationException("The connection string 'DezibotSQLite' was not found.");
+
 builder.Services.AddOpenApi();
 builder.Services.AddSignalR();
-builder.Services.AddSingleton<IDezibotRepository, DezibotRepositoryInMemory>();
+builder.Services.AddDbContext<DezibotDbContext>(options => options.UseSqlite(connectionString));
 
 var app = builder.Build();
 
 app.MapOpenApi();
 app.MapScalarApiReference();
-
 app.Map("/", () => Results.Redirect("/scalar/v1"));
 app.Map("/api", () => Results.Redirect("/scalar/v1"));
 
 app.MapGetDezibotEndpoints();
-app.MapBroadcastEndpoint();
-
+app.MapUpdateDezibotEndpoint();
 app.MapHub<DezibotHub>("/dezibot-hub");
+
+if (app.Environment.IsDevelopment())
+{
+    app.Map("/api/resetDatabase", async (DezibotDbContext dbContext) =>
+    {
+        await dbContext.Database.EnsureDeletedAsync();
+        await dbContext.Database.EnsureCreatedAsync();
+
+        return Results.NoContent();
+    }).WithOpenApi();
+    
+    app.MapDelete("/api/dezibot/{ip}", async (DezibotDbContext dbContext, string ip) =>
+    {
+        var dezibot = await dbContext.Dezibots.FindAsync(ip);
+        if (dezibot is null)
+        {
+            return Results.NotFound();
+        }
+
+        dbContext.Dezibots.Remove(dezibot);
+        await dbContext.SaveChangesAsync();
+
+        return Results.NoContent();
+    }).WithOpenApi();
+}
 
 app.UseExceptionHandler("/error");
 app.Map("/error", (HttpContext context) =>
@@ -55,4 +82,7 @@ app.Map("/error", (HttpContext context) =>
 
 app.Run();
 
-public partial class Program;
+namespace DezibotDebugInterface.Api
+{
+    public partial class Program;
+}

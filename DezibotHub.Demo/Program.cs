@@ -1,3 +1,5 @@
+using DezibotHub.Demo;
+
 using Dumpify;
 
 using Microsoft.AspNetCore.SignalR.Client;
@@ -13,7 +15,6 @@ var connection = new HubConnectionBuilder()
     .WithAutomaticReconnect()
     .Build();
 
-
 int counter = 0;
 
 connection.On<Dezibot>("SendDezibotUpdateAsync", dezibot =>
@@ -22,7 +23,6 @@ connection.On<Dezibot>("SendDezibotUpdateAsync", dezibot =>
     dezibot.Dump();
     Console.WriteLine($"Message count: {counter++}");
 });
-
 
 int maxRetries = 25;
 while (connection.State != HubConnectionState.Connected && maxRetries-- > 0)
@@ -37,22 +37,24 @@ while (connection.State != HubConnectionState.Connected && maxRetries-- > 0)
     }
 }
 
-
 app.Run();
 
-public record Dezibot(
-    string Ip,
-    DateTime LastConnectionUtc,
-    List<Dezibot.Debuggable> Debuggables,
-    List<Dezibot.LogEntry> Logs)
+namespace DezibotHub.Demo
 {
-    public record LogEntry(DateTime TimestampUtc, string LogLevel, string Message);
-
-    public record Debuggable(string Name, List<Debuggable.Property> Properties)
+    public record Dezibot(
+        string Ip,
+        DateTime LastConnectionUtc,
+        List<Dezibot.LogEntry> Logs,
+        List<Dezibot.Class> Classes)
     {
-        public record Property(string Name, List<Property.TimeValue> Values)
+        public record LogEntry(DateTime TimestampUtc, string ClassName, string Message, string? Data);
+
+        public record Class(string Name, List<Class.Property> Properties)
         {
-            public record TimeValue(DateTime TimestampUtc, string Value);
+            public record Property(string Name, List<Property.TimeValue> Values)
+            {
+                public record TimeValue(DateTime TimestampUtc, string Value);
+            }
         }
     }
 }

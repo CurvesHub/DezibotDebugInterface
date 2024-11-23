@@ -1,47 +1,45 @@
 using System.Net;
 
-using DezibotDebugInterface.Api.Common.Constants;
-using DezibotDebugInterface.Api.Common.DataAccess;
-using DezibotDebugInterface.Api.Common.Models;
+using DezibotDebugInterface.Api.DataAccess;
+using DezibotDebugInterface.Api.Endpoints.Constants;
 
-namespace DezibotDebugInterface.Api.GetDezibots;
+namespace DezibotDebugInterface.Api.Endpoints.GetDezibots;
 
 /// <summary>
-///     Endpoint for retrieving Dezibot data via GET requests.
+/// Defines the GET endpoints for dezibots.
 /// </summary>
 public static class GetDezibotEndpoints
 {
     /// <summary>
-    ///     Maps the GET endpoints for Dezibots.
+    /// Maps the GET endpoints for dezibots.
     /// </summary>
     /// <param name="endpoints">The endpoint route builder to map the endpoints to.</param>
     public static void MapGetDezibotEndpoints(this IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet("api/dezibots", GetAllDezibotsAsync)
-            .WithName("GetAllDezibots")
-            .WithSummary("Get all Dezibots.")
+            .WithName("Get All Dezibots")
+            .WithSummary("Returns all dezibots.")
             .Produces<IAsyncEnumerable<Dezibot>>((int)HttpStatusCode.OK, ContentTypes.JsonContentType)
-            .Produces<Dezibot>((int)HttpStatusCode.OK, ContentTypes.JsonContentType)
             .ProducesProblem((int)HttpStatusCode.InternalServerError, ContentTypes.ProblemContentType)
             .WithOpenApi();
 
         endpoints.MapGet("api/dezibots/{ip}", GetDezibotByIpAsync)
-            .WithName("GetDezibotByIp")
-            .WithSummary("Get a Dezibot by IP.")
+            .WithName("Get Dezibot By Ip")
+            .WithSummary("Returns a dezibot by its IP address.")
             .Produces<Dezibot>((int)HttpStatusCode.OK, ContentTypes.ProblemContentType)
             .ProducesProblem((int)HttpStatusCode.NotFound, ContentTypes.ProblemContentType)
             .ProducesProblem((int)HttpStatusCode.InternalServerError, ContentTypes.ProblemContentType)
             .WithOpenApi();
     }
 
-    private static IResult GetAllDezibotsAsync(IDezibotRepository dezibotRepository)
+    private static IResult GetAllDezibotsAsync(DezibotDbContext dbContext)
     {
-        return Results.Ok(dezibotRepository.GetAllDezibotsAsync());
+        return Results.Ok(dbContext.Dezibots.ToAsyncEnumerable());
     }
 
-    private static async Task<IResult> GetDezibotByIpAsync(string ip, IDezibotRepository dezibotRepository)
+    private static async Task<IResult> GetDezibotByIpAsync(string ip, DezibotDbContext dbContext)
     {
-        Dezibot? dezibot = await dezibotRepository.GetByIpAsync(ip);
+        var dezibot = await dbContext.Dezibots.FindAsync(ip);
         return dezibot is null
             ? Results.NotFound()
             : Results.Ok(dezibot);

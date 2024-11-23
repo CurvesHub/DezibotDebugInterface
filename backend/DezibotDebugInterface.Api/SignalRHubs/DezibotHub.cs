@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.SignalR;
 
-namespace DezibotDebugInterface.Api.Broadcast.DezibotHubs;
+namespace DezibotDebugInterface.Api.SignalRHubs;
 
 /// <summary>
 /// The SignalR hub for sending updates about dezibots.
