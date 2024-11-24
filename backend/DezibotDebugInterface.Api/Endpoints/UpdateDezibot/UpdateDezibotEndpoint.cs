@@ -42,6 +42,8 @@ public static class UpdateDezibotEndpoint
         DezibotDbContext dbContext,
         IHubContext<DezibotHub, IDezibotHubClient> hubContext)
     {
+        // TODO: Session Handling - Check if the request is part of an existing session. Otherwise store it without a session or dump it?
+        // Implement a session model and managent and migrate the database
         var body = await new StreamReader(httpContext.Request.Body).ReadToEndAsync();
         var request = TryDeserializeRequests(body);
 
@@ -70,7 +72,7 @@ public static class UpdateDezibotEndpoint
 
         await dbContext.SaveChangesAsync();
         
-        // TODO: Dont sent the entire dezibot object, only the updated parts.
+        // TODO: Dont sent the entire dezibot object, only the updated parts. Maybe use some kind of cache.
         await hubContext.Clients.All.SendDezibotUpdateAsync(dezibot);
         return Results.NoContent();
     }
