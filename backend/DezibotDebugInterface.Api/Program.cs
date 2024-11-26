@@ -28,6 +28,8 @@ app.MapGetDezibotEndpoints();
 app.MapUpdateDezibotEndpoint();
 app.MapHub<DezibotHub>("/dezibot-hub");
 
+// TODO: On app start, check if the database is migrated and if not, migrate it
+
 if (app.Environment.IsDevelopment())
 {
     app.Map("/api/resetDatabase", async (DezibotDbContext dbContext) =>
