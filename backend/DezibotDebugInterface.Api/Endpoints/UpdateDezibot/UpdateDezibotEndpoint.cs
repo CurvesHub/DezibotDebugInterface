@@ -65,7 +65,10 @@ public static class UpdateDezibotEndpoint
             dbContext.Add(dezibot);
         }
         
-        dezibot.LastConnectionUtc = DateTime.UtcNow;
+        dezibot.LastConnectionUtc = request.Value.Match(
+            updateLogsRequest => updateLogsRequest.TimestampUtc,
+            updateStatesRequest => updateStatesRequest.TimestampUtc);
+
         request.Value.Switch(
             updateLogsRequest => dezibot.AddLogEntryIfNotContained(updateLogsRequest),
             updateStatesRequest => dezibot.AddClassStatesIfNotContained(updateStatesRequest));
