@@ -6,6 +6,6 @@
       context: .
       dockerfile: backend/DezibotDebugInterface.Api/Dockerfile
     environment:
-      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_ENVIRONMENT: Development
     ports:
       - "5160:8080"
