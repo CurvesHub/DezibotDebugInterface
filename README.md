@@ -48,11 +48,127 @@ The back-end provides the following endpoints:
 - `/dezibot-hub`
 
 ```json5
-// Work in progress
+[
+  {
+    "ip": "111.222.333.444",
+    "lastConnectionUtc": "2024-01-02T00:00:00",
+    "logs": [
+      {
+        "timestampUtc": "2024-01-01T00:00:00",
+        "className": "DISPLAY",
+        "message": "My first message",
+        "data": "Some data"
+      },
+      {
+        "timestampUtc": "2024-01-02T00:00:00",
+        "className": "DISPLAY",
+        "message": "My second message",
+        "data": "Some data"
+      },
+      {
+        "timestampUtc": "2024-01-03T00:00:00",
+        "className": "DISPLAY",
+        "message": "My second message",
+        "data": null
+      }
+    ],
+    "classes": [
+      {
+        "name": "DISPLAY",
+        "properties": [
+          {
+            "name": "currentLine",
+            "values": [
+              {
+                "timestampUtc": "2024-01-01T00:00:00",
+                "value": "12"
+              },
+              {
+                "timestampUtc": "2024-01-02T00:00:00",
+                "value": "12"
+              }
+            ]
+          },
+          {
+            "name": "isFlipped",
+            "values": [
+              {
+                "timestampUtc": "2024-01-01T00:00:00",
+                "value": "true"
+              },
+              {
+                "timestampUtc": "2024-01-02T00:00:00",
+                "value": "true"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "className",
+        "properties": [
+          {
+            "name": "propertyName1",
+            "values": [
+              {
+                "timestampUtc": "2024-01-01T00:00:00",
+                "value": "value1"
+              },
+              {
+                "timestampUtc": "2024-01-02T00:00:00",
+                "value": "value1"
+              }
+            ]
+          },
+          {
+            "name": "propertyName2",
+            "values": [
+              {
+                "timestampUtc": "2024-01-01T00:00:00",
+                "value": "value2"
+              },
+              {
+                "timestampUtc": "2024-01-02T00:00:00",
+                "value": "value2"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]
 ```
 
 #### `PUT /api/dezibot/update`
 
-```json5
-// Work in progress
+##### State Data
+
+```json
+{
+  "Ip": "111.222.333.444",
+  "TimestampUtc": "2024-01-01T00:00:00Z",
+  "Data": {
+    "className": {
+      "propertyName1": "value1",
+      "propertyName2": "value2"
+    },
+    "DISPLAY": {
+      "isFlipped": "true",
+      "currentLine": "12"
+    }
+  }
+}
+```
+
+##### Log Data
+
+```json
+{
+  "Ip": "111.222.333.444",
+  "TimestampUtc": "2024-01-01T00:00:00Z",
+  "className": "DISPLAY",
+  "message": "My first message",
+  "data": "Some data"
+}
 ```

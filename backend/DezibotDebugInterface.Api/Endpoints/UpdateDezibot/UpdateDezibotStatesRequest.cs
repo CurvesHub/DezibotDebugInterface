@@ -11,7 +11,7 @@ namespace DezibotDebugInterface.Api.Endpoints.UpdateDezibot;
 /// <code>
 /// {
 ///     "Ip": "111.222.333.444",
-///     "TimestampUtc": "2022-01-01T00:00:00Z",
+///     "TimestampUtc": "2024-01-01T00:00:00Z",
 ///     "Data": {
 ///         "className": {
 ///             "propertyName1": "value1",
