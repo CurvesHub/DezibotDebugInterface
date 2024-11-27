@@ -26,8 +26,8 @@ public class UpdateDezibotTests : IAsyncLifetime
     {
         _factory = new DezibotWebApplicationFactory(nameof(UpdateDezibotTests));
         _client = _factory.CreateClient();
-        _logRequest = new UpdateDezibotLogsRequest("1.1.1.1", DateTime.UtcNow, "TestClass", "TestMessage", "TestData");
-        _stateRequest = new UpdateDezibotStatesRequest("1.1.1.1", DateTime.UtcNow, new Dictionary<string, Dictionary<string, string>> { { "TestClass", new Dictionary<string, string> { { "TestProperty", "TestValue" } } } });
+        _logRequest = new UpdateDezibotLogsRequest("1.1.1.1", /*DateTime.UtcNow,*/ "TestClass", "TestMessage", "TestData");
+        _stateRequest = new UpdateDezibotStatesRequest("1.1.1.1", /*DateTime.UtcNow,*/ new Dictionary<string, Dictionary<string, string>> { { "TestClass", new Dictionary<string, string> { { "TestProperty", "TestValue" } } } });
     }
     
     [Fact]
@@ -90,7 +90,7 @@ public class UpdateDezibotTests : IAsyncLifetime
         dezibot.Should().NotBeNull();
         
         dezibot!.Logs.Should().ContainSingle(logEntry =>
-            logEntry.TimestampUtc == _logRequest.TimestampUtc
+            logEntry.TimestampUtc == dezibot.LastConnectionUtc/*_logRequest.TimestampUtc*/
             && logEntry.ClassName == _logRequest.ClassName
             && logEntry.Message == _logRequest.Message
             && logEntry.Data == _logRequest.Data);
@@ -116,7 +116,7 @@ public class UpdateDezibotTests : IAsyncLifetime
         dezibot.Should().NotBeNull();
         
         dezibot!.Logs.Should().ContainSingle(logEntry =>
-            logEntry.TimestampUtc == _logRequest.TimestampUtc
+            logEntry.TimestampUtc == dezibot.LastConnectionUtc/*_logRequest.TimestampUtc*/
             && logEntry.ClassName == _logRequest.ClassName
             && logEntry.Message == _logRequest.Message
             && logEntry.Data == _logRequest.Data);
@@ -139,7 +139,7 @@ public class UpdateDezibotTests : IAsyncLifetime
         StateShouldBeUpdated(dezibot!, _stateRequest);
     }
     
-    [Fact]
+    [Obsolete("This test is obsolete because the timestamp is not used in the state update. Now the timestamp is set by the sever therefore each request is unique and will be saved with the same data.")]
     public async Task UpdateStates_WhenSameRequestFiredTreeTimes_ShouldOnlySaveNewData()
     {
         // Act
@@ -189,7 +189,7 @@ public class UpdateDezibotTests : IAsyncLifetime
 
         dezibot!.Logs.Should().HaveCount(existingLogs.Count + 1).And.Contain(existingLogs);
         dezibot!.Logs.Should().Contain(logEntry =>
-            logEntry.TimestampUtc == _logRequest.TimestampUtc
+            logEntry.TimestampUtc == dezibot.LastConnectionUtc/*_logRequest.TimestampUtc*/
             && logEntry.ClassName == _logRequest.ClassName
             && logEntry.Message == _logRequest.Message
             && logEntry.Data == _logRequest.Data);
@@ -250,12 +250,12 @@ public class UpdateDezibotTests : IAsyncLifetime
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
         
-        dezibotMessages.Should().ContainSingle(dezibot => dezibot.Ip == _logRequest.Ip).Which
-            .Logs.Should().ContainSingle(log =>
-                log.TimestampUtc == _logRequest.TimestampUtc &&
-                log.ClassName == _logRequest.ClassName &&
-                log.Message == _logRequest.Message &&
-                log.Data == _logRequest.Data);
+        var dezibot = dezibotMessages.Should().ContainSingle(dezibot => dezibot.Ip == _logRequest.Ip).Which;
+        dezibot.Logs.Should().ContainSingle(log =>
+            log.TimestampUtc == dezibot.LastConnectionUtc /*_logRequest.TimestampUtc*/
+            && log.ClassName == _logRequest.ClassName
+            && log.Message == _logRequest.Message
+            && log.Data == _logRequest.Data);
         
         // Cleanup
         await connection.StopAsync();
@@ -268,7 +268,7 @@ public class UpdateDezibotTests : IAsyncLifetime
             name: stateRequest.Data.Keys.First(),
             properties: stateRequest.Data.Values.First().Select(property => new Dezibot.Class.Property(
                 name: property.Key,
-                values: [new Dezibot.Class.Property.TimeValue(stateRequest.TimestampUtc, property.Value)])).ToList());
+                values: [new Dezibot.Class.Property.TimeValue(dezibot.LastConnectionUtc,/*stateRequest.TimestampUtc,*/ property.Value)])).ToList());
 
         dezibot.Classes.Should()
             .ContainSingle(classState => classState.Name == newClass.Name)

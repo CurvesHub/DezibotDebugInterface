@@ -65,9 +65,10 @@ public static class UpdateDezibotEndpoint
             dbContext.Add(dezibot);
         }
         
-        dezibot.LastConnectionUtc = request.Value.Match(
+        dezibot.LastConnectionUtc = DateTime.UtcNow;
+        /*dezibot.LastConnectionUtc = request.Value.Match(
             updateLogsRequest => updateLogsRequest.TimestampUtc,
-            updateStatesRequest => updateStatesRequest.TimestampUtc);
+            updateStatesRequest => updateStatesRequest.TimestampUtc);*/
 
         request.Value.Switch(
             updateLogsRequest => dezibot.AddLogEntryIfNotContained(updateLogsRequest),
@@ -92,7 +93,7 @@ public static class UpdateDezibotEndpoint
             Log.Information(ex, "Failed to deserialize the request body for logs.");
         }
         
-        if (updateLogsRequest?.Ip is not null && updateLogsRequest?.TimestampUtc is not null)
+        if (updateLogsRequest?.Ip is not null && updateLogsRequest?.ClassName/*.TimestampUtc*/ is not null)
         {
             return updateLogsRequest;
         }
@@ -107,7 +108,7 @@ public static class UpdateDezibotEndpoint
             Log.Information(ex, "Failed to deserialize the request body for states.");
         }
 
-        if (updateStatesRequest?.Ip is not null && updateStatesRequest?.TimestampUtc is not null)
+        if (updateStatesRequest?.Ip is not null && updateStatesRequest?.Data/*.TimestampUtc*/ is not null)
         {
             return updateStatesRequest;
         }
@@ -118,7 +119,7 @@ public static class UpdateDezibotEndpoint
     private static void AddLogEntryIfNotContained(this Dezibot dezibot, UpdateDezibotLogsRequest request)
     {
         var logEntry = new Dezibot.LogEntry(
-            request.TimestampUtc,
+            dezibot.LastConnectionUtc,/*request.TimestampUtc,*/
             request.ClassName,
             request.Message,
             request.Data);
@@ -135,7 +136,7 @@ public static class UpdateDezibotEndpoint
             name: state.Key,
             properties: state.Value.Select(property => new Dezibot.Class.Property(
                 name: property.Key,
-                values: [new Dezibot.Class.Property.TimeValue(request.TimestampUtc, property.Value)]
+                values: [new Dezibot.Class.Property.TimeValue(dezibot.LastConnectionUtc,/*request.TimestampUtc,*/ property.Value)]
             )).ToList()
         )).ToList();
 
