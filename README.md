@@ -144,10 +144,10 @@ The back-end provides the following endpoints:
 
 ##### State Data
 
-```json
+```json5
 {
   "Ip": "111.222.333.444",
-  "TimestampUtc": "2024-01-01T00:00:00Z",
+  //"TimestampUtc": "2024-01-01T00:00:00Z",
   "Data": {
     "className": {
       "propertyName1": "value1",
@@ -163,10 +163,10 @@ The back-end provides the following endpoints:
 
 ##### Log Data
 
-```json
+```json5
 {
   "Ip": "111.222.333.444",
-  "TimestampUtc": "2024-01-01T00:00:00Z",
+  //"TimestampUtc": "2024-01-01T00:00:00Z",
   "className": "DISPLAY",
   "message": "My first message",
   "data": "Some data"
