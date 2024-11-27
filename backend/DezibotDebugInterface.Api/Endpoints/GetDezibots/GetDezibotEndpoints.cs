@@ -14,7 +14,7 @@ public static class GetDezibotEndpoints
     /// Maps the GET endpoints for dezibots.
     /// </summary>
     /// <param name="endpoints">The endpoint route builder to map the endpoints to.</param>
-    public static void MapGetDezibotEndpoints(this IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapGetDezibotEndpoints(this IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet("api/dezibots", GetAllDezibotsAsync)
             .WithName("Get All Dezibots")
@@ -30,6 +30,8 @@ public static class GetDezibotEndpoints
             .ProducesProblem((int)HttpStatusCode.NotFound, ContentTypes.ProblemContentType)
             .ProducesProblem((int)HttpStatusCode.InternalServerError, ContentTypes.ProblemContentType)
             .WithOpenApi();
+        
+        return endpoints;
     }
 
     private static IResult GetAllDezibotsAsync(DezibotDbContext dbContext)

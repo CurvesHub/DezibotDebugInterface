@@ -18,13 +18,13 @@ namespace DezibotDebugInterface.Api.Endpoints.UpdateDezibot;
 /// </summary>
 public static class UpdateDezibotEndpoint
 {
-    private static readonly JsonSerializerOptions _jsonSerializerOptions = new JsonSerializerOptions(){PropertyNameCaseInsensitive = true};
+    private static readonly JsonSerializerOptions _jsonSerializerOptions = new() {PropertyNameCaseInsensitive = true};
 
     /// <summary>
     /// Maps the update dezibot endpoint to the provided endpoint route builder.
     /// </summary>
     /// <param name="endpoints">The endpoint route builder to map the endpoints to.</param>
-    public static void MapUpdateDezibotEndpoint(this IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapUpdateDezibotEndpoint(this IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPut("api/dezibot/update", UpdateDezibotAsync)
             .WithName("Update Dezibot")
@@ -35,6 +35,8 @@ public static class UpdateDezibotEndpoint
             .ProducesProblem((int)HttpStatusCode.BadRequest, ContentTypes.ProblemContentType)
             .ProducesProblem((int)HttpStatusCode.InternalServerError, ContentTypes.ProblemContentType)
             .WithOpenApi();
+        
+        return endpoints;
     }
     
     private static async Task<IResult> UpdateDezibotAsync(
