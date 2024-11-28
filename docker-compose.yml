@@ -9,3 +9,18 @@
       ASPNETCORE_ENVIRONMENT: Development
     ports:
       - "5160:8080"
+
+  dezibotdebuginterface.frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - BACKEND_URL=http://localhost:5160 # Backend service URL
+    depends_on:
+      - dezibotdebuginterface.api
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules # Prevent overwriting node_modules in the container
