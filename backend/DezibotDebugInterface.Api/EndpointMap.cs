@@ -4,6 +4,7 @@ using DezibotDebugInterface.Api.Endpoints.UpdateDezibot;
 using DezibotDebugInterface.Api.SignalRHubs;
 
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.EntityFrameworkCore;
 
 using Scalar.AspNetCore;
 
@@ -32,7 +33,7 @@ public static class EndpointMap
         endpoints.MapDelete("/api/resetDatabase", async (DezibotDbContext dbContext) =>
         {
             await dbContext.Database.EnsureDeletedAsync();
-            await dbContext.Database.EnsureCreatedAsync();
+            await dbContext.Database.MigrateAsync();
 
             return Results.Ok("Database reset.");
         }).WithOpenApi();
@@ -64,7 +65,8 @@ public static class EndpointMap
     private static IEndpointRouteBuilder MapOpenApiRelatedEndpoints(this IEndpointRouteBuilder endpoints)
     {
         endpoints.MapOpenApi();
-        endpoints.MapScalarApiReference();
+        endpoints.MapScalarApiReference(options => 
+            options.Servers = [new ScalarServer("http://localhost:5160", "Development")]);
         
         endpoints.Map("/", () => Results.Redirect("/scalar/v1"));
         endpoints.Map("/api", () => Results.Redirect("/scalar/v1"));

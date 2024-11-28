@@ -60,6 +60,13 @@ public static class UpdateDezibotEndpoint
             updateLogsRequest => updateLogsRequest.Ip,
             updateStatesRequest => updateStatesRequest.Ip);
 
+        if (string.IsNullOrWhiteSpace(ip))
+        {
+            return Results.Problem(
+                detail: "The request must contain a valid ip address.",
+                statusCode: (int)HttpStatusCode.BadRequest);
+        }
+
         var dezibot = await dbContext.Dezibots.FindAsync(ip);
         if (dezibot is null)
         {
@@ -97,6 +104,7 @@ public static class UpdateDezibotEndpoint
         
         if (updateLogsRequest?.Ip is not null && updateLogsRequest?.ClassName/*.TimestampUtc*/ is not null)
         {
+            // TODO: Validate the request like the ip should be a valid ip and the timestamp should be in the past etc.
             return updateLogsRequest;
         }
         
@@ -112,6 +120,7 @@ public static class UpdateDezibotEndpoint
 
         if (updateStatesRequest?.Ip is not null && updateStatesRequest?.Data/*.TimestampUtc*/ is not null)
         {
+            // TODO: Validate the request like the ip should be a valid ip and the timestamp should be in the past etc.
             return updateStatesRequest;
         }
 

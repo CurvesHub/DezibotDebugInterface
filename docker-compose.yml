@@ -1,4 +1,8 @@
-﻿services:
+﻿networks: # Define a network to allow the containers to communicate with each other using their service names
+  default:
+    name: dezibot-network
+
+services:
   dezibotdebuginterface.api:
     image: dezibotdebuginterface.api:latest
     container_name: dezibotdebuginterface.api
@@ -9,3 +13,5 @@
       ASPNETCORE_ENVIRONMENT: Development
     ports:
       - "5160:8080"
+    networks:
+      - default
