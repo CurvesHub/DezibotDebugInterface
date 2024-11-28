@@ -1,42 +1,72 @@
 class Dezibot {
     ip: string
-    components: Map<string, Component> = new Map(
-        //[
-        //["LIGHT_DETECT", new Component("LIGHT_DETECT")],
-        //["DISPLAY", new Component("DISPLAY")]
-        // [...]
-        //]
-    )
+    components: Component[] = []
+    logs: LogEntry[] = [] // message and data
     battery: number = 1.0
 
     constructor(ip: string) {
         this.ip = ip
     }
 
-    toJSON() {
-        return {
-          ip: this.ip,
-          components: Object.fromEntries(this.components) // Convert Map to object
-        }
+    static fromJson(json: any): Dezibot {
+        console.log(json)
+        json.components = json.classes
+        json.classes = undefined
+        return json
     }
 }
 
 class Component {
     name: string
-    properties: Map<string, string> = new Map()
-    messages: [string, string][] = [] // message and data
+    properties: Property[] = []
     
     constructor(name: string) {
         this.name = name
     }
+}
 
-    toJSON() {
-        return {
-          name: this.name,
-          properties: Object.fromEntries(this.properties),
-          messages: this.messages
-        }
+class Property {
+    name: string
+    values: {timestampUtc: string, value: string}[] = []
+
+    constructor(name: string) {
+        this.name = name
     }
 }
 
-export {Dezibot, Component}
+class LogEntry { 
+    className: string
+    message: string
+    data: string
+    timestampUtc: string
+
+    constructor(
+        className: string,
+        message: string,
+        data: string,
+        timestampUtc: string
+    ) {
+        this.className = className
+        this.data = data
+        this.message = message
+        this.timestampUtc = timestampUtc
+    }
+}
+
+type ApiDezibot = {
+    ip: string
+    logs: any[]
+    classes: ApiComponent[]
+}
+
+type ApiComponent = {
+    name: string
+    properties: ApiProperty[]
+}
+
+type ApiProperty = {
+    name: string
+    values: {timestampUtc: string, value: string}[]
+}
+
+export {Dezibot, Component, LogEntry}
