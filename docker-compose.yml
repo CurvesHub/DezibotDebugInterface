@@ -1,4 +1,8 @@
-﻿services:
+﻿networks: # Define a network to allow the containers to communicate with each other using their service names
+  default:
+    name: dezibot-network
+
+services:
   dezibotdebuginterface.api:
     image: dezibotdebuginterface.api:latest
     container_name: dezibotdebuginterface.api
@@ -9,8 +13,12 @@
       ASPNETCORE_ENVIRONMENT: Development
     ports:
       - "5160:8080"
+    networks:
+      - default
 
   dezibotdebuginterface.frontend:
+    image: dezibotdebuginterface.web:latest
+    container_name: dezibotdebuginterface.web
     build:
       context: ./frontend
       dockerfile: Dockerfile
@@ -18,9 +26,11 @@
       - "3000:3000"
     environment:
       - NODE_ENV=development
-      - BACKEND_URL=http://localhost:5160 # Backend service URL
+      - DEZIBOT_HUB=http://dezibotdebuginterface.api:8080/dezibot-hub # Websocket connection to the backend
     depends_on:
       - dezibotdebuginterface.api
     volumes:
       - ./frontend:/app
       - /app/node_modules # Prevent overwriting node_modules in the container
+    networks:
+      - default
