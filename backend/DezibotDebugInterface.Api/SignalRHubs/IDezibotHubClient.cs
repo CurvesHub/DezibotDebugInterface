@@ -1,4 +1,4 @@
-using DezibotDebugInterface.Api.DataAccess;
+using DezibotDebugInterface.Api.Endpoints.GetDezibots;
 
 namespace DezibotDebugInterface.Api.SignalRHubs;
 
@@ -12,5 +12,5 @@ public interface IDezibotHubClient
     /// </summary>
     /// <param name="dezibot">The dezibot to send an update about.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    Task SendDezibotUpdateAsync(Dezibot dezibot);
+    Task SendDezibotUpdateAsync(DezibotViewModel dezibot);
 }

@@ -12,7 +12,8 @@ public class Dezibot
     /// <param name="lastConnectionUtc">The last connection time of the Dezibot in UTC.</param>
     /// <param name="logs">The logs of the Dezibot.</param>
     /// <param name="classes">The classes of the Dezibot.</param>
-    public Dezibot(string ip,
+    public Dezibot(
+        string ip,
         DateTime lastConnectionUtc,
         List<LogEntry>? logs = null,
         List<Class>? classes = null)

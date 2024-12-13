@@ -3,6 +3,7 @@ using System.Text.Json;
 
 using DezibotDebugInterface.Api.DataAccess;
 using DezibotDebugInterface.Api.Endpoints.Constants;
+using DezibotDebugInterface.Api.Endpoints.GetDezibots;
 using DezibotDebugInterface.Api.SignalRHubs;
 
 using Microsoft.AspNetCore.SignalR;
@@ -45,7 +46,7 @@ public static class UpdateDezibotEndpoint
         IHubContext<DezibotHub, IDezibotHubClient> hubContext)
     {
         // TODO: Session Handling - Check if the request is part of an existing session. Otherwise store it without a session or dump it?
-        // Implement a session model and managent and migrate the database
+        // Implement a session model and management and migrate the database
         var body = await new StreamReader(httpContext.Request.Body).ReadToEndAsync();
         var request = TryDeserializeRequests(body);
 
@@ -75,18 +76,14 @@ public static class UpdateDezibotEndpoint
         }
         
         dezibot.LastConnectionUtc = DateTime.UtcNow;
-        /*dezibot.LastConnectionUtc = request.Value.Match(
-            updateLogsRequest => updateLogsRequest.TimestampUtc,
-            updateStatesRequest => updateStatesRequest.TimestampUtc);*/
 
         request.Value.Switch(
             updateLogsRequest => dezibot.AddLogEntryIfNotContained(updateLogsRequest),
             updateStatesRequest => dezibot.AddClassStatesIfNotContained(updateStatesRequest));
 
         await dbContext.SaveChangesAsync();
-        
-        // TODO: Dont sent the entire dezibot object, only the updated parts. Maybe use some kind of cache.
-        await hubContext.Clients.All.SendDezibotUpdateAsync(dezibot);
+
+        await hubContext.Clients.All.SendDezibotUpdateAsync(dezibot.ToDezibotViewModel());
         return Results.NoContent();
     }
 
@@ -102,9 +99,8 @@ public static class UpdateDezibotEndpoint
             Log.Information(ex, "Failed to deserialize the request body for logs.");
         }
         
-        if (updateLogsRequest?.Ip is not null && updateLogsRequest?.ClassName/*.TimestampUtc*/ is not null)
+        if (updateLogsRequest?.Ip is not null && updateLogsRequest?.ClassName is not null)
         {
-            // TODO: Validate the request like the ip should be a valid ip and the timestamp should be in the past etc.
             return updateLogsRequest;
         }
         
@@ -118,9 +114,8 @@ public static class UpdateDezibotEndpoint
             Log.Information(ex, "Failed to deserialize the request body for states.");
         }
 
-        if (updateStatesRequest?.Ip is not null && updateStatesRequest?.Data/*.TimestampUtc*/ is not null)
+        if (updateStatesRequest?.Ip is not null && updateStatesRequest?.Data is not null)
         {
-            // TODO: Validate the request like the ip should be a valid ip and the timestamp should be in the past etc.
             return updateStatesRequest;
         }
 
@@ -130,7 +125,7 @@ public static class UpdateDezibotEndpoint
     private static void AddLogEntryIfNotContained(this Dezibot dezibot, UpdateDezibotLogsRequest request)
     {
         var logEntry = new Dezibot.LogEntry(
-            dezibot.LastConnectionUtc,/*request.TimestampUtc,*/
+            dezibot.LastConnectionUtc,
             request.ClassName,
             request.Message,
             request.Data);
@@ -147,7 +142,7 @@ public static class UpdateDezibotEndpoint
             name: state.Key,
             properties: state.Value.Select(property => new Dezibot.Class.Property(
                 name: property.Key,
-                values: [new Dezibot.Class.Property.TimeValue(dezibot.LastConnectionUtc,/*request.TimestampUtc,*/ property.Value)]
+                values: [new Dezibot.Class.Property.TimeValue(dezibot.LastConnectionUtc, property.Value)]
             )).ToList()
         )).ToList();
 

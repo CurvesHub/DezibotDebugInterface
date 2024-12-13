@@ -3,6 +3,8 @@ using System.Net;
 using DezibotDebugInterface.Api.DataAccess;
 using DezibotDebugInterface.Api.Endpoints.Constants;
 
+using Microsoft.EntityFrameworkCore;
+
 namespace DezibotDebugInterface.Api.Endpoints.GetDezibots;
 
 /// <summary>
@@ -34,9 +36,9 @@ public static class GetDezibotEndpoints
         return endpoints;
     }
 
-    private static IResult GetAllDezibotsAsync(DezibotDbContext dbContext)
+    private static async Task<IResult> GetAllDezibotsAsync(DezibotDbContext dbContext)
     {
-        return Results.Ok(dbContext.Dezibots.ToAsyncEnumerable());
+        return Results.Ok(await dbContext.Dezibots.Select(dezibot => dezibot.ToDezibotViewModel()).ToListAsync());
     }
 
     private static async Task<IResult> GetDezibotByIpAsync(string ip, DezibotDbContext dbContext)
@@ -44,6 +46,6 @@ public static class GetDezibotEndpoints
         var dezibot = await dbContext.Dezibots.FindAsync(ip);
         return dezibot is null
             ? Results.NotFound()
-            : Results.Ok(dezibot);
+            : Results.Ok(dezibot.ToDezibotViewModel());
     }
 }
