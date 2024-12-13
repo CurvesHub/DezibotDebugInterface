@@ -43,7 +43,7 @@ namespace DezibotHub.Demo
 {
     public record Dezibot(
         string Ip,
-        DateTime LastConnectionUtc,
+        long LastConnectionUtc,
         List<Dezibot.LogEntry> Logs,
         List<Dezibot.Class> Classes)
     {
@@ -53,7 +53,7 @@ namespace DezibotHub.Demo
         {
             public record Property(string Name, List<Property.TimeValue> Values)
             {
-                public record TimeValue(DateTime TimestampUtc, string Value);
+                public record TimeValue(long TimestampUtc, string Value);
             }
         }
     }

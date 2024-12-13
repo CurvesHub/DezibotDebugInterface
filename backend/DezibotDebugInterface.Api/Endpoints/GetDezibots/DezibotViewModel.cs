@@ -1,3 +1,5 @@
+using DezibotDebugInterface.Api.DataAccess;
+
 namespace DezibotDebugInterface.Api.Endpoints.GetDezibots;
 
 /// <summary>
@@ -10,22 +12,9 @@ namespace DezibotDebugInterface.Api.Endpoints.GetDezibots;
 public record DezibotViewModel(
     string Ip,
     long LastConnectionUtc,
-    IEnumerable<DezibotViewModel.LogEntry> Logs,
+    IEnumerable<Dezibot.LogEntry> Logs,
     IEnumerable<DezibotViewModel.Class> Classes)
 {
-    /// <summary>
-    /// Represents a view model for a log entry.
-    /// </summary>
-    /// <param name="TimestampUtc">The timestamp of the log message in UTC as a Unix timestamp (milliseconds).</param>
-    /// <param name="ClassName">The class name where the log message originated.</param>
-    /// <param name="Message">The message of the log.</param>
-    /// <param name="Data">Additional data of the log.</param>
-    public record LogEntry(
-        long TimestampUtc,
-        string ClassName,
-        string Message,
-        string? Data);
-
     /// <summary>
     /// Represents a view model for a class.
     /// </summary>

@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace DezibotDebugInterface.Api.Tests.Endpoints.GetDezibots;
 
-public class GetDezibotTests : IAsyncLifetime
+public class GetDezibotTests : IAsyncLifetime // TODO: Update Tests
 {
     private readonly HttpClient _client;
     private readonly DezibotWebApplicationFactory _factory;
