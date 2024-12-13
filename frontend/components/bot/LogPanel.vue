@@ -14,17 +14,18 @@
                 </div>
             </template>
             <div class="max-h-[40rem] overflow-y-auto" ref="logsContainer">
-                <div v-for="[message, value, name] in accumulateLogs(bot)" class="flex flex-row">
-                    <div class="mr-2">{{ name }}:</div>
-                    <div class="mr-2">{{ message }}</div>
-                    <div>{{ value }}</div>
+                <div v-for="log in bot.logs" class="flex flex-row">
+                    <div class="mr-2">{{ log.timestampUtc }}</div>
+                    <div class="mr-2">{{ log.className }}:</div>
+                    <div class="mr-2">{{ log.message }}</div>
+                    <div>{{ log.data }}</div>
                 </div>
             </div>
         </UCard>
 </template>
 
 <script setup lang="ts">
-import { Dezibot } from '~/types/Dezibot';
+import { Dezibot, LogEntry } from '~/types/Dezibot';
 
 const props = defineProps({
   bot: { type: Dezibot, required: true },
@@ -36,15 +37,8 @@ onUpdated(() => {
     useTemplateRef("logsContainer").value?.scrollIntoView()
 })
 
-// returns tuples of message, data and component name
-// TODO: needs to be changed once we collect logs outside of components in realtime
-function accumulateLogs(bot: Dezibot): any[] {
-    const comps = bot.components.values()
-    return comps
-        .flatMap((comp) => comp.messages.map((mess) => {
-            mess.push(getCompName(comp.name))
-            return mess
-        })).toArray()
+function sortEntries(): LogEntry[] {
+    return props.bot.logs
 }
 
 

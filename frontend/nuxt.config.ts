@@ -4,12 +4,16 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ['@vueuse/nuxt', '@nuxt/ui'],
   nitro: {
-    experimental: {
-      websocket: true
-    }
+    devProxy: {
+      "/dezibot-hub": {
+        target: process.env.DEZIBOT_HUB || "http://dezibotdebuginterface.api:5160/dezibot-hub",
+        ws: true, // WebSocket proxying
+        changeOrigin: true,
+      },
+    },
   },
   colorMode: {
     preference: 'light'
   },
-  ssr: false
+  ssr: false,
 })

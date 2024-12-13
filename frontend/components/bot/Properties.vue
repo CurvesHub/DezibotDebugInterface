@@ -9,12 +9,14 @@ const props = defineProps({
   component: { type: Component, required: true },
 })
 
-const properties = props.component.properties.keys().map((key) => {
-    return {
-        Property: key, 
-        Value: props.component.properties.get(key)
-    }
-}).toArray()
+const properties = computed(() => {
+    return props.component.properties.map((prop) => {
+        return {
+            Property: prop.name, 
+            Value: prop.values.slice(-1)[0].value
+        }
+    })
+})
 
 </script>
 
