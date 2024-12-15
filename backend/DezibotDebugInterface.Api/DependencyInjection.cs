@@ -1,5 +1,7 @@
 using DezibotDebugInterface.Api.DataAccess;
 
+using Microsoft.EntityFrameworkCore;
+
 namespace DezibotDebugInterface.Api;
 
 /// <summary>
@@ -25,6 +27,7 @@ public static class DependencyInjection
         var connectionString = configuration.GetConnectionString("DezibotSQLite")
                                ?? "Data Source=Dezibot.db";
         
-        return services.AddSqlite<DezibotDbContext>(connectionString);
+        return services.AddSqlite<DezibotDbContext>(connectionString,
+            builder => builder.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
     }
 }

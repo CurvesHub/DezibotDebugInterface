@@ -1,3 +1,5 @@
+using DezibotDebugInterface.Api.DataAccess.Models;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace DezibotDebugInterface.Api.DataAccess;
@@ -13,6 +15,6 @@ public class DezibotDbContext(DbContextOptions<DezibotDbContext> options) : DbCo
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfiguration(new DezibotEntityTypeConfiguration());
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(DezibotDbContext).Assembly);
     }
 }

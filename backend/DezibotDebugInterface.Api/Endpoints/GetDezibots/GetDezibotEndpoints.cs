@@ -21,14 +21,14 @@ public static class GetDezibotEndpoints
         endpoints.MapGet("api/dezibots", GetAllDezibotsAsync)
             .WithName("Get All Dezibots")
             .WithSummary("Returns all dezibots.")
-            .Produces<IAsyncEnumerable<Dezibot>>((int)HttpStatusCode.OK, ContentTypes.JsonContentType)
+            .Produces<List<DezibotViewModel>>((int)HttpStatusCode.OK, ContentTypes.JsonContentType)
             .ProducesProblem((int)HttpStatusCode.InternalServerError, ContentTypes.ProblemContentType)
             .WithOpenApi();
 
         endpoints.MapGet("api/dezibots/{ip}", GetDezibotByIpAsync)
             .WithName("Get Dezibot By Ip")
             .WithSummary("Returns a dezibot by its IP address.")
-            .Produces<Dezibot>((int)HttpStatusCode.OK, ContentTypes.ProblemContentType)
+            .Produces<DezibotViewModel>((int)HttpStatusCode.OK, ContentTypes.ProblemContentType)
             .ProducesProblem((int)HttpStatusCode.NotFound, ContentTypes.ProblemContentType)
             .ProducesProblem((int)HttpStatusCode.InternalServerError, ContentTypes.ProblemContentType)
             .WithOpenApi();
@@ -43,7 +43,7 @@ public static class GetDezibotEndpoints
 
     private static async Task<IResult> GetDezibotByIpAsync(string ip, DezibotDbContext dbContext)
     {
-        var dezibot = await dbContext.Dezibots.FindAsync(ip);
+        var dezibot = await dbContext.Dezibots.Where(dezibot => dezibot.Ip == ip).FirstOrDefaultAsync();
         return dezibot is null
             ? Results.NotFound()
             : Results.Ok(dezibot.ToDezibotViewModel());

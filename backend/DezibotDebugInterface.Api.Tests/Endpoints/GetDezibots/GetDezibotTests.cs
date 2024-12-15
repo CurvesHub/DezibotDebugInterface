@@ -2,38 +2,29 @@
 using System.Net.Http.Json;
 using System.Text.Json;
 
-using DezibotDebugInterface.Api.DataAccess;
+using DezibotDebugInterface.Api.Endpoints.GetDezibots;
 using DezibotDebugInterface.Api.Tests.TestCommon;
 
 using FluentAssertions;
 
-using Microsoft.Extensions.DependencyInjection;
-
 namespace DezibotDebugInterface.Api.Tests.Endpoints.GetDezibots;
 
-public class GetDezibotTests : IAsyncLifetime // TODO: Update Tests
+public class GetDezibotTests() : BaseDezibotTestFixture(nameof(GetDezibotTests))
 {
-    private readonly HttpClient _client;
-    private readonly DezibotWebApplicationFactory _factory;
-    private readonly JsonSerializerOptions _jsonSerializerOptions = new() { PropertyNameCaseInsensitive = true };
-    
-    public GetDezibotTests()
-    {
-        _factory = new DezibotWebApplicationFactory(nameof(GetDezibotTests));
-        _client = _factory.CreateClient();
-    }
-
     [Fact]
     public async Task GetAllDezibots_WhenDezibotsNotExist_ShouldReturnEmptyList()
     {
-        // Act
-        var response = await _client.GetAsync("api/dezibots");
-        
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        
-        var dezibots = await response.Content.ReadFromJsonAsync<List<Dezibot>>(_jsonSerializerOptions);
+        // Act & Assert
+        var dezibots = await GetAsync<List<DezibotViewModel>>(HttpStatusCode.OK);
         dezibots.Should().BeEmpty();
+    }
+    
+    [Fact]
+    public async Task GetDezibot_WhenDezibotNotExists_ShouldReturnNotFound()
+    {
+        // Act & Assert
+        var dezibot = await GetAsync<DezibotViewModel>(HttpStatusCode.NotFound, "1.2.3.4");
+        dezibot.Should().BeNull();
     }
 
     [Fact]
@@ -41,62 +32,47 @@ public class GetDezibotTests : IAsyncLifetime // TODO: Update Tests
     {
         // Arrange
         var existingDezibots = DezibotFactory.CreateDezibots();
-        
-        await using var scope = _factory.Services.CreateAsyncScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<DezibotDbContext>();
-        
+
+        await using var dbContext = ResolveDbContext();
         dbContext.Dezibots.AddRange(existingDezibots);
         await dbContext.SaveChangesAsync();
-        
+
         // Act
-        var response = await _client.GetAsync("api/dezibots");
+        var dezibots = await GetAsync<List<DezibotViewModel>>(HttpStatusCode.OK);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        
-        var dezibots = await response.Content.ReadFromJsonAsync<List<Dezibot>>(_jsonSerializerOptions);
-        dezibots.Should().BeEquivalentTo(existingDezibots);
+        dezibots.Should().BeEquivalentTo(existingDezibots.Select(dezibot => dezibot.ToDezibotViewModel()));
     }
 
     [Fact]
-    public async Task GetDezibot_WhenDezibotNotExists_ShouldReturnNotFound()
-    {
-        // Act
-        var response = await _client.GetAsync("api/dezibots/1.1.1.1");
-        
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-    }
-
-    [Fact]
-    public async Task GetDezibot_WhenDezibotExists_SouldReturnDezibot()
+    public async Task GetDezibot_WhenDezibotExists_ShouldReturnDezibot()
     {
         // Arrange
         var existingDezibot = DezibotFactory.CreateDezibot();
         
-        await using var scope = _factory.Services.CreateAsyncScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<DezibotDbContext>();
-        
+        await using var dbContext = ResolveDbContext();
         dbContext.Dezibots.Add(existingDezibot);
         await dbContext.SaveChangesAsync();
         
         // Act
-        var response = await _client.GetAsync($"api/dezibots/{existingDezibot.Ip}");
+        var dezibot = await GetAsync<DezibotViewModel>(HttpStatusCode.OK, existingDezibot.Ip);
         
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        dezibot.Should().BeEquivalentTo(existingDezibot.ToDezibotViewModel());
+    }
+    
+    private async Task<TResponse?> GetAsync<TResponse>(HttpStatusCode statusCode, string? ip = null)
+    {
+        var response = await HttpClient.GetAsync($"api/dezibots/{ip}");
+        response.StatusCode.Should().Be(statusCode);
         
-        var dezibot = await response.Content.ReadFromJsonAsync<Dezibot>(_jsonSerializerOptions);
-        dezibot.Should().BeEquivalentTo(existingDezibot);
-    }
-
-    public async Task InitializeAsync()
-    {
-        await _factory.CreateDatabaseAsync();
-    }
-
-    public async Task DisposeAsync()
-    {
-        await _factory.DeleteDatabaseAsync();
+        if (response.StatusCode == HttpStatusCode.NotFound)
+        {
+            var content = await response.Content.ReadAsStringAsync();
+            return string.IsNullOrWhiteSpace(content) ? default : JsonSerializer.Deserialize<TResponse>(content, JsonSerializerOptions);
+        }
+        
+        var dezibots = await response.Content.ReadFromJsonAsync<TResponse>(JsonSerializerOptions);
+        return dezibots;
     }
 }

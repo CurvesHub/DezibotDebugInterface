@@ -1,12 +1,15 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Text.Json;
 
 using DezibotDebugInterface.Api.DataAccess;
+using DezibotDebugInterface.Api.DataAccess.Models;
 using DezibotDebugInterface.Api.Endpoints.Constants;
 using DezibotDebugInterface.Api.Endpoints.GetDezibots;
 using DezibotDebugInterface.Api.SignalRHubs;
 
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 
 using OneOf;
 
@@ -68,18 +71,18 @@ public static class UpdateDezibotEndpoint
                 statusCode: (int)HttpStatusCode.BadRequest);
         }
 
-        var dezibot = await dbContext.Dezibots.FindAsync(ip);
+        var dezibot = await dbContext.Dezibots.Where(dezibot => dezibot.Ip == ip).FirstOrDefaultAsync();
         if (dezibot is null)
         {
-            dezibot = new Dezibot(ip, DateTime.UtcNow);
-            dbContext.Add(dezibot);
+            dezibot = new Dezibot(ip, DateTimeOffset.UtcNow);
+            await dbContext.AddAsync(dezibot);
         }
         
-        dezibot.LastConnectionUtc = DateTime.UtcNow;
+        dezibot.LastConnectionUtc = DateTimeOffset.UtcNow;
 
         request.Value.Switch(
-            updateLogsRequest => dezibot.AddLogEntryIfNotContained(updateLogsRequest),
-            updateStatesRequest => dezibot.AddClassStatesIfNotContained(updateStatesRequest));
+            updateLogsRequest => dezibot.Logs.Add(new LogEntry(dezibot.LastConnectionUtc, updateLogsRequest.ClassName, updateLogsRequest.Message, updateLogsRequest.Data)),
+            updateStatesRequest => dezibot.UpdateClassStates(updateStatesRequest));
 
         await dbContext.SaveChangesAsync();
 
@@ -87,6 +90,7 @@ public static class UpdateDezibotEndpoint
         return Results.NoContent();
     }
 
+    [SuppressMessage("ReSharper", "ConstantConditionalAccessQualifier", Justification = "The request is checks for null are necessary.")]
     private static OneOf<UpdateDezibotLogsRequest, UpdateDezibotStatesRequest>? TryDeserializeRequests(string body)
     {
         UpdateDezibotLogsRequest? updateLogsRequest = null;
@@ -122,29 +126,13 @@ public static class UpdateDezibotEndpoint
         return null;
     }
 
-    private static void AddLogEntryIfNotContained(this Dezibot dezibot, UpdateDezibotLogsRequest request)
+    private static void UpdateClassStates(this Dezibot dezibot, UpdateDezibotStatesRequest request)
     {
-        var logEntry = new Dezibot.LogEntry(
-            dezibot.LastConnectionUtc,
-            request.ClassName,
-            request.Message,
-            request.Data);
-
-        if (!dezibot.Logs.Contains(logEntry))
-        {
-            dezibot.Logs.Add(logEntry);
-        }
-    }
-
-    private static void AddClassStatesIfNotContained(this Dezibot dezibot, UpdateDezibotStatesRequest request)
-    {
-        var newClasses = request.Data.Select(state => new Dezibot.Class(
+        var newClasses = request.Data.Select(state => new Class(
             name: state.Key,
-            properties: state.Value.Select(property => new Dezibot.Class.Property(
+            properties: state.Value.Select(property => new Property(
                 name: property.Key,
-                values: [new Dezibot.Class.Property.TimeValue(dezibot.LastConnectionUtc, property.Value)]
-            )).ToList()
-        )).ToList();
+                values: [new TimeValue(dezibot.LastConnectionUtc, property.Value)])).ToList())).ToList();
 
         if (dezibot.Classes.Count is 0)
         {
@@ -172,11 +160,7 @@ public static class UpdateDezibotEndpoint
                     continue;
                 }
 
-                var newTimeValues = newProperty.Values
-                    .Where(timeValue => !existingProperty.Values.Contains(timeValue))
-                    .ToList();
-
-                existingProperty.Values.AddRange(newTimeValues);
+                existingProperty.Values.AddRange(newProperty.Values);
             }
         }
     }

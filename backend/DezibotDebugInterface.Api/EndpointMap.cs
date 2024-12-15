@@ -1,10 +1,8 @@
-using DezibotDebugInterface.Api.DataAccess;
 using DezibotDebugInterface.Api.Endpoints.GetDezibots;
 using DezibotDebugInterface.Api.Endpoints.UpdateDezibot;
 using DezibotDebugInterface.Api.SignalRHubs;
 
 using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.EntityFrameworkCore;
 
 using Scalar.AspNetCore;
 
@@ -26,31 +24,6 @@ public static class EndpointMap
             .MapGetDezibotEndpoints()
             .MapUpdateDezibotEndpoint()
             .MapHub<DezibotHub>("/dezibot-hub");
-    }
-
-    public static void MapDevelopmentEndpoints(this IEndpointRouteBuilder endpoints)
-    {
-        endpoints.MapDelete("/api/resetDatabase", async (DezibotDbContext dbContext) =>
-        {
-            await dbContext.Database.EnsureDeletedAsync();
-            await dbContext.Database.MigrateAsync();
-
-            return Results.Ok("Database reset.");
-        }).WithOpenApi();
-    
-        endpoints.MapDelete("/api/dezibot/{ip}", async (DezibotDbContext dbContext, string ip) =>
-        {
-            var dezibot = await dbContext.Dezibots.FindAsync(ip);
-            if (dezibot is null)
-            {
-                return Results.NotFound();
-            }
-
-            dbContext.Dezibots.Remove(dezibot);
-            await dbContext.SaveChangesAsync();
-
-            return Results.NoContent();
-        }).WithOpenApi();
     }
     
     /// <summary>

@@ -3,6 +3,7 @@ using System;
 using DezibotDebugInterface.Api.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DezibotDebugInterface.Api.Migrations
 {
     [DbContext(typeof(DezibotDbContext))]
-    partial class DezibotDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241215005735_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
@@ -29,7 +32,7 @@ namespace DezibotDebugInterface.Api.Migrations
 
                     b.HasIndex("DezibotId");
 
-                    b.ToTable("ClassDezibot", (string)null);
+                    b.ToTable("ClassDezibot");
                 });
 
             modelBuilder.Entity("ClassProperty", b =>
@@ -44,7 +47,7 @@ namespace DezibotDebugInterface.Api.Migrations
 
                     b.HasIndex("PropertiesId");
 
-                    b.ToTable("ClassProperty", (string)null);
+                    b.ToTable("ClassProperty");
                 });
 
             modelBuilder.Entity("DezibotDebugInterface.Api.DataAccess.Models.Class", b =>
@@ -128,7 +131,7 @@ namespace DezibotDebugInterface.Api.Migrations
 
                     b.HasIndex("ValuesId");
 
-                    b.ToTable("PropertyTimeValue", (string)null);
+                    b.ToTable("PropertyTimeValue");
                 });
 
             modelBuilder.Entity("ClassDezibot", b =>

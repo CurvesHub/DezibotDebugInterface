@@ -1,4 +1,4 @@
-using DezibotDebugInterface.Api.DataAccess;
+using DezibotDebugInterface.Api.DataAccess.Models;
 
 namespace DezibotDebugInterface.Api.Endpoints.GetDezibots;
 
@@ -16,18 +16,14 @@ public static class ViewModelConverter
     {
         return new DezibotViewModel(
             Ip: dezibot.Ip,
-            LastConnectionUtc: new DateTimeOffset(dezibot.LastConnectionUtc, offset: TimeSpan.Zero).ToUnixTimeMilliseconds(),
-            Logs: dezibot.Logs.Select(log => new Dezibot.LogEntry(
-                TimestampUtc: log.TimestampUtc,
-                ClassName: log.ClassName,
-                Message: log.Message,
-                Data: log.Data)),
-            Classes: dezibot.Classes.Select(@class => new DezibotViewModel.Class(
+            LastConnectionUtc: dezibot.LastConnectionUtc.ToUnixTimeMilliseconds(),
+            Logs: dezibot.Logs,
+            Classes: dezibot.Classes.Select(@class => new ClassViewModel(
                 Name: @class.Name,
-                Properties: @class.Properties.Select(property => new DezibotViewModel.Class.Property(
+                Properties: @class.Properties.Select(property => new PropertyViewModel(
                     Name: property.Name,
-                    Values: property.Values.Select(value => new DezibotViewModel.Class.Property.TimeValue(
-                        TimestampUtc: new DateTimeOffset(value.TimestampUtc, offset: TimeSpan.Zero).ToUnixTimeMilliseconds(),
-                        Value: value.Value)))))));
+                    Values: property.Values.Select(value => new TimeValueViewModel(
+                        TimestampUtc: value.TimestampUtc.ToUnixTimeMilliseconds(),
+                        Value: value.Value)).ToList())).ToList())).ToList());
     }
 }
