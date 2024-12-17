@@ -1,5 +1,6 @@
-import { bots } from "~/services/botmanager"
+import { Dezibot } from "~/types/Dezibot"
 
 export default defineEventHandler(async (event) => {
-  return bots
+  const data: Dezibot[] = await $fetch("http://localhost:5160/api/dezibots")
+  return data
 })

@@ -1,6 +1,6 @@
 <template>
     <div class="flex flex-row m-4">
-        <UCard class="min-w-96">
+        <UCard class="min-w-[30rem]">
             <template #header>
                 <div class="flex flex-row justify-between items-center">
                     <div class="text-xl font-bold">
@@ -14,35 +14,58 @@
                             variant="solid"
                             label="Logs"
                             :trailing="false"
-                            @click="isLogsOpen = true"
+                            @click="isLogsOpen = !isLogsOpen"
                         />
                     </div>
                 </div>
             </template>
+            <UAccordion :items="items" color="gray" variant="solid" multiple>
+                <template #item="{item}">
+                    <BotProperties :component="JSON.parse(item.comp)" @propsSelected="(propNames : string[]) => propsSelected(JSON.parse(item.comp), propNames)"/>
+                </template>
 
-            <div v-for="comp in bot.components" class="mt-3">
-                {{ getCompName(comp.name) }}
-                <BotProperties :component="comp"/>
-            </div>
+            </UAccordion>
 
             <template #footer>
                 <UProgress :value="bot.battery*100" indicator class="" :color="getBotBatColor()"/>
             </template>
         </UCard>
         
-        <BotLogPanel :bot="bot" v-if="isLogsOpen" @hide-logs-click="console.log(bot); isLogsOpen = false"/>
+        <BotLogPanel :bot="bot" v-if="isLogsOpen" @hide-logs-click="isLogsOpen = false"/>
+
+        <BotGraph :props="propsState" v-if="propsState.length > 0"/>
     </div>
 </template>
 
 <script setup lang="ts">
-import { Dezibot } from '~/types/Dezibot';
+import { Component, Dezibot, Property } from '~/types/Dezibot';
 
 const props = defineProps({
     bot: { type: Dezibot, required: true },
 })
 
-const isLogsOpen = ref(false)
+const items = computed(() => {
+    return props.bot.components.map(e => { return {label: getCompName(e.name), comp: JSON.stringify(e)} })
+})
 
+const isLogsOpen = ref(false)
+const selectedProperties = ref<Map<string, Property[]>>(new Map()) // map of compname to selected properties
+const propsState = computed(() => {
+    const botProps = props.bot.components.flatMap((c) => c.properties)
+    const result: Property[] = []
+    for (const [compname, properties] of selectedProperties.value) {
+        result.push(...botProps.filter((p) => properties.map((e : Property) => e.name).includes(p.name)))
+    }
+    return result
+})
+
+
+function propsSelected(comp: Component, propNames: string[]) {
+    const filtered = comp.properties.filter(e => propNames.includes(e.name))
+    const copy = selectedProperties.value
+    copy.set(comp.name, filtered)
+    selectedProperties.value = copy
+}
 
 function getBotBatColor(): string {
     switch(true) {

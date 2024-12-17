@@ -9,9 +9,12 @@ class Dezibot {
     }
 
     static fromJson(json: any): Dezibot {
-        console.log(json)
+        console.log(json);
+
         json.components = json.classes
         json.classes = undefined
+        json.battery = 0.14
+        json.logs = json.logs.map((l: any) => {l.level = "info"; return l}) // TODO remove when backend is ready
         return json
     }
 }
@@ -39,17 +42,20 @@ class LogEntry {
     message: string
     data: string
     timestampUtc: string
+    level: string
 
     constructor(
         className: string,
         message: string,
         data: string,
-        timestampUtc: string
+        timestampUtc: string,
+        level: string
     ) {
         this.className = className
         this.data = data
         this.message = message
         this.timestampUtc = timestampUtc
+        this.level = level
     }
 }
 
@@ -69,4 +75,4 @@ type ApiProperty = {
     values: {timestampUtc: string, value: string}[]
 }
 
-export {Dezibot, Component, LogEntry}
+export {Dezibot, Component, LogEntry, Property}
