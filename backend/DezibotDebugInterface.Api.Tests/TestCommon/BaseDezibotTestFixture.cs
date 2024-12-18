@@ -34,7 +34,7 @@ public class BaseDezibotTestFixture : IAsyncLifetime
     protected HubConnection CreateHubConnection()
     {
         return new HubConnectionBuilder()
-            .WithUrl("ws://localhost:80/api/dezibot-hub", options =>
+            .WithUrl("ws://localhost:8080/api/dezibot-hub", options =>
             {
                 options.HttpMessageHandlerFactory = _ => _factory.Server.CreateHandler();
             })
