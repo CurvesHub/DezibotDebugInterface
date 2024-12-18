@@ -11,7 +11,7 @@ services:
       dockerfile: backend/DezibotDebugInterface.Api/Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      CORS_ALLOWED_ORIGIN: http://dezibotdebuginterface.web:3000
+      CORS_ALLOWED_ORIGIN: http://dezibotdebuginterface.frontend:3000
     ports:
       - "5160:8080"
     networks:
