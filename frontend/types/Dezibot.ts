@@ -14,7 +14,11 @@ class Dezibot {
         json.components = json.classes
         json.classes = undefined
         json.battery = 0.14
+        
+        // @Tom: Wenn ich das auskommentiere, dann tauchen keine logs mehr in der card auf,
+        // obwohl sie vom backend ankommen und im consol.log stehen
         json.logs = json.logs.map((l: any) => {l.level = "info"; return l}) // TODO remove when backend is ready
+        
         return json
     }
 }

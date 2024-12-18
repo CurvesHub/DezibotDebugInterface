@@ -17,7 +17,7 @@ const bots = ref<Dezibot[]>([])
 
 onMounted(async () => {
     let connection = new signalR.HubConnectionBuilder()
-    .withUrl("/api/dezibot-hub")
+    .withUrl("/dezibot-hub")
     .build()
 
     connection.on("SendDezibotUpdateAsync", data => {

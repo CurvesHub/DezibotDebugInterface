@@ -11,7 +11,8 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policyBuilder =>
     {
         policyBuilder
-            .WithOrigins(Environment.GetEnvironmentVariable("CORS_ALLOWED_ORIGIN") ?? "http://localhost:3000")
+            .AllowAnyOrigin()
+            //.WithOrigins(Environment.GetEnvironmentVariable("CORS_ALLOWED_ORIGIN") ?? "http://localhost:3000")
             .AllowAnyMethod()
             .AllowAnyHeader();
     });
