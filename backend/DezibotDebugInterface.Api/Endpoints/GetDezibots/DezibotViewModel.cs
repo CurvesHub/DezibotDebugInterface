@@ -1,4 +1,4 @@
-using DezibotDebugInterface.Api.DataAccess.Models;
+using JetBrains.Annotations;
 
 namespace DezibotDebugInterface.Api.Endpoints.GetDezibots;
 
@@ -9,7 +9,18 @@ namespace DezibotDebugInterface.Api.Endpoints.GetDezibots;
 /// <param name="LastConnectionUtc">The last connection time of the Dezibot in UTC as a Unix timestamp (milliseconds).</param>
 /// <param name="Logs">The logs of the Dezibot.</param>
 /// <param name="Classes">The classes of the Dezibot.</param>
-public record DezibotViewModel(string Ip, long LastConnectionUtc, List<LogEntry> Logs, List<ClassViewModel> Classes);
+[PublicAPI]
+public record DezibotViewModel(string Ip, long LastConnectionUtc, List<LogEntryViewModel> Logs, List<ClassViewModel> Classes);
+
+/// <summary>
+/// Represents a view model for a log entry.
+/// </summary>
+/// <param name="TimestampUtc">The timestamp of the log entry in UTC as ISO 8601.</param>
+/// <param name="Level">The log level of the log entry.</param>
+/// <param name="ClassName">The class name where the log message originated.</param>
+/// <param name="Message">The message of the log.</param>
+/// <param name="Data">Additional data of the log.</param>
+public record LogEntryViewModel(DateTimeOffset TimestampUtc, string Level, string ClassName, string Message, string? Data);
 
 /// <summary>
 /// Represents a view model for a class.

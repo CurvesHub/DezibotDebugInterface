@@ -2,7 +2,7 @@ using DezibotDebugInterface.Api.DataAccess.Models;
 
 #pragma warning disable S107 // Methods should not have too many parameters - This is a factory for creating test data.
 
-namespace DezibotDebugInterface.Api;
+namespace DezibotDebugInterface.Api.Endpoints.Development;
 
 /// <summary>
 /// A factory for creating dezibots for testing purposes.
@@ -59,6 +59,7 @@ public static class DezibotFactory
     /// </summary>
     /// <param name="amount">The amount of log entries to create.</param>
     /// <param name="timestampUtc">The timestamp of the log entries, if not specified, the time will be the start of 2024 advanced by one second for each entry.</param>
+    /// <param name="logLevel">The log level of the log entries, if not specified, the log level will be <see cref="DezibotLogLevel.INFO"/>.</param>
     /// <param name="className">The class name of the log entries.</param>
     /// <param name="message">The message of the log entries.</param>
     /// <param name="data">The data of the log entries.</param>
@@ -66,6 +67,7 @@ public static class DezibotFactory
     public static List<LogEntry> CreateLogEntries(
         int amount = 10,
         DateTimeOffset? timestampUtc = null,
+        DezibotLogLevel? logLevel = null,
         string? className = null,
         string? message = null,
         string? data = null)
@@ -74,6 +76,7 @@ public static class DezibotFactory
             .Range(1, amount)
             .Select(index => new LogEntry(
                 timestampUtc: timestampUtc?.AddSeconds(index - 1) ?? StartOf2024.AddSeconds(index - 1),
+                logLevel: logLevel ?? DezibotLogLevel.INFO, 
                 className: className ?? $"Class {index}",
                 message: message ?? $"Message {index}",
                 data: data ?? $"Data {index}")

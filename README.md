@@ -55,18 +55,21 @@ The backend provides the following endpoints:
     "logs": [
       {
         "timestampUtc": "2024-01-01T00:00:00",
+        "level": "INFO",
         "className": "DISPLAY",
         "message": "My first message",
         "data": "Some data"
       },
       {
         "timestampUtc": "2024-01-02T00:00:00",
+        "level": "INFO",
         "className": "DISPLAY",
         "message": "My second message",
         "data": "Some data"
       },
       {
         "timestampUtc": "2024-01-03T00:00:00",
+        "level": "INFO",
         "className": "DISPLAY",
         "message": "My second message",
         "data": null
@@ -165,6 +168,7 @@ The backend provides the following endpoints:
 ```json5
 {
   "Ip": "111.222.333.444",
+  "logLevel": "INFO",
   "className": "DISPLAY",
   "message": "My first message",
   "data": "Some data"

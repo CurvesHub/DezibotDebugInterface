@@ -21,6 +21,11 @@ public class LogEntry
     public DateTimeOffset TimestampUtc { get; init; }
 
     /// <summary>
+    /// The log level of the log message.
+    /// </summary>
+    public DezibotLogLevel LogLevel { get; init; }
+
+    /// <summary>
     /// The class name where the log message originated.
     /// </summary>
     public string ClassName { get; init; }
@@ -34,21 +39,24 @@ public class LogEntry
     /// Additional data of the log.
     /// </summary>
     public string? Data { get; init; }
-    
+
     /// <summary>
     /// Creates a new instance of the <see cref="LogEntry"/> class.
     /// </summary>
     /// <param name="timestampUtc">The timestamp of the log message in UTC.</param>
+    /// <param name="logLevel">The log level of the log message.</param>
     /// <param name="className">The class name where the log message originated.</param>
     /// <param name="message">The message of the log.</param>
     /// <param name="data">Additional data of the log.</param>
     public LogEntry(
         DateTimeOffset timestampUtc,
+        DezibotLogLevel logLevel,
         string className,
         string message,
         string? data)
     {
         TimestampUtc = timestampUtc;
+        LogLevel = logLevel;
         ClassName = className;
         Message = message;
         Data = data;
