@@ -6,8 +6,20 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddProjectDependencies(builder.Configuration);
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policyBuilder =>
+    {
+        policyBuilder
+            .WithOrigins(Environment.GetEnvironmentVariable("CORS_ALLOWED_ORIGIN") ?? "http://localhost:3000")
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
+
 var app = builder.Build();
 
+app.UseCors();
 app.MapProjectEndpoints();
 
 if (app.Environment.IsDevelopment())
