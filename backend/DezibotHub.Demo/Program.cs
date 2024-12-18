@@ -11,7 +11,7 @@ builder.Services.AddSignalR();
 var app = builder.Build();
 
 var connection = new HubConnectionBuilder()
-    .WithUrl("ws://localhost:5160/dezibot-hub")
+    .WithUrl("ws://localhost:5160/api/dezibot-hub")
     .WithAutomaticReconnect()
     .Build();
 

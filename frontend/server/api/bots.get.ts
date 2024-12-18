@@ -1,6 +1,7 @@
 import { Dezibot } from "~/types/Dezibot"
 
 export default defineEventHandler(async (event) => {
-  const data: Dezibot[] = await $fetch("http://localhost:5160/api/dezibots")
+  const server = process.env.BACKEND_URL || "http://localhost:5160"
+  const data: Dezibot[] = await $fetch(`${server}/api/dezibots`)
   return data
 })

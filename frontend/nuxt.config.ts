@@ -5,8 +5,8 @@ export default defineNuxtConfig({
   modules: ['@vueuse/nuxt', '@nuxt/ui'],
   nitro: {
     devProxy: {
-      "/dezibot-hub": {
-        target: process.env.DEZIBOT_HUB || "http://localhost:5160/dezibot-hub",
+      "/api/dezibot-hub": {
+        target: (process.env.BACKEND_URL || "http://localhost:5160") + "/api/dezibot-hub",
         ws: true, // WebSocket proxying
         changeOrigin: true,
       },

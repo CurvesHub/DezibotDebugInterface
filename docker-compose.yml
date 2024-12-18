@@ -3,8 +3,8 @@
     name: dezibot-network
 
 services:
-  dezibotdebuginterfaceapi:
-    image: dezibotdebuginterfaceapi:latest
+  dezibotdebuginterface.api:
+    image: dezibotdebuginterface.api:latest
     container_name: dezibotdebuginterface.api
     build:
       context: .
@@ -17,21 +17,21 @@ services:
     networks:
       - default
 
-  # dezibotdebuginterface.frontend:
-  #   image: dezibotdebuginterfaceweb:latest
-  #   container_name: dezibotdebuginterface.web
-  #   build:
-  #     context: ./frontend
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "3000:3000"
-  #   environment:
-  #     - NODE_ENV=development
-  #     - DEZIBOT_HUB=http://dezibotdebuginterfaceapi:8080/dezibot-hub # Websocket connection to the backend
-  #   depends_on:
-  #     - dezibotdebuginterfaceapi
-  #   volumes:
-  #     - ./frontend:/app
-  #     - /app/node_modules # Prevent overwriting node_modules in the container
-  #   networks:
-  #     - default
+  dezibotdebuginterface.web:
+    image: dezibotdebuginterface.web:latest
+    container_name: dezibotdebuginterface.web
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - BACKEND_URL=http://dezibotdebuginterface.api:8080
+    depends_on:
+      - dezibotdebuginterface.api
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules # Prevent overwriting node_modules in the container
+    networks:
+      - default

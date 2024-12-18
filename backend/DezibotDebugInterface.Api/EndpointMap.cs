@@ -23,7 +23,7 @@ public static class EndpointMap
             .MapOpenApiRelatedEndpoints()
             .MapGetDezibotEndpoints()
             .MapUpdateDezibotEndpoint()
-            .MapHub<DezibotHub>("/dezibot-hub");
+            .MapHub<DezibotHub>("/api/dezibot-hub");
     }
     
     /// <summary>
