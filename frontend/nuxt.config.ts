@@ -4,7 +4,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ['@vueuse/nuxt', '@nuxt/ui'],
   nitro: {
-    devProxy: {
+    devProxy: { // TODO: Fix CORS for production
       "/dezibot-hub": {
         target: (process.env.BACKEND_URL || "http://localhost:5160") + "/api/dezibot-hub",
         ws: true, // WebSocket proxying

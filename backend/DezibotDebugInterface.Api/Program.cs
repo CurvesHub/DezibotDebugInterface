@@ -8,6 +8,7 @@ builder.Services.AddProjectDependencies(builder.Configuration);
 
 builder.Services.AddCors(options =>
 {
+    // TODO: Fix CORS for production
     options.AddDefaultPolicy(policyBuilder =>
     {
         policyBuilder
