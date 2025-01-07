@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 
 using DezibotDebugInterface.Api.DataAccess.Models;
+using DezibotDebugInterface.Api.Endpoints.Development;
 using DezibotDebugInterface.Api.Endpoints.GetDezibots;
 using DezibotDebugInterface.Api.Endpoints.UpdateDezibot;
 using DezibotDebugInterface.Api.Tests.TestCommon;
@@ -16,7 +17,7 @@ namespace DezibotDebugInterface.Api.Tests.Endpoints.UpdateDezibot;
 
 public class UpdateDezibotTests() : BaseDezibotTestFixture(nameof(UpdateDezibotTests))
 {
-    private readonly UpdateDezibotLogsRequest _logRequest = new("1.1.1.1", "TestClass", "TestMessage", "TestData");
+    private readonly UpdateDezibotLogsRequest _logRequest = new("1.1.1.1", DezibotLogLevel.INFO,"TestClass", "TestMessage", "TestData");
     private readonly UpdateDezibotStatesRequest _stateRequest = new("1.1.1.1", new Dictionary<string, Dictionary<string, string>>
     {
         { "TestClass", new Dictionary<string, string> { { "TestProperty", "TestValue" } } }
@@ -171,7 +172,14 @@ public class UpdateDezibotTests() : BaseDezibotTestFixture(nameof(UpdateDezibotT
         
         dezibot.Should().NotBeNull();
         dezibot!.ToDezibotViewModel().Should().BeEquivalentTo(dezibotMessage);
-        LogsContainSingle(dezibotMessage.Logs, dezibot!.LastConnectionUtc);
+        LogsContainSingle(
+            dezibotMessage.Logs.Select(log => new LogEntry(
+                log.TimestampUtc,
+                Enum.Parse<DezibotLogLevel>(log.Level),
+                log.ClassName,
+                log.Message,
+                log.Data)).ToList(),
+            dezibot!.LastConnectionUtc);
         
         // Cleanup
         await connection.StopAsync();

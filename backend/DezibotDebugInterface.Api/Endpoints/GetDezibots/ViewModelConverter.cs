@@ -17,7 +17,12 @@ public static class ViewModelConverter
         return new DezibotViewModel(
             Ip: dezibot.Ip,
             LastConnectionUtc: dezibot.LastConnectionUtc.ToUnixTimeMilliseconds(),
-            Logs: dezibot.Logs,
+            Logs: dezibot.Logs.Select(log => new LogEntryViewModel(
+                TimestampUtc: log.TimestampUtc,
+                Level: log.LogLevel.ToString(),
+                ClassName: log.ClassName,
+                Message: log.Message,
+                Data: log.Data)).ToList(),
             Classes: dezibot.Classes.Select(@class => new ClassViewModel(
                 Name: @class.Name,
                 Properties: @class.Properties.Select(property => new PropertyViewModel(

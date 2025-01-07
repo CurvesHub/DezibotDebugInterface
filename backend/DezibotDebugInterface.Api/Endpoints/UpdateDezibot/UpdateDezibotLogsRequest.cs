@@ -1,3 +1,5 @@
+using DezibotDebugInterface.Api.DataAccess.Models;
+
 using JetBrains.Annotations;
 
 namespace DezibotDebugInterface.Api.Endpoints.UpdateDezibot;
@@ -13,6 +15,7 @@ namespace DezibotDebugInterface.Api.Endpoints.UpdateDezibot;
 /// <code>
 /// {
 ///     "Ip": "111.222.333.444",
+///     "logLevel": "INFO",
 ///     "className": "DISPLAY",
 ///     "message": "My first message",
 ///     "data": "Some data"
@@ -22,6 +25,7 @@ namespace DezibotDebugInterface.Api.Endpoints.UpdateDezibot;
 [PublicAPI]
 public record UpdateDezibotLogsRequest(
     string Ip,
+    DezibotLogLevel LogLevel,
     string ClassName,
     string Message,
     string? Data);

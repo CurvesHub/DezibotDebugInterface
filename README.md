@@ -29,6 +29,13 @@ All services are dockerized and can be started with docker-compose. Follow the i
 - Open the frontend in a browser
 - The frontend will display the data of the Dezibots
 
+### Attention
+
+When writing a dezibot main program, make sure to call `Log::begin(ssid, password, url)` before calling 
+`dezibot.begin()`. Otherwise, the initial setup logs and debug data will not be sent to the backend server.
+
+If `Log::begin(ssid, password, url)` is not called all called methods of the `Log` class will return immediately.
+
 ## Backend API
 
 The backend provides the following endpoints:
@@ -47,7 +54,7 @@ The backend provides the following endpoints:
 - `GET /api/dezibot/[ip]`
 - `/api/dezibot-hub`
 
-```json5
+```json
 [
   {
     "ip": "111.222.333.444",
@@ -55,18 +62,21 @@ The backend provides the following endpoints:
     "logs": [
       {
         "timestampUtc": "2024-01-01T00:00:00",
+        "level": "INFO",
         "className": "DISPLAY",
         "message": "My first message",
         "data": "Some data"
       },
       {
         "timestampUtc": "2024-01-02T00:00:00",
+        "level": "INFO",
         "className": "DISPLAY",
         "message": "My second message",
         "data": "Some data"
       },
       {
         "timestampUtc": "2024-01-03T00:00:00",
+        "level": "INFO",
         "className": "DISPLAY",
         "message": "My second message",
         "data": null
@@ -144,7 +154,7 @@ The backend provides the following endpoints:
 
 ##### State Data
 
-```json5
+```json
 {
   "Ip": "111.222.333.444",
   "Data": {
@@ -162,9 +172,10 @@ The backend provides the following endpoints:
 
 ##### Log Data
 
-```json5
+```json
 {
   "Ip": "111.222.333.444",
+  "logLevel": "INFO",
   "className": "DISPLAY",
   "message": "My first message",
   "data": "Some data"

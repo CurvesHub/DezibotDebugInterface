@@ -81,7 +81,12 @@ public static class UpdateDezibotEndpoint
         dezibot.LastConnectionUtc = DateTimeOffset.UtcNow;
 
         request.Value.Switch(
-            updateLogsRequest => dezibot.Logs.Add(new LogEntry(dezibot.LastConnectionUtc, updateLogsRequest.ClassName, updateLogsRequest.Message, updateLogsRequest.Data)),
+            updateLogsRequest => dezibot.Logs.Add(new LogEntry(
+                dezibot.LastConnectionUtc,
+                updateLogsRequest.LogLevel,
+                updateLogsRequest.ClassName,
+                updateLogsRequest.Message,
+                updateLogsRequest.Data)),
             updateStatesRequest => dezibot.UpdateClassStates(updateStatesRequest));
 
         await dbContext.SaveChangesAsync();
