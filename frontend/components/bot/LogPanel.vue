@@ -34,10 +34,11 @@
             </template>
             <div class="max-h-[40rem] overflow-y-auto" ref="logsContainer">
                 <div v-for="log in logs" class="flex flex-row">
-                    <div class="mr-2">{{ log.timestampUtc }}</div>
-                    <div class="mr-2">{{ log.className }}:</div>
-                    <div class="mr-2">{{ log.message }}</div>
-                    <div class="mr-2">{{ log.data }}</div>
+                  <div class="mr-2" :class="getColor(log.level)">{{ log.timestampUtc }}</div>
+                  <div class="mr-2" :class="getColor(log.level)">{{ log.level }}:</div>
+                  <div class="mr-2">{{ log.className }}:</div>
+                  <div class="mr-2">{{ log.message }}</div>
+                  <div class="mr-2">{{ log.data ? `| ${log.data}` : '' }}</div>
                 </div>
             </div>
         </UCard>
@@ -56,14 +57,15 @@ const searchQuery = ref("")
 
 const logs = computed(() => {
     return props.bot.logs
-        .filter((l) => { console.log(l.level);
-         return getSelectedLogLevels(Object.values(logLevels.value)).includes(l.level)})
+        .filter((l) => {
+          console.log(l.level);
+          return getSelectedLogLevels(Object.values(logLevels.value)).includes(l.level.toLowerCase())})
         .filter((l) => {
             if (searchQuery.value.length <= 0) {
                 return true
             } else {
-                const combinedLogEntry = l.message.concat(l.className).concat(l.timestampUtc).concat(l.data)
-                return combinedLogEntry.includes(searchQuery.value)
+                const combinedLogEntry = l.message.concat(l.className).concat(l.timestampUtc).concat(l.data).toLowerCase()
+                return combinedLogEntry.includes(searchQuery.value.toLowerCase())
             }
         })
 })
@@ -86,6 +88,12 @@ const logLevels = ref({
         selected: true,
         color: "red",
         id: "error"
+    },
+    debug: {
+        name: "Debug",
+        selected: true,
+        color: "green",
+        id: "debug"
     }
 })
 
@@ -94,6 +102,21 @@ function getSelectedLogLevels(levels: {selected: boolean, id: string}[]) {
     const result = levels.filter(l => l.selected).map((level) => level.id)
     console.log(result)
     return result
+}
+
+function getColor(level: string): string {
+  switch (level.toLowerCase()) {
+    case 'info':
+      return 'text-sky-500';
+    case 'warn':
+      return 'text-yellow-500';
+    case 'error':
+      return 'text-red-500';
+    case 'debug':
+      return 'text-green-500';
+    default:
+      return 'text-black';
+  }
 }
 
 onUpdated(() => {

@@ -15,10 +15,6 @@ class Dezibot {
         json.classes = undefined
         json.battery = 0.14
         
-        // @Tom: Wenn ich das auskommentiere, dann tauchen keine logs mehr in der card auf,
-        // obwohl sie vom backend ankommen und im consol.log stehen
-        json.logs = json.logs.map((l: any) => {l.level = "info"; return l}) // TODO remove when backend is ready
-        
         return json
     }
 }
@@ -42,24 +38,24 @@ class Property {
 }
 
 class LogEntry { 
+    timestampUtc: string
+    level: string
     className: string
     message: string
     data: string
-    timestampUtc: string
-    level: string
 
     constructor(
+        timestampUtc: string,
+        level: string,
         className: string,
         message: string,
         data: string,
-        timestampUtc: string,
-        level: string
     ) {
-        this.className = className
-        this.data = data
-        this.message = message
         this.timestampUtc = timestampUtc
         this.level = level
+        this.className = className
+        this.message = message
+        this.data = data
     }
 }
 
