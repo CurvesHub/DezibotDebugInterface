@@ -1,4 +1,5 @@
-using DezibotDebugInterface.Api.Endpoints.GetDezibots;
+using DezibotDebugInterface.Api.Endpoints.DeleteDezibot;
+using DezibotDebugInterface.Api.Endpoints.GetDezibot;
 using DezibotDebugInterface.Api.Endpoints.UpdateDezibot;
 using DezibotDebugInterface.Api.SignalRHubs;
 
@@ -23,7 +24,8 @@ public static class EndpointMap
             .MapOpenApiRelatedEndpoints()
             .MapGetDezibotEndpoints()
             .MapUpdateDezibotEndpoint()
-            .MapHub<DezibotHub>("/api/dezibot-hub");
+            .MapDeleteDezibotEndpoints()
+            .MapHub<DezibotHub>("/api/dezibot-hub").AllowAnonymous();
     }
     
     /// <summary>

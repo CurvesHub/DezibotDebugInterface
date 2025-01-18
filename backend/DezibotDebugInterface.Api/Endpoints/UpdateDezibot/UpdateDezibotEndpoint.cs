@@ -5,7 +5,7 @@ using System.Text.Json;
 using DezibotDebugInterface.Api.DataAccess;
 using DezibotDebugInterface.Api.DataAccess.Models;
 using DezibotDebugInterface.Api.Endpoints.Constants;
-using DezibotDebugInterface.Api.Endpoints.GetDezibots;
+using DezibotDebugInterface.Api.Endpoints.GetDezibot;
 using DezibotDebugInterface.Api.SignalRHubs;
 
 using Microsoft.AspNetCore.SignalR;
@@ -33,11 +33,11 @@ public static class UpdateDezibotEndpoint
         endpoints.MapPut("api/dezibot/update", UpdateDezibotAsync)
             .WithName("Update Dezibot")
             .WithSummary("Accepts state and log data from a dezibot and updates the database.")
-            .Accepts<UpdateDezibotLogsRequest>(ContentTypes.JsonContentType)
-            .Accepts<UpdateDezibotStatesRequest>(ContentTypes.JsonContentType)
+            .Accepts<UpdateDezibotLogsRequest>(ContentTypes.ApplicationJson)
+            .Accepts<UpdateDezibotStatesRequest>(ContentTypes.ApplicationJson)
             .Produces((int)HttpStatusCode.NoContent)
-            .ProducesProblem((int)HttpStatusCode.BadRequest, ContentTypes.ProblemContentType)
-            .ProducesProblem((int)HttpStatusCode.InternalServerError, ContentTypes.ProblemContentType)
+            .ProducesProblem((int)HttpStatusCode.BadRequest, ContentTypes.ApplicationProblemJson)
+            .ProducesProblem((int)HttpStatusCode.InternalServerError, ContentTypes.ApplicationProblemJson)
             .WithOpenApi();
         
         return endpoints;

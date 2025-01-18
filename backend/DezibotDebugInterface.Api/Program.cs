@@ -1,6 +1,6 @@
 using DezibotDebugInterface.Api;
 using DezibotDebugInterface.Api.DataAccess;
-using DezibotDebugInterface.Api.Endpoints.Development;
+using DezibotDebugInterface.Api.Endpoints.DeleteDezibot;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,12 +8,10 @@ builder.Services.AddProjectDependencies(builder.Configuration);
 
 builder.Services.AddCors(options =>
 {
-    // TODO: Fix CORS for production
     options.AddDefaultPolicy(policyBuilder =>
     {
         policyBuilder
             .AllowAnyOrigin()
-            //.WithOrigins(Environment.GetEnvironmentVariable("CORS_ALLOWED_ORIGIN") ?? "http://localhost:3000")
             .AllowAnyMethod()
             .AllowAnyHeader();
     });
@@ -24,17 +22,12 @@ var app = builder.Build();
 app.UseCors();
 app.MapProjectEndpoints();
 
-if (app.Environment.IsDevelopment())
-{
-    app.MapDevelopmentEndpoints();
-}
-
 app.UseExceptionHandler("/error");
 app.MapErrorEndpoint();
 
 await MigrationService.MigrateDatabaseAsync(app.Services);
 
-app.Run();
+await app.RunAsync();
 
 namespace DezibotDebugInterface.Api
 {

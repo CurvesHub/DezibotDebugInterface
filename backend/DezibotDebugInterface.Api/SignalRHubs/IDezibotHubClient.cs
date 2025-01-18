@@ -1,4 +1,4 @@
-using DezibotDebugInterface.Api.Endpoints.GetDezibots;
+using DezibotDebugInterface.Api.Endpoints.GetDezibot;
 
 namespace DezibotDebugInterface.Api.SignalRHubs;
 

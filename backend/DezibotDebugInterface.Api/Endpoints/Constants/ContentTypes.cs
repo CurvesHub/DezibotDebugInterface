@@ -8,10 +8,10 @@ public static class ContentTypes
     /// <summary>
     /// The content type for problem responses.
     /// </summary>
-    public const string ProblemContentType = "application/problem+json";
+    public const string ApplicationProblemJson = "application/problem+json";
     
     /// <summary>
     /// The content type for JSON responses.
     /// </summary>
-    public const string JsonContentType = "application/json";
+    public const string ApplicationJson = "application/json";
 }

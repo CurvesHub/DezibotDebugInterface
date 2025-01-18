@@ -2,8 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 
 using DezibotDebugInterface.Api.DataAccess.Models;
-using DezibotDebugInterface.Api.Endpoints.Development;
-using DezibotDebugInterface.Api.Endpoints.GetDezibots;
+using DezibotDebugInterface.Api.Endpoints.GetDezibot;
 using DezibotDebugInterface.Api.Endpoints.UpdateDezibot;
 using DezibotDebugInterface.Api.Tests.TestCommon;
 

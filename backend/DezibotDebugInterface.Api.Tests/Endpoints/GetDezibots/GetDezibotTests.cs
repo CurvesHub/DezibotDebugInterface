@@ -2,8 +2,7 @@
 using System.Net.Http.Json;
 using System.Text.Json;
 
-using DezibotDebugInterface.Api.Endpoints.Development;
-using DezibotDebugInterface.Api.Endpoints.GetDezibots;
+using DezibotDebugInterface.Api.Endpoints.GetDezibot;
 using DezibotDebugInterface.Api.Tests.TestCommon;
 
 using FluentAssertions;

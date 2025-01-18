@@ -1,6 +1,6 @@
 using DezibotDebugInterface.Api.DataAccess.Models;
 
-namespace DezibotDebugInterface.Api.Endpoints.GetDezibots;
+namespace DezibotDebugInterface.Api.Endpoints.GetDezibot;
 
 /// <summary>
 /// Provides methods to convert to view models.

@@ -5,7 +5,7 @@ using DezibotDebugInterface.Api.Endpoints.Constants;
 
 using Microsoft.EntityFrameworkCore;
 
-namespace DezibotDebugInterface.Api.Endpoints.GetDezibots;
+namespace DezibotDebugInterface.Api.Endpoints.GetDezibot;
 
 /// <summary>
 /// Defines the GET endpoints for dezibots.
@@ -21,16 +21,16 @@ public static class GetDezibotEndpoints
         endpoints.MapGet("api/dezibots", GetAllDezibotsAsync)
             .WithName("Get All Dezibots")
             .WithSummary("Returns all dezibots.")
-            .Produces<List<DezibotViewModel>>((int)HttpStatusCode.OK, ContentTypes.JsonContentType)
-            .ProducesProblem((int)HttpStatusCode.InternalServerError, ContentTypes.ProblemContentType)
+            .Produces<List<DezibotViewModel>>((int)HttpStatusCode.OK, ContentTypes.ApplicationJson)
+            .ProducesProblem((int)HttpStatusCode.InternalServerError, ContentTypes.ApplicationProblemJson)
             .WithOpenApi();
 
         endpoints.MapGet("api/dezibots/{ip}", GetDezibotByIpAsync)
             .WithName("Get Dezibot By Ip")
             .WithSummary("Returns a dezibot by its IP address.")
-            .Produces<DezibotViewModel>((int)HttpStatusCode.OK, ContentTypes.ProblemContentType)
-            .ProducesProblem((int)HttpStatusCode.NotFound, ContentTypes.ProblemContentType)
-            .ProducesProblem((int)HttpStatusCode.InternalServerError, ContentTypes.ProblemContentType)
+            .Produces<DezibotViewModel>((int)HttpStatusCode.OK, ContentTypes.ApplicationProblemJson)
+            .ProducesProblem((int)HttpStatusCode.NotFound, ContentTypes.ApplicationProblemJson)
+            .ProducesProblem((int)HttpStatusCode.InternalServerError, ContentTypes.ApplicationProblemJson)
             .WithOpenApi();
         
         return endpoints;

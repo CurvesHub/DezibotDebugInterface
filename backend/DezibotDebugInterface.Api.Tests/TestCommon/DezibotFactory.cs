@@ -1,15 +1,17 @@
+using System.Globalization;
+
 using DezibotDebugInterface.Api.DataAccess.Models;
 
 #pragma warning disable S107 // Methods should not have too many parameters - This is a factory for creating test data.
 
-namespace DezibotDebugInterface.Api.Endpoints.Development;
+namespace DezibotDebugInterface.Api.Tests.TestCommon;
 
 /// <summary>
 /// A factory for creating dezibots for testing purposes.
 /// </summary>
 public static class DezibotFactory
 {
-    private static readonly DateTimeOffset StartOf2024 = DateTimeOffset.Parse("2024-01-01T00:00:00Z");
+    private static readonly DateTimeOffset StartOf2024 = DateTimeOffset.Parse("2024-01-01T00:00:00Z", CultureInfo.InvariantCulture);
     private static int _dezibotId = 1;
     private static int _logEntryId = 1;
     private static int _classId = 1;
