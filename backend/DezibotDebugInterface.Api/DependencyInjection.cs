@@ -1,5 +1,4 @@
 using DezibotDebugInterface.Api.DataAccess;
-using DezibotDebugInterface.Api.Sessions;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -18,7 +17,6 @@ public static class DependencyInjection
     public static void AddProjectDependencies(this IServiceCollection services, IConfiguration configuration)
     {
         services
-            .AddTransient<ISessionStore, SessionStore>()
             .AddSqliteDatabase(configuration)
             .AddOpenApi()
             .AddSignalR();

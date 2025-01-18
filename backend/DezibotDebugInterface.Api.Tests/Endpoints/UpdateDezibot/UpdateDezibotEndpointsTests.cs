@@ -2,7 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 
 using DezibotDebugInterface.Api.DataAccess.Models;
-using DezibotDebugInterface.Api.Endpoints.GetDezibot;
+using DezibotDebugInterface.Api.Endpoints.Common;
 using DezibotDebugInterface.Api.Endpoints.UpdateDezibot;
 using DezibotDebugInterface.Api.Tests.TestCommon;
 
@@ -14,7 +14,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DezibotDebugInterface.Api.Tests.Endpoints.UpdateDezibot;
 
-public class UpdateDezibotTests() : BaseDezibotTestFixture(nameof(UpdateDezibotTests))
+public class UpdateDezibotEndpointsTests() : BaseDezibotTestFixture(nameof(UpdateDezibotEndpointsTests))
 {
     private readonly UpdateDezibotLogsRequest _logRequest = new("1.1.1.1", DezibotLogLevel.INFO,"TestClass", "TestMessage", "TestData");
     private readonly UpdateDezibotStatesRequest _stateRequest = new("1.1.1.1", new Dictionary<string, Dictionary<string, string>>
@@ -22,6 +22,7 @@ public class UpdateDezibotTests() : BaseDezibotTestFixture(nameof(UpdateDezibotT
         { "TestClass", new Dictionary<string, string> { { "TestProperty", "TestValue" } } }
     });
     
+    // TODO: Update when Session Tests are implemented
     [Theory]
     [InlineData(true)]
     [InlineData(false)]

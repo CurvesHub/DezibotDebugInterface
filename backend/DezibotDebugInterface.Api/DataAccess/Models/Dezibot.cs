@@ -1,8 +1,13 @@
+using System.Diagnostics.CodeAnalysis;
+
+using JetBrains.Annotations;
+
 namespace DezibotDebugInterface.Api.DataAccess.Models;
 
 /// <summary>
 /// Represents a Dezibot.
 /// </summary>
+[SuppressMessage("ReSharper", "EntityFramework.ModelValidation.UnlimitedStringLength", Justification = "The string fields wont be longer than 255 characters.")]
 public class Dezibot
 {
     /// <summary>
@@ -49,5 +54,8 @@ public class Dezibot
     /// <summary>
     /// Parameterless constructor for EF Core.
     /// </summary>
+    [UsedImplicitly]
+#pragma warning disable CS8618, CS9264
     private Dezibot() { }
+#pragma warning restore CS8618, CS9264
 }

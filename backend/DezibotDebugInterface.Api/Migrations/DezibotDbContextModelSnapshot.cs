@@ -29,7 +29,7 @@ namespace DezibotDebugInterface.Api.Migrations
 
                     b.HasIndex("DezibotId");
 
-                    b.ToTable("ClassDezibot");
+                    b.ToTable("ClassDezibot", (string)null);
                 });
 
             modelBuilder.Entity("ClassProperty", b =>
@@ -44,7 +44,7 @@ namespace DezibotDebugInterface.Api.Migrations
 
                     b.HasIndex("PropertiesId");
 
-                    b.ToTable("ClassProperty");
+                    b.ToTable("ClassProperty", (string)null);
                 });
 
             modelBuilder.Entity("DezibotDebugInterface.Api.DataAccess.Models.Class", b =>
@@ -153,7 +153,7 @@ namespace DezibotDebugInterface.Api.Migrations
 
                     b.HasIndex("ValuesId");
 
-                    b.ToTable("PropertyTimeValue");
+                    b.ToTable("PropertyTimeValue", (string)null);
                 });
 
             modelBuilder.Entity("ClassDezibot", b =>

@@ -1,8 +1,13 @@
+using System.Diagnostics.CodeAnalysis;
+
+using JetBrains.Annotations;
+
 namespace DezibotDebugInterface.Api.DataAccess.Models;
 
 /// <summary>
 /// Represents a time value.
 /// </summary>
+[SuppressMessage("ReSharper", "EntityFramework.ModelValidation.UnlimitedStringLength", Justification = "The string fields wont be longer than 255 characters.")]
 public class TimeValue
 {
     /// <summary>
@@ -34,5 +39,8 @@ public class TimeValue
     /// <summary>
     /// Parameterless constructor for EF Core.
     /// </summary>
+    [UsedImplicitly]
+#pragma warning disable CS8618, CS9264
     private TimeValue() { }
+#pragma warning restore CS8618, CS9264
 }

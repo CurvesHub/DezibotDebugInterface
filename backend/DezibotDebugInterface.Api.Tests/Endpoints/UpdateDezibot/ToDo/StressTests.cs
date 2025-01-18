@@ -2,17 +2,18 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Json;
 
-using DezibotDebugInterface.Api.Endpoints.GetDezibot;
+using DezibotDebugInterface.Api.Endpoints.Common;
 using DezibotDebugInterface.Api.Tests.TestCommon;
 
 using FluentAssertions;
 
 using Xunit.Abstractions;
 
-namespace DezibotDebugInterface.Api.Tests.Endpoints;
+namespace DezibotDebugInterface.Api.Tests.Endpoints.UpdateDezibot.ToDo;
 
 public class StressTests(ITestOutputHelper outputHelper) : BaseDezibotTestFixture(nameof(StressTests))
 {
+    // TODO: Remove when Session Tests are implemented
     [Fact]
     public async Task GetAllDezibots_WhenADezibotHasOneThousandPropertyValuesAndLogs_ShouldReturnDezibotFast()
     {

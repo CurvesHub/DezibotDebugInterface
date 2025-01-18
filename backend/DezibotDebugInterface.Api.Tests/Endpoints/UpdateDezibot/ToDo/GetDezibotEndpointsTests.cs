@@ -2,15 +2,16 @@
 using System.Net.Http.Json;
 using System.Text.Json;
 
-using DezibotDebugInterface.Api.Endpoints.GetDezibot;
+using DezibotDebugInterface.Api.Endpoints.Common;
 using DezibotDebugInterface.Api.Tests.TestCommon;
 
 using FluentAssertions;
 
-namespace DezibotDebugInterface.Api.Tests.Endpoints.GetDezibots;
+namespace DezibotDebugInterface.Api.Tests.Endpoints.UpdateDezibot.ToDo;
 
-public class GetDezibotTests() : BaseDezibotTestFixture(nameof(GetDezibotTests))
+public class GetDezibotEndpointsTests() : BaseDezibotTestFixture(nameof(GetDezibotEndpointsTests))
 {
+    // TODO: Remove when Session Tests are implemented
     [Fact]
     public async Task GetAllDezibots_WhenDezibotsNotExist_ShouldReturnEmptyList()
     {
@@ -61,10 +62,10 @@ public class GetDezibotTests() : BaseDezibotTestFixture(nameof(GetDezibotTests))
         dezibot.Should().BeEquivalentTo(existingDezibot.ToDezibotViewModel());
     }
     
-    private async Task<TResponse?> GetAsync<TResponse>(HttpStatusCode statusCode, string? ip = null)
+    private async Task<TResponse?> GetAsync<TResponse>(HttpStatusCode expectedStatusCode, string? ip = null)
     {
         var response = await HttpClient.GetAsync($"api/dezibots/{ip}");
-        response.StatusCode.Should().Be(statusCode);
+        response.StatusCode.Should().Be(expectedStatusCode);
         
         if (response.StatusCode == HttpStatusCode.NotFound)
         {

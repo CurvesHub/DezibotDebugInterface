@@ -14,10 +14,10 @@ public class SessionConfiguration : IEntityTypeConfiguration<Session>
         builder.ToTable("Sessions");
         builder.HasKey(session => session.Id);
         
-        builder.Property(session => session.ClientConnectionId).IsRequired();
         builder.Property(session => session.IsActive).IsRequired();
         builder.Property(session => session.CreatedUtc).IsRequired();
-        
+        builder.Property(session => session.ClientConnectionId).IsRequired();
+
         builder.HasMany(session => session.Dezibots)
             .WithOne()
             .HasForeignKey(dezibot => dezibot.SessionId)
