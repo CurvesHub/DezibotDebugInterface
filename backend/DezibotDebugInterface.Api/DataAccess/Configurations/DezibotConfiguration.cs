@@ -17,7 +17,7 @@ public class DezibotConfiguration : IEntityTypeConfiguration<Dezibot>
         builder.Property(dezibot => dezibot.Ip).IsRequired();
         builder.Property(dezibot => dezibot.LastConnectionUtc).IsRequired();
         
-        builder.HasIndex(dezibot => dezibot.Ip).IsUnique();
+        builder.HasIndex(dezibot => dezibot.Ip).IsUnique(false);
 
         builder.HasMany(dezibot => dezibot.Classes).WithMany();
         builder.Navigation(dezibot => dezibot.Classes).AutoInclude();

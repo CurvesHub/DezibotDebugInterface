@@ -6,6 +6,7 @@ using DezibotDebugInterface.Api.DataAccess;
 using DezibotDebugInterface.Api.DataAccess.Models;
 using DezibotDebugInterface.Api.Endpoints.Constants;
 using DezibotDebugInterface.Api.Endpoints.GetDezibot;
+using DezibotDebugInterface.Api.Sessions;
 using DezibotDebugInterface.Api.SignalRHubs;
 
 using Microsoft.AspNetCore.SignalR;
@@ -30,7 +31,7 @@ public static class UpdateDezibotEndpoint
     /// <param name="endpoints">The endpoint route builder to map the endpoints to.</param>
     public static IEndpointRouteBuilder MapUpdateDezibotEndpoint(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPut("api/dezibot/update", UpdateDezibotAsync)
+        endpoints.MapPut("api/dezibot/update", HandleDezibotUpdateAsync)
             .WithName("Update Dezibot")
             .WithSummary("Accepts state and log data from a dezibot and updates the database.")
             .Accepts<UpdateDezibotLogsRequest>(ContentTypes.ApplicationJson)
@@ -43,13 +44,13 @@ public static class UpdateDezibotEndpoint
         return endpoints;
     }
     
-    private static async Task<IResult> UpdateDezibotAsync(
+    private static async Task<IResult> HandleDezibotUpdateAsync(
         HttpContext httpContext,
         DezibotDbContext dbContext,
-        IHubContext<DezibotHub, IDezibotHubClient> hubContext)
+        IHubContext<DezibotHub, IDezibotHubClient> hubContext,
+        ISessionStore sessionStore)
     {
-        // TODO: Session Handling - Check if the request is part of an existing session. Otherwise store it without a session or dump it?
-        // Implement a session model and management and migrate the database
+        // Validate the request body.
         var body = await new StreamReader(httpContext.Request.Body).ReadToEndAsync();
         var request = TryDeserializeRequests(body);
 
@@ -71,30 +72,49 @@ public static class UpdateDezibotEndpoint
                 statusCode: (int)HttpStatusCode.BadRequest);
         }
 
-        var dezibot = await dbContext.Dezibots.Where(dezibot => dezibot.Ip == ip).FirstOrDefaultAsync();
-        if (dezibot is null)
+        var activeSessions = await sessionStore.GetActiveSessionAsync();
+
+        if (activeSessions.Count is 0)
         {
-            dezibot = new Dezibot(ip, DateTimeOffset.UtcNow);
-            await dbContext.AddAsync(dezibot);
+            // No active sessions, look for or create a session-less Dezibot
+            var dezibotWithoutSession = await dbContext.Dezibots
+                .FirstOrDefaultAsync(dezibot => dezibot.Ip == ip && dezibot.SessionId == null);
+
+            if (dezibotWithoutSession is null)
+            {
+                // Create a new session-less Dezibot
+                dezibotWithoutSession = new Dezibot(ip);
+                await dbContext.AddAsync(dezibotWithoutSession);
+            }
+
+            dezibotWithoutSession.UpdateDezibot(request.Value);
+            await dbContext.SaveChangesAsync();
+            return Results.NoContent();
         }
         
-        dezibot.LastConnectionUtc = DateTimeOffset.UtcNow;
+        // Update Dezibots tied to active sessions
+        foreach (var activeSession in activeSessions)
+        {
+            var dezibot = await dbContext.Dezibots
+                .FirstOrDefaultAsync(bot => bot.Ip == ip && bot.SessionId == activeSession.Id);
+            
+            if (dezibot is null)
+            {
+                // Create a new Dezibot for this specific session
+                dezibot = new Dezibot(ip, activeSession.Id);
+                await dbContext.AddAsync(dezibot);
+            }
 
-        request.Value.Switch(
-            updateLogsRequest => dezibot.Logs.Add(new LogEntry(
-                dezibot.LastConnectionUtc,
-                updateLogsRequest.LogLevel,
-                updateLogsRequest.ClassName,
-                updateLogsRequest.Message,
-                updateLogsRequest.Data)),
-            updateStatesRequest => dezibot.UpdateClassStates(updateStatesRequest));
+            dezibot.UpdateDezibot(request.Value);
+            await hubContext.Clients
+                .Client(activeSession.ClientConnectionId)
+                .SendDezibotUpdateAsync(dezibot.ToDezibotViewModel());
+        }
 
         await dbContext.SaveChangesAsync();
-
-        await hubContext.Clients.All.SendDezibotUpdateAsync(dezibot.ToDezibotViewModel());
         return Results.NoContent();
     }
-
+    
     [SuppressMessage("ReSharper", "ConstantConditionalAccessQualifier", Justification = "The request is checks for null are necessary.")]
     private static OneOf<UpdateDezibotLogsRequest, UpdateDezibotStatesRequest>? TryDeserializeRequests(string body)
     {
@@ -129,6 +149,22 @@ public static class UpdateDezibotEndpoint
         }
 
         return null;
+    }
+    
+    private static void UpdateDezibot(this Dezibot dezibot, OneOf<UpdateDezibotLogsRequest, UpdateDezibotStatesRequest> request)
+    {
+        dezibot.LastConnectionUtc = DateTimeOffset.UtcNow;
+        request.Switch(dezibot.AddLogs, dezibot.UpdateClassStates);
+    }
+    
+    private static void AddLogs(this Dezibot dezibot, UpdateDezibotLogsRequest request)
+    {
+        dezibot.Logs.Add(new LogEntry(
+            dezibot.LastConnectionUtc,
+            request.LogLevel,
+            request.ClassName,
+            request.Message,
+            request.Data));
     }
 
     private static void UpdateClassStates(this Dezibot dezibot, UpdateDezibotStatesRequest request)

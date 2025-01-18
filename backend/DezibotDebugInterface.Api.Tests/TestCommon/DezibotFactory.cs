@@ -45,13 +45,12 @@ public static class DezibotFactory
     {
         return Enumerable
             .Range(1, amount)
-            .Select(index => new Dezibot(
-                ip: ip ?? $"{_dezibotId}.{_dezibotId}.{_dezibotId}.{_dezibotId}",
-                lastConnectionUtc: lastConnectionUtc?.AddSeconds(index - 1) ?? StartOf2024.AddSeconds(index - 1),
-                classes: classes ?? CreateClasses(amount: 1),
-                logs: logs ?? CreateLogEntries(amount: 1))
+            .Select(index => new Dezibot(ip ?? $"{_dezibotId}.{_dezibotId}.{_dezibotId}.{_dezibotId}")
             {
-                Id = _dezibotId++
+                Id = _dezibotId++,
+                LastConnectionUtc = lastConnectionUtc?.AddSeconds(index - 1) ?? StartOf2024.AddSeconds(index - 1),
+                Classes = classes ?? CreateClasses(amount: 1),
+                Logs = logs ?? CreateLogEntries(amount: 1)
             })
             .ToList();
     }

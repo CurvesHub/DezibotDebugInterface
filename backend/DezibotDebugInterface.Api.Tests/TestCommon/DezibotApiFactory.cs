@@ -32,7 +32,7 @@ public class DezibotApiFactory(string testName) : WebApplicationFactory<Program>
     public async Task CreateDatabaseAsync()
     {
         await using var dbContext = ResolveDbContext();
-        await dbContext.Database.EnsureCreatedAsync();
+        await dbContext.Database.MigrateAsync();
     }
 
     /// <summary>
