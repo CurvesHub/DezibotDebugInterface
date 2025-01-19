@@ -1,7 +1,6 @@
-using DezibotDebugInterface.Api.Endpoints.DeleteDezibot;
-using DezibotDebugInterface.Api.Endpoints.GetDezibot;
+using DezibotDebugInterface.Api.Endpoints.Sessions;
+using DezibotDebugInterface.Api.Endpoints.SignalR;
 using DezibotDebugInterface.Api.Endpoints.UpdateDezibot;
-using DezibotDebugInterface.Api.SignalRHubs;
 
 using Microsoft.AspNetCore.Diagnostics;
 
@@ -22,9 +21,9 @@ public static class EndpointMap
     {
         endpoints
             .MapOpenApiRelatedEndpoints()
-            .MapGetDezibotEndpoints()
+            .MapGetSessionEndpoints()
+            .MapDeleteSessionEndpoints()
             .MapUpdateDezibotEndpoint()
-            .MapDeleteDezibotEndpoints()
             .MapHub<DezibotHub>("/api/dezibot-hub").AllowAnonymous();
     }
     

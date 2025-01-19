@@ -1,6 +1,6 @@
 using JetBrains.Annotations;
 
-namespace DezibotDebugInterface.Api.Endpoints.GetDezibot;
+namespace DezibotDebugInterface.Api.Endpoints.Common;
 
 /// <summary>
 /// Represents a view model for a Dezibot.

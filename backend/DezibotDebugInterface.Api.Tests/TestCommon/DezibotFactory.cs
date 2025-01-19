@@ -40,18 +40,17 @@ public static class DezibotFactory
         int amount = 10,
         string? ip = null,
         DateTimeOffset? lastConnectionUtc = null,
-        List<Class>? classes = null,
-        List<LogEntry>? logs = null)
+        Func<List<Class>>? classes = null,
+        Func<List<LogEntry>>? logs = null)
     {
         return Enumerable
             .Range(1, amount)
-            .Select(index => new Dezibot(
-                ip: ip ?? $"{_dezibotId}.{_dezibotId}.{_dezibotId}.{_dezibotId}",
-                lastConnectionUtc: lastConnectionUtc?.AddSeconds(index - 1) ?? StartOf2024.AddSeconds(index - 1),
-                classes: classes ?? CreateClasses(amount: 1),
-                logs: logs ?? CreateLogEntries(amount: 1))
+            .Select(index => new Dezibot(ip ?? $"{_dezibotId}.{_dezibotId}.{_dezibotId}.{_dezibotId}")
             {
-                Id = _dezibotId++
+                Id = _dezibotId++,
+                LastConnectionUtc = lastConnectionUtc?.AddSeconds(index - 1) ?? StartOf2024.AddSeconds(index - 1),
+                Classes = classes?.Invoke() ?? CreateClasses(amount: 1),
+                Logs = logs?.Invoke() ?? CreateLogEntries(amount: 1)
             })
             .ToList();
     }
@@ -98,13 +97,13 @@ public static class DezibotFactory
     public static List<Class> CreateClasses(
         int amount = 10,
         string? className = null,
-        List<Property>? properties = null)
+        Func<List<Property>>? properties = null)
     {
         return Enumerable
             .Range(1, amount)
             .Select(index => new Class(
                 name: className ?? $"Class {index}",
-                properties: properties ?? CreateProperties(amount: 1))
+                properties: properties?.Invoke() ?? CreateProperties(amount: 1))
             {
                 Id = _classId++
             })
@@ -121,13 +120,13 @@ public static class DezibotFactory
     public static List<Property> CreateProperties(
         int amount = 10,
         string? propertyName = null,
-        List<TimeValue>? timeValues = null)
+        Func<List<TimeValue>>? timeValues = null)
     {
         return Enumerable
             .Range(1, amount)
             .Select(index => new Property(
                 name: propertyName ?? $"Property {index}",
-                values: timeValues ?? CreateTimeValues(amount: 1))
+                values: timeValues?.Invoke() ?? CreateTimeValues(amount: 1))
             {
                 Id = _propertyId++
             })

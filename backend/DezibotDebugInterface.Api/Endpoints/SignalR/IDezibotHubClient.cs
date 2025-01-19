@@ -1,6 +1,6 @@
-using DezibotDebugInterface.Api.Endpoints.GetDezibot;
+using DezibotDebugInterface.Api.Endpoints.Common;
 
-namespace DezibotDebugInterface.Api.SignalRHubs;
+namespace DezibotDebugInterface.Api.Endpoints.SignalR;
 
 /// <summary>
 /// Represents a client that can receive updates about a dezibot.

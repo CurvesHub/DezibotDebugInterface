@@ -18,12 +18,12 @@ namespace DezibotDebugInterface.Api.Tests.TestCommon;
 public class DezibotApiFactory(string testName) : WebApplicationFactory<Program>
 {
     /// <summary>
-    /// Resolves a <see cref="DezibotDbContext"/> from the services.
+    /// Resolves a <see cref="ApplicationDbContext"/> from the services.
     /// </summary>
-    /// <returns>A <see cref="DezibotDbContext"/>.</returns>
-    public DezibotDbContext ResolveDbContext()
+    /// <returns>A <see cref="ApplicationDbContext"/>.</returns>
+    public ApplicationDbContext ResolveDbContext()
     {
-        return Services.CreateAsyncScope().ServiceProvider.GetRequiredService<DezibotDbContext>();
+        return Services.CreateAsyncScope().ServiceProvider.GetRequiredService<ApplicationDbContext>();
     }
     
     /// <summary>
@@ -32,7 +32,7 @@ public class DezibotApiFactory(string testName) : WebApplicationFactory<Program>
     public async Task CreateDatabaseAsync()
     {
         await using var dbContext = ResolveDbContext();
-        await dbContext.Database.EnsureCreatedAsync();
+        await dbContext.Database.MigrateAsync();
     }
 
     /// <summary>
@@ -54,10 +54,10 @@ public class DezibotApiFactory(string testName) : WebApplicationFactory<Program>
         
         builder.ConfigureTestServices(services =>
         {
-            services.RemoveAll<DezibotDbContext>();
-            services.RemoveAll<DbContextOptions<DezibotDbContext>>();
+            services.RemoveAll<ApplicationDbContext>();
+            services.RemoveAll<DbContextOptions<ApplicationDbContext>>();
 
-            services.AddDbContext<DezibotDbContext>(options =>
+            services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseSqlite($"Data Source=TestDezibot_{testName}.db",
                     sqliteOptions => sqliteOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));

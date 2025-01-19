@@ -19,8 +19,7 @@ int counter = 0;
 
 connection.On<Dezibot>("SendDezibotUpdateAsync", dezibot =>
 {
-    Console.WriteLine("Received dezibot update:");
-    dezibot.Dump();
+    Console.WriteLine($"Received dezibot update: {dezibot.Ip} - {dezibot.LastConnectionUtc}");
     Console.WriteLine($"Message count: {counter++}");
 });
 

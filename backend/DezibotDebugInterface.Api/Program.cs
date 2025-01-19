@@ -1,6 +1,5 @@
 using DezibotDebugInterface.Api;
 using DezibotDebugInterface.Api.DataAccess;
-using DezibotDebugInterface.Api.Endpoints.DeleteDezibot;
 
 var builder = WebApplication.CreateBuilder(args);
 

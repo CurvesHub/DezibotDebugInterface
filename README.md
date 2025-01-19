@@ -1,5 +1,7 @@
 # Dezibot Debug Interface
 
+// TODO: Finalize README and consolidate with the readme of the frontend
+
 This project includes a backend and frontend web server to store and display debugging and log data of the Dezibot.
 The Dezibot Code is a separate project and can be found [here](https://github.com/CurvesHub/dezibot).
 
@@ -54,100 +56,8 @@ The backend provides the following endpoints:
 - `GET /api/dezibot/[ip]`
 - `/api/dezibot-hub`
 
-```json
-[
-  {
-    "ip": "111.222.333.444",
-    "lastConnectionUtc": "2024-01-02T00:00:00",
-    "logs": [
-      {
-        "timestampUtc": "2024-01-01T00:00:00",
-        "level": "INFO",
-        "className": "DISPLAY",
-        "message": "My first message",
-        "data": "Some data"
-      },
-      {
-        "timestampUtc": "2024-01-02T00:00:00",
-        "level": "INFO",
-        "className": "DISPLAY",
-        "message": "My second message",
-        "data": "Some data"
-      },
-      {
-        "timestampUtc": "2024-01-03T00:00:00",
-        "level": "INFO",
-        "className": "DISPLAY",
-        "message": "My second message",
-        "data": null
-      }
-    ],
-    "classes": [
-      {
-        "name": "DISPLAY",
-        "properties": [
-          {
-            "name": "currentLine",
-            "values": [
-              {
-                "timestampUtc": "2024-01-01T00:00:00",
-                "value": "12"
-              },
-              {
-                "timestampUtc": "2024-01-02T00:00:00",
-                "value": "12"
-              }
-            ]
-          },
-          {
-            "name": "isFlipped",
-            "values": [
-              {
-                "timestampUtc": "2024-01-01T00:00:00",
-                "value": "true"
-              },
-              {
-                "timestampUtc": "2024-01-02T00:00:00",
-                "value": "true"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "name": "className",
-        "properties": [
-          {
-            "name": "propertyName1",
-            "values": [
-              {
-                "timestampUtc": "2024-01-01T00:00:00",
-                "value": "value1"
-              },
-              {
-                "timestampUtc": "2024-01-02T00:00:00",
-                "value": "value1"
-              }
-            ]
-          },
-          {
-            "name": "propertyName2",
-            "values": [
-              {
-                "timestampUtc": "2024-01-01T00:00:00",
-                "value": "value2"
-              },
-              {
-                "timestampUtc": "2024-01-02T00:00:00",
-                "value": "value2"
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  }
-]
+```json5
+// TODO: Update
 ```
 
 #### `PUT /api/dezibot/update`

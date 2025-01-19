@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DezibotDebugInterface.Api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241215005735_Initial")]
-    partial class Initial
+    [Migration("20250118133227_AddSessionModel")]
+    partial class AddSessionModel
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -78,10 +78,14 @@ namespace DezibotDebugInterface.Api.Migrations
                     b.Property<DateTimeOffset>("LastConnectionUtc")
                         .HasColumnType("TEXT");
 
+                    b.Property<int?>("SessionId")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("Ip")
-                        .IsUnique();
+                    b.HasIndex("Ip");
+
+                    b.HasIndex("SessionId");
 
                     b.ToTable("Dezibots", (string)null);
                 });
@@ -99,6 +103,27 @@ namespace DezibotDebugInterface.Api.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Properties", (string)null);
+                });
+
+            modelBuilder.Entity("DezibotDebugInterface.Api.DataAccess.Models.Session", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ClientConnectionId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("CreatedUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Sessions", (string)null);
                 });
 
             modelBuilder.Entity("DezibotDebugInterface.Api.DataAccess.Models.TimeValue", b =>
@@ -166,6 +191,11 @@ namespace DezibotDebugInterface.Api.Migrations
 
             modelBuilder.Entity("DezibotDebugInterface.Api.DataAccess.Models.Dezibot", b =>
                 {
+                    b.HasOne("DezibotDebugInterface.Api.DataAccess.Models.Session", null)
+                        .WithMany("Dezibots")
+                        .HasForeignKey("SessionId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.OwnsMany("DezibotDebugInterface.Api.DataAccess.Models.LogEntry", "Logs", b1 =>
                         {
                             b1.Property<int>("Id")
@@ -181,6 +211,10 @@ namespace DezibotDebugInterface.Api.Migrations
 
                             b1.Property<int>("DezibotId")
                                 .HasColumnType("INTEGER");
+
+                            b1.Property<string>("LogLevel")
+                                .IsRequired()
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("Message")
                                 .IsRequired()
@@ -215,6 +249,11 @@ namespace DezibotDebugInterface.Api.Migrations
                         .HasForeignKey("ValuesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("DezibotDebugInterface.Api.DataAccess.Models.Session", b =>
+                {
+                    b.Navigation("Dezibots");
                 });
 #pragma warning restore 612, 618
         }

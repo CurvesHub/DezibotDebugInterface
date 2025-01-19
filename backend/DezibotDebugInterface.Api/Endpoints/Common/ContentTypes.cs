@@ -1,4 +1,4 @@
-namespace DezibotDebugInterface.Api.Endpoints.Constants;
+namespace DezibotDebugInterface.Api.Endpoints.Common;
 
 /// <summary>
 /// Content types for the API.
