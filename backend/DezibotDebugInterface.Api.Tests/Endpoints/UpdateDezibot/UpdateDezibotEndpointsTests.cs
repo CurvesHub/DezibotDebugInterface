@@ -220,6 +220,7 @@ public class UpdateDezibotEndpointsTests() : BaseDezibotTestFixture(nameof(Updat
         
         // Act
         await UpdateDezibotAsync(_logRequest, HttpStatusCode.NoContent);
+        await Task.Delay(TimeSpan.FromMilliseconds(200));
         
         // Assert
         await using var dbContext = ResolveDbContext();
