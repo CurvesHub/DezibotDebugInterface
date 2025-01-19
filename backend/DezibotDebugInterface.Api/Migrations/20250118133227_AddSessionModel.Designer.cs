@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DezibotDebugInterface.Api.Migrations
 {
-    [DbContext(typeof(DezibotDbContext))]
+    [DbContext(typeof(ApplicationDbContext))]
     [Migration("20250118133227_AddSessionModel")]
     partial class AddSessionModel
     {

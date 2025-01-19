@@ -19,7 +19,7 @@ public static class DeleteSessionEndpoints
     /// <returns>The endpoint route builder with the session endpoints mapped to it.</returns>
     public static IEndpointRouteBuilder MapDeleteSessionEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapDelete("/api/sessions", DeleteAllSessionsAsync)
+        endpoints.MapDelete("/api/sessions", DeleteAllInActiveSessionsAsync)
             .WithName("Delete All Sessions")
             .WithSummary("Deletes all sessions.")
             .Produces<string>((int)HttpStatusCode.OK, ContentTypes.ApplicationJson)
@@ -33,7 +33,7 @@ public static class DeleteSessionEndpoints
             .ProducesProblem((int)HttpStatusCode.Conflict, ContentTypes.ApplicationProblemJson)
             .WithOpenApi();
         
-        endpoints.MapDelete("/api/session/{id:int}/dezibot/{ip}", DeleteDezibotAsync)
+        endpoints.MapDelete("/api/session/{id:int}/dezibot/{ip}", DeleteDezibotFromSessionAsync)
             .WithName("Delete Dezibot By Ip From Session by Id")
             .WithSummary("Deletes a dezibot by its IP address from a session by its ID.")
             .Produces<string>((int)HttpStatusCode.OK, ContentTypes.ApplicationJson)
@@ -43,13 +43,13 @@ public static class DeleteSessionEndpoints
         return endpoints;
     }
     
-    private static async Task<IResult> DeleteAllSessionsAsync(DezibotDbContext dbContext)
+    private static async Task<IResult> DeleteAllInActiveSessionsAsync(ApplicationDbContext dbContext)
     {
-        await dbContext.Sessions.ExecuteDeleteAsync();
+        await dbContext.Sessions.Where(session => !session.IsActive).ExecuteDeleteAsync();
         return Results.Ok("Deleted all sessions.");
     }
     
-    private static async Task<IResult> DeleteSessionByIdAsync(DezibotDbContext dbContext, int id)
+    private static async Task<IResult> DeleteSessionByIdAsync(ApplicationDbContext dbContext, int id)
     {
         var session = await dbContext.Sessions.FirstOrDefaultAsync(session => session.Id == id);
         if (session is null)
@@ -62,7 +62,7 @@ public static class DeleteSessionEndpoints
         if (session.IsActive)
         {
             return Results.Problem(
-                detail: "Cannot delete an active session.",
+                detail: "Session is active and cannot be deleted.",
                 statusCode: (int)HttpStatusCode.Conflict);
         }
 
@@ -72,7 +72,7 @@ public static class DeleteSessionEndpoints
         return Results.Ok($"Deleted session with ID {id}.");
     }
     
-    private static async Task<IResult> DeleteDezibotAsync(DezibotDbContext dbContext, int id, string ip)
+    private static async Task<IResult> DeleteDezibotFromSessionAsync(ApplicationDbContext dbContext, int id, string ip)
     {
         var session = await dbContext.Sessions
             .Include(session => session.Dezibots.Where(dezibot => dezibot.Ip == ip))

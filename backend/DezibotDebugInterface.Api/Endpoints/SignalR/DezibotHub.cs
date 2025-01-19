@@ -17,7 +17,7 @@ public sealed class DezibotHub(IServiceScopeFactory scopeFactory) : Hub<IDezibot
     public override async Task OnConnectedAsync()
     {
         await using var scope = scopeFactory.CreateAsyncScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<DezibotDbContext>();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         
         string connectionId = Context.ConnectionId;
         
@@ -41,7 +41,7 @@ public sealed class DezibotHub(IServiceScopeFactory scopeFactory) : Hub<IDezibot
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
         await using var scope = scopeFactory.CreateAsyncScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<DezibotDbContext>();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         
         string connectionId = Context.ConnectionId;
         

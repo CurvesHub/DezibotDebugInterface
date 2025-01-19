@@ -36,7 +36,6 @@ public static class UpdateDezibotEndpoints
             .Accepts<UpdateDezibotStatesRequest>(ContentTypes.ApplicationJson)
             .Produces((int)HttpStatusCode.NoContent)
             .ProducesProblem((int)HttpStatusCode.BadRequest, ContentTypes.ApplicationProblemJson)
-            .ProducesProblem((int)HttpStatusCode.InternalServerError, ContentTypes.ApplicationProblemJson)
             .WithOpenApi();
         
         return endpoints;
@@ -44,7 +43,7 @@ public static class UpdateDezibotEndpoints
     
     private static async Task<IResult> HandleDezibotUpdateAsync(
         HttpContext httpContext,
-        DezibotDbContext dbContext,
+        ApplicationDbContext dbContext,
         IHubContext<DezibotHub, IDezibotHubClient> hubContext)
     {
         // Validate the request body
@@ -65,7 +64,7 @@ public static class UpdateDezibotEndpoints
         if (string.IsNullOrWhiteSpace(ip))
         {
             return Results.Problem(
-                detail: "The request must contain a valid ip address.",
+                detail: "The IP address must not be null or empty.",
                 statusCode: (int)HttpStatusCode.BadRequest);
         }
 

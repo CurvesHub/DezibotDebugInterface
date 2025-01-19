@@ -22,11 +22,10 @@ public class UpdateDezibotEndpointsTests() : BaseDezibotTestFixture(nameof(Updat
         { "TestClass", new Dictionary<string, string> { { "TestProperty", "TestValue" } } }
     });
     
-    // TODO: Update when Session Tests are implemented
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
-    public async Task UpdateDezibotAsync_WhenRequestIsWrongType_ShouldReturnBadRequest(bool emptyRequest)
+    public async Task HandleDezibotUpdateAsync_WhenRequestIsWrongType_ShouldReturnBadRequest(bool emptyRequest)
     {
         // Arrange
         var expectedResponse = new ProblemDetails
@@ -48,23 +47,141 @@ public class UpdateDezibotEndpointsTests() : BaseDezibotTestFixture(nameof(Updat
         response.Should().BeEquivalentTo(expectedResponse);
     }
     
-    [Fact]
-    public async Task UpdateLogs_WhenDezibotNotExists_ShouldCreateDezibotWithLogsAndReturnNoContent()
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    public async Task HandleDezibotUpdateAsync_WhenIpAdressIsNullOrEmpty_ShouldReturnBadRequest(string? ip)
     {
+        // Arrange
+        var expectedResponse = new ProblemDetails
+        {
+            Title = "Bad Request",
+            Detail = ip is null
+                ? "The request must contain either state or log data."
+                : "The IP address must not be null or empty.",
+            Status = (int)HttpStatusCode.BadRequest,
+            Type = "https://tools.ietf.org/html/rfc9110#section-15.5.1"
+        };
+        
+        var request = _logRequest with { Ip = ip! };
+        
         // Act
-        await UpdateDezibotAsync(_logRequest, HttpStatusCode.NoContent);
+        var response = await UpdateDezibotAsync(request, HttpStatusCode.BadRequest);
+        
+        // Assert
+        response.Should().BeEquivalentTo(expectedResponse);
+    }
+    
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task HandleDezibotUpdateAsync_WhenNoActiveSessionExists_ShouldNotSaveData(bool isLogRequest)
+    {
+        // Arrange
+        object request = isLogRequest ? _logRequest : _stateRequest;
+        
+        // Act
+        await UpdateDezibotAsync(request, HttpStatusCode.NoContent);
         
         // Assert
         await using var dbContext = ResolveDbContext();
-        var dezibot = await dbContext.Dezibots.Where(dezibot => dezibot.Ip == _logRequest.Ip).FirstOrDefaultAsync();
+        var dezibot = await dbContext.Dezibots
+            .FirstOrDefaultAsync(dezibot => dezibot.Ip == (isLogRequest ? _logRequest.Ip : _stateRequest.Ip));
         
-        dezibot.Should().NotBeNull();
-        LogsContainSingle(dezibot!.Logs, dezibot.LastConnectionUtc);
+        dezibot.Should().BeNull();
     }
     
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task HandleDezibotUpdateAsync_WhenActiveSessionExistsAndDezibotNotExists_ShouldCreateNewDezibot(bool isLogRequest)
+    {
+        // Arrange
+        var activeSession = SessionFactory.CreateSession();
+        activeSession.Dezibots.Clear();
+        
+        await using (var dbContext = ResolveDbContext())
+        {
+            dbContext.Sessions.Add(activeSession);
+            await dbContext.SaveChangesAsync();
+        }
+        
+        object request = isLogRequest ? _logRequest : _stateRequest;
+
+        // Act
+        await UpdateDezibotAsync(request, HttpStatusCode.NoContent);
+        
+        // Assert
+        await using var assertDbContext = ResolveDbContext();
+        var dezibot = await assertDbContext.Dezibots
+            .FirstOrDefaultAsync(dezibot => dezibot.Ip == (isLogRequest ? _logRequest.Ip : _stateRequest.Ip));
+        
+        dezibot.Should().NotBeNull();
+
+        if (isLogRequest)
+        {
+            LogsContainSingle(dezibot!.Logs, dezibot.LastConnectionUtc);
+        }
+        else
+        {
+            await ClassesContainSingle(dezibot!.Classes);
+        }
+    }
+    
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task HandleDezibotUpdateAsync_WhenActiveSessionExistsAndDezibotExists_ShouldUpdateDezibot(bool isLogRequest)
+    {
+        // Arrange
+        var activeSession = SessionFactory.CreateSession();
+        var existingLogs = activeSession.Dezibots[0].Logs;
+        var existingClasses = activeSession.Dezibots[0].Classes;
+        
+        await using (var dbContext = ResolveDbContext())
+        {
+            dbContext.Sessions.Add(activeSession);
+            await dbContext.SaveChangesAsync();
+        }
+        
+        object request = isLogRequest
+            ? _logRequest with { Ip = activeSession.Dezibots[0].Ip }
+            : _stateRequest with { Ip = activeSession.Dezibots[0].Ip };
+        
+        // Act
+        await UpdateDezibotAsync(request, HttpStatusCode.NoContent);
+        
+        // Assert
+        await using var assertDbContext = ResolveDbContext();
+        var dezibot = await assertDbContext.Dezibots
+            .FirstOrDefaultAsync(dezibot => dezibot.Ip == activeSession.Dezibots[0].Ip);
+        
+        dezibot.Should().NotBeNull();
+        if (isLogRequest)
+        {
+            LogsContainSingle(dezibot!.Logs, dezibot.LastConnectionUtc);
+            dezibot.Logs.Should().HaveCount(existingLogs.Count + 1).And.ContainEquivalentOf(existingLogs[0]);
+        }
+        else
+        {
+            await ClassesContainSingle(dezibot!.Classes);
+            dezibot.Classes.Should().HaveCount(existingClasses.Count + 1).And.ContainEquivalentOf(existingClasses[0]);
+        }
+    }
+   
+        
     [Fact]
     public async Task UpdateLogs_WhenSameRequestFiredTreeTimes_ShouldOnlySaveNewData()
     {
+        var activeSession = SessionFactory.CreateSession();
+        activeSession.Dezibots.Clear();
+        
+        await using (var arrageDbContext = ResolveDbContext())
+        {
+            arrageDbContext.Sessions.Add(activeSession);
+            await arrageDbContext.SaveChangesAsync();
+        }
+        
         // Act
         await UpdateDezibotAsync(_logRequest, HttpStatusCode.NoContent);
         await UpdateDezibotAsync(_logRequest, HttpStatusCode.NoContent);
@@ -79,79 +196,10 @@ public class UpdateDezibotEndpointsTests() : BaseDezibotTestFixture(nameof(Updat
     }
     
     [Fact]
-    public async Task UpdateStates_WhenDezibotNotExists_ShouldCreateDezibotWithStatesAndReturnNoContent()
-    {
-        // Act
-        await UpdateDezibotAsync(_stateRequest, HttpStatusCode.NoContent);
-        
-        // Assert
-        await using var dbContext = ResolveDbContext();
-        var dezibot = await dbContext.Dezibots.Where(dezibot => dezibot.Ip == _logRequest.Ip).FirstOrDefaultAsync();
-        
-        dezibot.Should().NotBeNull();
-        await ClassesContainSingle(dezibot!.Classes);
-    }
-    
-    [Fact]
-    public async Task UpdateLogs_WhenDezibotExists_ShouldAddLogEntryAndReturnNoContent()
+    public async Task HandleDezibotUpdateAsync_WhenActiveSessionExistsAndDezibotExists_ShouldSendDezibotUpdateToAllClients()
     {
         // Arrange
-        List<LogEntry> existingLogs;
-        await using (var dbContext = ResolveDbContext())
-        {
-            var existingDezibot = DezibotFactory.CreateDezibot(_logRequest.Ip);
-            
-            dbContext.Add(existingDezibot);
-            await dbContext.SaveChangesAsync();
-            
-            existingLogs = existingDezibot.Logs;
-        }
-        
-        // Act
-        await UpdateDezibotAsync(_logRequest, HttpStatusCode.NoContent);
-
-        // Assert
-
-        await using var assertDbContext = ResolveDbContext();
-        var dezibot = await assertDbContext.Dezibots.Where(dezibot => dezibot.Ip == _logRequest.Ip).FirstOrDefaultAsync();
-
-        dezibot.Should().NotBeNull();
-        LogsContainSingle(dezibot!.Logs, dezibot.LastConnectionUtc);
-        dezibot.Logs.Should().HaveCount(existingLogs.Count + 1).And.ContainEquivalentOf(existingLogs[0]);
-    }
-    
-    [Fact]
-    public async Task UpdateStates_WhenDezibotExists_ShouldUpdateStatesAndReturnNoContent()
-    {
-        // Arrange
-        List<Class> existingClasses;
-        await using (var dbContext = ResolveDbContext())
-        {
-            var existingDezibot = DezibotFactory.CreateDezibot(_stateRequest.Ip);
-            
-            dbContext.Add(existingDezibot);
-            await dbContext.SaveChangesAsync();
-            
-            existingClasses = existingDezibot.Classes;
-        }
-        
-        // Act
-        await UpdateDezibotAsync(_stateRequest, HttpStatusCode.NoContent);
-
-        // Assert
-        await using var assertDbContext = ResolveDbContext();
-        var dezibot = await assertDbContext.Dezibots.Where(dezibot => dezibot.Ip == _stateRequest.Ip).FirstOrDefaultAsync();
-        
-        dezibot.Should().NotBeNull();
-        await ClassesContainSingle(dezibot!.Classes);
-        dezibot.Classes.Should().HaveCount(existingClasses.Count + 1).And.ContainEquivalentOf(existingClasses[0]);
-    }
-    
-    [Fact]
-    public async Task UpdateDezibotAsync_WhenRequestIsValid_ShouldSendDezibotUpdateToAllClients()
-    {
-        // Arrange
-        var connection = CreateHubConnection();
+        await using var connection = CreateHubConnection();
         
         List<DezibotViewModel> dezibotMessages = [];
         connection.On(
@@ -161,13 +209,25 @@ public class UpdateDezibotEndpointsTests() : BaseDezibotTestFixture(nameof(Updat
         await connection.StartAsync();
         connection.State.Should().Be(HubConnectionState.Connected);
         
+        await using(var arrangeDbContext = ResolveDbContext())
+        {
+            connection.ConnectionId.Should().NotBeNullOrEmpty();
+            var activeSession = new Session(connection.ConnectionId!);
+            activeSession.Dezibots.Add(new Dezibot(_logRequest.Ip, activeSession.Id));
+            arrangeDbContext.Sessions.Add(activeSession);
+            await arrangeDbContext.SaveChangesAsync();
+        }
+        
         // Act
         await UpdateDezibotAsync(_logRequest, HttpStatusCode.NoContent);
-        await Task.Delay(TimeSpan.FromSeconds(1));
         
         // Assert
         await using var dbContext = ResolveDbContext();
-        var dezibot = await dbContext.Dezibots.Where(dezibot => dezibot.Ip == _logRequest.Ip).FirstOrDefaultAsync();
+        
+        var session = await dbContext.Sessions.Include(session => session.Dezibots).FirstOrDefaultAsync();
+        session.Should().NotBeNull();
+        
+        var dezibot = session!.Dezibots.Should().ContainSingle(dezibot => dezibot.Ip == _logRequest.Ip).Which;
         var dezibotMessage = dezibotMessages.Should().ContainSingle(viewModel => viewModel.Ip == _logRequest.Ip).Which;
         
         dezibot.Should().NotBeNull();
@@ -184,6 +244,7 @@ public class UpdateDezibotEndpointsTests() : BaseDezibotTestFixture(nameof(Updat
         // Cleanup
         await connection.StopAsync();
         connection.State.Should().Be(HubConnectionState.Disconnected);
+        await Task.Delay(TimeSpan.FromMilliseconds(200));
     }
     
     private async Task<ProblemDetails?> UpdateDezibotAsync<TRequest>(TRequest request, HttpStatusCode statusCode)

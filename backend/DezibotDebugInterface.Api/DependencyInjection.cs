@@ -27,7 +27,7 @@ public static class DependencyInjection
         var connectionString = configuration.GetConnectionString("DezibotSQLite")
                                ?? "Data Source=Dezibot.db";
 
-        return services.AddSqlite<DezibotDbContext>(connectionString,
+        return services.AddSqlite<ApplicationDbContext>(connectionString,
             builder => builder.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
     }
 }

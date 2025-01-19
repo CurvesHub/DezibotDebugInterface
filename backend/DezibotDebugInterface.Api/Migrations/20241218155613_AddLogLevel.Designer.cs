@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DezibotDebugInterface.Api.Migrations
 {
-    [DbContext(typeof(DezibotDbContext))]
+    [DbContext(typeof(ApplicationDbContext))]
     [Migration("20241218155613_AddLogLevel")]
     partial class AddLogLevel
     {

@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DezibotDebugInterface.Api.Migrations
 {
-    [DbContext(typeof(DezibotDbContext))]
+    [DbContext(typeof(ApplicationDbContext))]
     partial class DezibotDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

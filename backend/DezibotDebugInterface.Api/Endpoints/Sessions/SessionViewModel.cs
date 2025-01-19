@@ -13,7 +13,7 @@ namespace DezibotDebugInterface.Api.Endpoints.Sessions;
 /// <param name="Dezibots">The dezibots associated with this session.</param>
 [PublicAPI]
 public record SessionViewModel(
-    string Id,
+    int Id,
     bool IsActive,
     DateTimeOffset CreatedUtc,
     List<DezibotViewModel> Dezibots);

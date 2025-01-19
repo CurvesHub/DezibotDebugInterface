@@ -26,7 +26,7 @@ public class BaseDezibotTestFixture : IAsyncLifetime
         HttpClient = _factory.CreateClient();
     }
     
-    protected DezibotDbContext ResolveDbContext()
+    protected ApplicationDbContext ResolveDbContext()
     {
         return _factory.ResolveDbContext();
     }
@@ -39,6 +39,31 @@ public class BaseDezibotTestFixture : IAsyncLifetime
                 options.HttpMessageHandlerFactory = _ => _factory.Server.CreateHandler();
             })
             .Build();
+    }
+   
+    /// <summary>
+    /// Builds a route with the provided parameters.
+    /// </summary>
+    /// <param name="route">The route to use.</param>
+    /// <param name="id">The ID to insert into the route.</param>
+    /// <param name="ip">The IP address to insert into the route.</param>
+    /// <example>"/api/session/{id:int}/dezibot/{ip}" with id = 1 and ip = "1.1.1.1" will return "/api/session/1/dezibot/1.1.1.1</example>
+    /// <returns>The route with the provided parameters inserted.</returns>
+    protected static string BuildRoute(string route, int? id = null, string? ip = null)
+    {
+        if (id is null)
+        {
+            return route;
+        }
+        
+        if(ip is null)
+        {
+            return route.Replace("{id:int}", id.ToString());
+        }
+        
+        return route
+            .Replace("{id:int}", id.ToString())
+            .Replace("{ip}", ip);
     }
 
     public async Task InitializeAsync()

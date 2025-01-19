@@ -1,4 +1,5 @@
 using DezibotDebugInterface.Api.DataAccess.Models;
+using DezibotDebugInterface.Api.Endpoints.Sessions;
 
 namespace DezibotDebugInterface.Api.Endpoints.Common;
 
@@ -7,6 +8,53 @@ namespace DezibotDebugInterface.Api.Endpoints.Common;
 /// </summary>
 public static class ViewModelConverter
 {
+    /// <summary>
+    /// Converts a collection of <see cref="Session"/>s to a collection of <see cref="SessionIdentifier"/>s.
+    /// </summary>
+    /// <param name="sessions">The collection of <see cref="Session"/>s to convert.</param>
+    /// <returns>A collection of <see cref="SessionIdentifier"/>s.</returns>
+    public static List<SessionIdentifier> ToSessionIdentifiers(this IEnumerable<Session> sessions)
+    {
+        return sessions.Select(session => session.ToSessionIdentifier()).ToList();
+    }
+    
+    /// <summary>
+    /// Converts a <see cref="Session"/> to a <see cref="SessionIdentifier"/>. 
+    /// </summary>
+    /// <param name="session">The <see cref="Session"/> to convert.</param>
+    /// <returns>The converted <see cref="SessionIdentifier"/>.</returns>
+    public static SessionIdentifier ToSessionIdentifier(this Session session)
+    {
+        return new SessionIdentifier(
+            Id: session.Id,
+            IsActive: session.IsActive,
+            CreatedUtc: session.CreatedUtc);
+    }
+    
+    /// <summary>
+    /// Converts a collection of <see cref="Session"/>s to a collection of <see cref="SessionViewModel"/>s.
+    /// </summary>
+    /// <param name="sessions">The collection of <see cref="Session"/>s to convert.</param>
+    /// <returns>A collection of <see cref="SessionViewModel"/>s.</returns>
+    public static List<SessionViewModel> ToSessionViewModels(this IEnumerable<Session> sessions)
+    {
+        return sessions.Select(session => session.ToSessionViewModel()).ToList();
+    }
+    
+    /// <summary>
+    /// Converts a <see cref="Session"/> to a <see cref="SessionViewModel"/>.
+    /// </summary>
+    /// <param name="session">The <see cref="Session"/> to convert.</param>
+    /// <returns>The converted <see cref="SessionViewModel"/>.</returns>
+    public static SessionViewModel ToSessionViewModel(this Session session)
+    {
+        return new SessionViewModel(
+            Id: session.Id,
+            IsActive: session.IsActive,
+            CreatedUtc: session.CreatedUtc,
+            Dezibots: session.Dezibots.ToDezibotViewModels());
+    }
+    
     /// <summary>
     /// Converts a collection of <see cref="Dezibot"/>s to a collection of <see cref="DezibotViewModel"/>s.
     /// </summary>

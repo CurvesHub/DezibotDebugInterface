@@ -38,7 +38,7 @@ public static class GetSessionEndpoints
             .ProducesProblem((int)HttpStatusCode.NotFound, ContentTypes.ApplicationProblemJson)
             .WithOpenApi();
         
-        endpoints.MapGet("api/session/{id:int}/dezibots/{ip}", GetDezibotByIpAsync)
+        endpoints.MapGet("api/session/{id:int}/dezibots/{ip}", GetDezibotFromSessionAsync)
             .WithName("Get Dezibot By Ip")
             .WithSummary("Returns a dezibot by its IP address.")
             .Produces<DezibotViewModel>((int)HttpStatusCode.OK, ContentTypes.ApplicationProblemJson)
@@ -48,33 +48,32 @@ public static class GetSessionEndpoints
         return endpoints;
     }
     
-    private static async Task<IResult> GetAllSessionIdentifiersAsync(DezibotDbContext dbContext)
+    private static async Task<IResult> GetAllSessionIdentifiersAsync(ApplicationDbContext dbContext)
     {
         var sessionIdentifiers = await dbContext.Sessions
-            .Select(session => new SessionIdentifier(session.Id, session.IsActive, session.CreatedUtc))
+            .Select(session => session.ToSessionIdentifier())
             .ToListAsync();
 
         return Results.Ok(sessionIdentifiers);
     }
     
-    private static async Task<IResult> GetAllSessionsAsync(DezibotDbContext dbContext)
+    private static async Task<IResult> GetAllSessionsAsync(ApplicationDbContext dbContext)
     {
         var sessions = await dbContext.Sessions
-            .Select(session => new SessionViewModel(
-                session.Id.ToString(),
-                session.IsActive,
-                session.CreatedUtc,
-                session.Dezibots.ToDezibotViewModels()))
+            .Include(session => session.Dezibots)
+            .Select(session => session.ToSessionViewModel())
             .ToListAsync();
 
         return Results.Ok(sessions);
     }
     
-    private static async Task<IResult> GetSessionByIdAsync(DezibotDbContext dbContext, int id)
+    private static async Task<IResult> GetSessionByIdAsync(ApplicationDbContext dbContext, int id)
     {
         var session = await dbContext.Sessions
             .Include(session => session.Dezibots)
-            .FirstOrDefaultAsync(session => session.Id == id);
+            .Where(session => session.Id == id)
+            .Select(session => session.ToSessionViewModel())
+            .FirstOrDefaultAsync();
 
         if (session is null)
         {
@@ -83,23 +82,21 @@ public static class GetSessionEndpoints
                 statusCode: (int)HttpStatusCode.NotFound);
         }
         
-        return Results.Ok(new SessionViewModel(
-            session.Id.ToString(),
-            session.IsActive,
-            session.CreatedUtc,
-            session.Dezibots.ToDezibotViewModels()));
+        return Results.Ok(session);
     }
     
-    private static async Task<IResult> GetDezibotByIpAsync(DezibotDbContext dbContext, int id, string ip)
+    private static async Task<IResult> GetDezibotFromSessionAsync(ApplicationDbContext dbContext, int id, string ip)
     {
         var session = await dbContext.Sessions
             .Include(session => session.Dezibots.Where(dezibot => dezibot.Ip == ip))
-            .FirstOrDefaultAsync(session => session.Id == id);
+            .Where(session => session.Id == id)
+            .Select(session => session.ToSessionViewModel())
+            .FirstOrDefaultAsync();
 
         if (session is null)
         {
             return Results.Problem(
-                detail: "The session does not exist.",
+                detail: $"Session with ID {id} not found.",
                 statusCode: (int)HttpStatusCode.NotFound);
         }
         
@@ -107,10 +104,10 @@ public static class GetSessionEndpoints
         if (dezibot is null)
         {
             return Results.Problem(
-                detail: "The dezibot does not exist in the session.",
+                detail: $"The dezibot with IP {ip} was not found in session with ID {id}.",
                 statusCode: (int)HttpStatusCode.NotFound);
         }
         
-        return Results.Ok(dezibot.ToDezibotViewModel());
+        return Results.Ok(dezibot);
     }
 }
