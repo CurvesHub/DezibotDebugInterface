@@ -33,7 +33,7 @@
         
         <BotLogPanel :bot="bot" v-if="isLogsOpen" @hide-logs-click="isLogsOpen = false"/>
 
-        <BotGraph :props="propsState" v-if="propsState.length > 0"/>
+        <BotGraph :props="propsState" v-if="propsState.length > 0" @hide-graph-click="selectedProperties = new Map()"/>
     </div>
 </template>
 
