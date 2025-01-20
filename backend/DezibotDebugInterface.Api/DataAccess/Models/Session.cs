@@ -8,17 +8,18 @@ namespace DezibotDebugInterface.Api.DataAccess.Models;
 /// Represents a session.
 /// </summary>
 [SuppressMessage("ReSharper", "EntityFramework.ModelValidation.UnlimitedStringLength", Justification = "The string fields wont be longer than 255 characters.")]
+[SuppressMessage("SonarQube", "S3427: Method overloads with default parameter values should not overlap", Justification = "EF Core requires parameterless constructor.")]
 public class Session
 {
     /// <summary>
     /// The unique identifier of the session.
     /// </summary>
     public int Id { get; init; }
-    
+ 
     /// <summary>
-    /// Indicates whether the session is active.
+    /// The name of the session.
     /// </summary>
-    public bool IsActive { get; set; } = true;
+    public string? Name { get; init; }
     
     /// <summary>
     /// The date and time the session was created in UTC.
@@ -26,9 +27,9 @@ public class Session
     public DateTimeOffset CreatedUtc { get; init; } = DateTimeOffset.UtcNow;
     
     /// <summary>
-    /// The SignalR connection ID for this session.
+    /// The SignalR client connection IDs for this session.
     /// </summary>
-    public string ClientConnectionId { get; init; }
+    public List<HubClientConnection> ClientConnections { get; init; } = [];
     
     /// <summary>
     /// The dezibots associated with this session.
@@ -38,10 +39,10 @@ public class Session
     /// <summary>
     /// Creates a new instance of the <see cref="Session"/> class.
     /// </summary>
-    /// <param name="clientConnectionId">The SignalR connection in the session.</param>
-    public Session(string clientConnectionId)
+    /// <param name="name">The name of the session.</param>
+    public Session(string? name = null)
     {
-        ClientConnectionId = clientConnectionId;
+        Name = name;
     }
     
     /// <summary>

@@ -14,9 +14,16 @@ public class SessionConfiguration : IEntityTypeConfiguration<Session>
         builder.ToTable("Sessions");
         builder.HasKey(session => session.Id);
         
-        builder.Property(session => session.IsActive).IsRequired();
         builder.Property(session => session.CreatedUtc).IsRequired();
-        builder.Property(session => session.ClientConnectionId).IsRequired();
+        
+        builder.OwnsMany(session => session.ClientConnections, connectionBuilder =>
+        {
+            connectionBuilder.ToTable("HubClientConnections");
+            connectionBuilder.HasKey(connection => connection.Id);
+            connectionBuilder.WithOwner().HasForeignKey(connection => connection.SessionId);
+            connectionBuilder.Property(connection => connection.ConnectionId).IsRequired();
+            connectionBuilder.Property(connection => connection.ContinueSession).IsRequired();
+        });
 
         builder.HasMany(session => session.Dezibots)
             .WithOne()

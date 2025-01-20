@@ -12,12 +12,13 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DezibotDebugInterface.Api.Tests.Endpoints.Sessions;
 
+// TODO: Fix test with new session handling
 public class GetSessionEndpointsTests() : BaseDezibotTestFixture(nameof(GetSessionEndpointsTests))
 {
     private const string GetAllSessionIdentifiersRoute = "/api/sessions/available";
     private const string GetAllSessionsRoute = "/api/sessions";
     private const string GetSessionByIdRoute = "/api/session/{id:int}";
-    private const string GetDezibotByIpRoute = "/api/session/{id:int}/dezibots/{ip}";
+    private const string GetDezibotByIpRoute = "/api/session/{id:int}/dezibot/{ip}";
     
     [Fact]
     public async Task GetAllSessionIdentifiersAsync_WhenSessionNotExists_ShouldReturnEmptyList()

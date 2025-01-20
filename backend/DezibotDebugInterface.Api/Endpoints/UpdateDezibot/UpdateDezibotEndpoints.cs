@@ -69,12 +69,12 @@ public static class UpdateDezibotEndpoints
         }
 
         // Handle the session association
-        var activeSessions = await dbContext.Sessions
-            .Include(session => session.Dezibots)
-            .Where(session => session.IsActive)
+        var activeUsedSessions = await dbContext.Sessions
+            .Include(session => session.Dezibots.Where(dezibot => dezibot.Ip == ip))
+            .Where(session => session.ClientConnections.Any(client => client.ContinueSession))
             .ToListAsync();
 
-        if (activeSessions.Count is 0)
+        if (activeUsedSessions.Count is 0)
         {
             // No active sessions -> ignore the data
             // Since the bot can easily be restarted we won't have to care about data loss
@@ -82,21 +82,23 @@ public static class UpdateDezibotEndpoints
         }
         
         // Update Dezibots tied to active sessions
-        foreach (var activeSession in activeSessions)
+        foreach (var session in activeUsedSessions)
         {
-            var dezibot = activeSession.Dezibots.FirstOrDefault(bot => bot.Ip == ip);
+            var dezibot = session.Dezibots.FirstOrDefault(bot => bot.Ip == ip);
             
             if (dezibot is null)
             {
                 // Create a new Dezibot for this specific session
-                dezibot = new Dezibot(ip, activeSession.Id);
+                dezibot = new Dezibot(ip, session.Id);
                 await dbContext.AddAsync(dezibot);
             }
 
             dezibot.UpdateDezibot(request.Value);
+            
+            // Notify the client about the updated Dezibot
             await hubContext.Clients
-                .Client(activeSession.ClientConnectionId)
-                .SendDezibotUpdateAsync(dezibot.ToDezibotViewModel());
+                .Clients(session.ClientConnections.Select(client => client.ConnectionId))
+                .DezibotUpdated(dezibot.ToDezibotViewModel());
         }
 
         await dbContext.SaveChangesAsync();

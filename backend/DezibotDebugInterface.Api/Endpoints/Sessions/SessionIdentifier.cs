@@ -6,10 +6,10 @@ namespace DezibotDebugInterface.Api.Endpoints.Sessions;
 /// Represents a session identifier.
 /// </summary>
 /// <param name="Id">The unique identifier of the session.</param>
-/// <param name="IsActive">Indicates whether the session is active.</param>
+/// <param name="Name">The name of the session.</param>
 /// <param name="CreatedUtc">The date and time the session was created in UTC.</param>
 [PublicAPI]
 public record SessionIdentifier(
     int Id,
-    bool IsActive,
+    string Name,
     DateTimeOffset CreatedUtc);

@@ -1,5 +1,6 @@
 namespace DezibotDebugInterface.Api.Tests.Endpoints.SignalR;
 
+// TODO: Fix test with new session handling
 public class DezibotHubTests
 {
     // TODO: Test the following cases:

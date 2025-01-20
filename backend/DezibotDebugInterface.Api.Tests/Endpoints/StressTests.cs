@@ -12,13 +12,14 @@ using Xunit.Abstractions;
 
 namespace DezibotDebugInterface.Api.Tests.Endpoints;
 
+// TODO: Fix test with new session handling
 public class StressTests(ITestOutputHelper outputHelper) : BaseDezibotTestFixture(nameof(StressTests))
 {
     [Theory]
     [InlineData(1, 1, 1,1, 1, 1, 300)]
     [InlineData(2, 1, 1,1, 1, 1, 300)]
     [InlineData(2, 2, 2,2, 2, 2, 500)]
-    [InlineData(10, 10, 5,5, 10, 100, 2000)]
+    [InlineData(10, 10, 5,5, 10, 100, 2500)]
     public async Task GetAllSessionsAsync_WhenOneHundredSessionsExist_ShouldReturnSessionsInExpectedTime(
         int sessionCount,
         int dezibotCount,

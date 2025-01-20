@@ -38,7 +38,7 @@ public static class GetSessionEndpoints
             .ProducesProblem((int)HttpStatusCode.NotFound, ContentTypes.ApplicationProblemJson)
             .WithOpenApi();
         
-        endpoints.MapGet("api/session/{id:int}/dezibots/{ip}", GetDezibotFromSessionAsync)
+        endpoints.MapGet("api/session/{id:int}/dezibot/{ip}", GetDezibotFromSessionAsync)
             .WithName("Get Dezibot By Ip")
             .WithSummary("Returns a dezibot by its IP address.")
             .Produces<DezibotViewModel>((int)HttpStatusCode.OK, ContentTypes.ApplicationProblemJson)

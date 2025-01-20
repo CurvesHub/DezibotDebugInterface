@@ -32,7 +32,7 @@ public static class SessionFactory
     /// <param name="clientConnectionId">The client connection ID of the sessions, if not specified, the client connection ID will be a new GUID.</param>
     /// <param name="dezibots">The dezibots of the sessions, if not specified, the dezibots will be created by <see cref="DezibotFactory.CreateDezibots"/>.</param>
     /// <returns>A <see cref="List{T}"/> of <see cref="Session"/>.</returns>
-    public static List<Session> CreateSessions(
+    public static List<Session> CreateSessions( // TODO: Fix test with new session handling
         int amount = 10,
         bool? isActive = null,
         DateTimeOffset? createdUtc = null,
@@ -44,7 +44,6 @@ public static class SessionFactory
             .Select(index => new Session(clientConnectionId ?? Guid.NewGuid().ToString())
             {
                 Id = _sessionId++,
-                IsActive = isActive ?? true,
                 CreatedUtc = createdUtc ?? StartOf2024.AddSeconds(index - 1),
                 Dezibots = dezibots?.Invoke() ?? DezibotFactory.CreateDezibots(amount: amount)
             })

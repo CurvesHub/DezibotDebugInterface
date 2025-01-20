@@ -1,7 +1,5 @@
 using DezibotHub.Demo;
 
-using Dumpify;
-
 using Microsoft.AspNetCore.SignalR.Client;
 
 var builder = WebApplication.CreateBuilder(args);

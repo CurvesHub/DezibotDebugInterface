@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DezibotDebugInterface.Api.Tests.Endpoints.UpdateDezibot;
 
+// TODO: Fix test with new session handling
 public class UpdateDezibotEndpointsTests() : BaseDezibotTestFixture(nameof(UpdateDezibotEndpointsTests))
 {
     private readonly UpdateDezibotLogsRequest _logRequest = new("1.1.1.1", DezibotLogLevel.INFO,"TestClass", "TestMessage", "TestData");
