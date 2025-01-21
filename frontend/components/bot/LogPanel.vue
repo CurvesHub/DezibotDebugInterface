@@ -1,54 +1,57 @@
 <template>
-<UCard class="min-w-96  ml-2 bg-slate-50">
-            <template #header>
-                <div class="flex flex-row">
-                    <UButton
-                    icon="i-heroicons-arrow-left-circle"
+    <UCard class="min-w-[40rem] ml-2 bg-slate-50">
+        <template #header>
+            <div class="flex flex-row">
+                <UButton
+                icon="i-heroicons-arrow-left-circle"
+                size="sm"
+                color="white"
+                variant="solid"
+                label=""
+                :trailing="false"
+                @click="emit('hideLogsClick')"
+                class="max-h-8"
+                />
+                <UInput
+                    icon="i-heroicons-magnifying-glass-20-solid"
                     size="sm"
                     color="white"
-                    variant="solid"
-                    label=""
                     :trailing="false"
-                    @click="emit('hideLogsClick')"
-                    class="text-xl font-bold"
-                    />
-                    <UInput
-                        icon="i-heroicons-magnifying-glass-20-solid"
-                        size="sm"
-                        color="white"
-                        :trailing="false"
-                        placeholder="Suche..."
-                        class="ml-4 min-w-96"
-                        v-model="searchQuery"
-                    />
+                    :placeholder="$t('search_placeholder')"
+                    class="ml-4 min-w-56 max-h-8"
+                    v-model="searchQuery"
+                />
 
+                <div class="flex-wrap">
                     <UButton 
                         v-for="(value, key) in logLevels" 
-                        class="ml-4 min-w-14 justify-center" :color="value.color" 
+                        class="ml-2 mb-2 min-w-14 justify-center" :color="value.color" 
                         :variant="value.selected ? 'solid' : 'outline'" 
                         :label="value.name" 
                         @click="value.selected = !value.selected"
                         :ui="{ rounded: 'rounded-full' }"    
                     />
                 </div>
-            </template>
-            <div class="max-h-[40rem] overflow-y-auto" ref="logsContainer">
-                <div v-for="log in logs" class="flex flex-row">
-                  <div class="mr-2" :class="getColor(log.level)">{{ log.timestampUtc }}</div>
-                  <div class="mr-2" :class="getColor(log.level)">{{ log.level }}:</div>
-                  <div class="mr-2">{{ log.className }}:</div>
-                  <div class="mr-2">{{ log.message }}</div>
-                  <div class="mr-2">{{ log.data ? `| ${log.data}` : '' }}</div>
-                </div>
             </div>
-        </UCard>
+        </template>
+        <div class="max-h-[40rem] overflow-x-auto overflow-y-auto">
+            <div v-for="log in logs" class="flex flex-row min-w-[40rem] w-auto">
+                <div class="mr-2 text-nowrap" :class="getColor(log.level)">{{ log.timestampUtc }}</div>
+                <div class="mr-2 text-nowrap" :class="getColor(log.level)">{{ log.level }}:</div>
+                <div class="mr-2 text-nowrap">{{ log.className }}:</div>
+                <div class="mr-2 text-nowrap">{{ log.message }}</div>
+                <div class="mr-2 text-nowrap">{{ log.data ? `| ${log.data}` : '' }}</div>
+            </div>
+        </div>
+    </UCard>
 </template>
 
 <script setup lang="ts">
-import { Dezibot, LogEntry } from '~/types/Dezibot'
+import { Dezibot } from '~/types/Dezibot'
+const { t } = useI18n()
 
 const props = defineProps({
-  bot: { type: Dezibot, required: true },
+    bot: { type: Dezibot, required: true },
 })
 
 const emit = defineEmits(["hideLogsClick"])
@@ -72,25 +75,25 @@ const logs = computed(() => {
 
 const logLevels = ref({
     info: {
-        name: "Info",
+        name: t("log_level_info"),
         selected: true,
         color: "sky",
         id: "info"
     },
     warn: {
-        name: "Warn",
+        name: t("log_level_warn"),
         selected: true,
         color: "yellow",
         id: "warn"
     },
     error: {
-        name: "Error",
+        name: t("log_level_error"),
         selected: true,
         color: "red",
         id: "error"
     },
     debug: {
-        name: "Debug",
+        name: t("log_level_debug"),
         selected: true,
         color: "green",
         id: "debug"
@@ -98,30 +101,22 @@ const logLevels = ref({
 })
 
 function getSelectedLogLevels(levels: {selected: boolean, id: string}[]) {
-    console.log(levels)
-    const result = levels.filter(l => l.selected).map((level) => level.id)
-    console.log(result)
-    return result
+    return levels.filter(l => l.selected).map((level) => level.id)
 }
 
 function getColor(level: string): string {
-  switch (level.toLowerCase()) {
-    case 'info':
-      return 'text-sky-500';
-    case 'warn':
-      return 'text-yellow-500';
-    case 'error':
-      return 'text-red-500';
-    case 'debug':
-      return 'text-green-500';
-    default:
-      return 'text-black';
-  }
+    switch (level.toLowerCase()) {
+        case 'info':
+            return 'text-sky-500';
+        case 'warn':
+            return 'text-yellow-500';
+        case 'error':
+            return 'text-red-500';
+        case 'debug':
+            return 'text-green-500';
+        default:
+            return 'text-black';
+    }
 }
-
-onUpdated(() => {
-    // TODO not working
-    useTemplateRef("logsContainer").value?.scrollIntoView()
-})
 
 </script>

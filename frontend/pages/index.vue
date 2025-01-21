@@ -3,7 +3,7 @@
         <div class="w-1/2 h-4/6">
             <UCard >
                 <template #header>
-                    <div class="text-xl font-bold">Sessions</div>
+                    <div class="text-xl font-bold">{{ $t("session_picker_heading") }}</div>
                 </template>
                 
                 <div class="flex flex-row">
@@ -13,6 +13,7 @@
                             :groups="groups" 
                             class="flex-grow" 
                             :autoselect="false"
+                            :placeholder="$t('search_placeholder')"
                             :close-button="{ icon: 'i-heroicons-x-mark-20-solid', color: 'gray', variant: 'link', padded: false }"
                             @close="isSessionChooserOpen = false"
                             @update:model-value="onSelected"
@@ -21,11 +22,11 @@
 
                     <UModal v-model="isNewSessionNamerOpen">
                         <UCard>
-                            Enter the name for the new session:
+                            {{ $t("session_picker_create_session_name_prompt") }}
                             <UInput 
                                 color="white" 
                                 variant="outline" 
-                                placeholder="Name..."
+                                :placeholder="$t('session_picker_create_session_name_placeholder')"
                                 @change="createNewSession(); isNewSessionNamerOpen = false"
                                 v-model="newSessionName"
                                 class="mt-2"
@@ -34,7 +35,7 @@
                     </UModal>
 
                     <UButton 
-                        :label="selected?.label ?? 'Select a Session...'" 
+                        :label="selected?.label ?? $t('session_picker_text')"
                         class="flex-grow" 
                         color="white" 
                         @click="isSessionChooserOpen=true"
@@ -59,7 +60,7 @@
                 <template #footer>
                     <div class="flex flex-row-reverse">
                         <UButton 
-                        label="Connect" 
+                        :label="$t('session_picker_connect_button')" 
                         class="h-8" 
                         trailing-icon="i-heroicons-arrow-right-circle" 
                         :disabled="selected == undefined && !isLoading"
@@ -74,11 +75,12 @@
 
 <script setup lang="ts">
     import { type Session } from '~/types/Session'
-    type SessionEntry = {id: string, label: string}
+    const { t } = useI18n()
+    type SessionEntry = {id: number, label: string}
     const { data } = await useFetch<Session[]>("/api/session/list")
     const sessions = ref<SessionEntry[]>(data.value?.map((e: any) => {return {id: e.id, label: e.name}}) ?? [])
     const groups = computed(() => [
-        {key: 'commands', commands: [{id:-1, label: "Create New Session", icon: "i-heroicons-plus"}]},
+        {key: 'commands', commands: [{id:-1, label: t("session_picker_create_session"), icon: "i-heroicons-plus"}]},
         {key:'sessions', commands: sessions.value}
     ])
     const selected = ref<SessionEntry>()
@@ -97,11 +99,11 @@
 
     async function createNewSession() {
         isLoading.value = true
-        const {data} = await useFetch("/api/session/new", {method:"post", body: {name: newSessionName.value}} as object)
+        const {data} = await useFetch<Session>("/api/session/new", {method:"post", body: {name: newSessionName.value}} as object)
         const id = data.value?.id
         const label = data.value?.name
         if (id && label) {
-            const newSession = {id: id, label: label}
+            const newSession: SessionEntry = {id: id, label: label}
             sessions.value.push(newSession)
             selected.value = newSession 
         } else {

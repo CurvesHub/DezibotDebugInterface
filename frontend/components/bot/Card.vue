@@ -1,20 +1,31 @@
 <template>
     <div class="flex flex-row m-4">
-        <UCard class="min-w-[30rem]">
+        <UCard class="min-w-[33rem]">
             <template #header>
                 <div class="flex flex-row justify-between items-center">
                     <div class="text-xl font-bold">
                         {{ bot.ip }}
                     </div>
-                    <div>
+                    <div class="flex flex-row">
                         <UButton
                             icon="i-heroicons-document-text"
                             size="sm"
-                            color="white"
+                            :color="isLogsOpen ? 'primary' : 'white'"
                             variant="solid"
-                            label="Logs"
+                            :label="$t('logs_button')"
                             :trailing="false"
                             @click="isLogsOpen = !isLogsOpen"
+                            />
+                            
+                            <UButton
+                            icon="i-heroicons-arrow-trending-up"
+                            size="sm"
+                            :color="isGraphsOpen? 'primary' : 'white'"
+                            variant="solid"
+                            :label="$t('graphs_button')"
+                            :trailing="false"
+                            @click="isGraphsOpen = !isGraphsOpen"
+                            class="ml-2"
                         />
                     </div>
                 </div>
@@ -27,13 +38,13 @@
             </UAccordion>
 
             <template #footer>
-                <UProgress :value="bot.battery*100" indicator class="" :color="getBotBatColor()"/>
+                <UProgress :value="bot.battery*100" indicator class="h-10" :color="getBotBatColor()"/>
             </template>
         </UCard>
         
-        <BotLogPanel :bot="bot" v-if="isLogsOpen" @hide-logs-click="isLogsOpen = false"/>
+        <BotLogPanel :bot="bot" v-if="isLogsOpen" @hide-logs-click="isLogsOpen = !isLogsOpen"/>
 
-        <BotGraph :props="propsState" v-if="propsState.length > 0" @hide-graph-click="selectedProperties = new Map()"/>
+        <BotGraph :props="propsState" v-if="isGraphsOpen" @hide-graph-click="isGraphsOpen = !isGraphsOpen"/>
     </div>
 </template>
 
@@ -49,6 +60,7 @@ const items = computed(() => {
 })
 
 const isLogsOpen = ref(false)
+const isGraphsOpen = ref(false)
 const selectedProperties = ref<Map<string, Property[]>>(new Map()) // map of compname to selected properties
 const propsState = computed(() => {
     const botProps = props.bot.components.flatMap((c) => c.properties)
@@ -65,6 +77,12 @@ function propsSelected(comp: Component, propNames: string[]) {
     const copy = selectedProperties.value
     copy.set(comp.name, filtered)
     selectedProperties.value = copy
+    const selectedPropertiesCount = Array.from(selectedProperties.value.values()).reduce((sum, arr) => sum+arr.length, 0)
+    if (selectedPropertiesCount > 0) {
+        isGraphsOpen.value = true
+    } else {
+        isGraphsOpen.value = false
+    }
 }
 
 function getBotBatColor(): string {
