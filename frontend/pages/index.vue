@@ -39,7 +39,6 @@ onMounted(async () => {
         console.error("Could not start SignalR connection", err)
     }
 
-    await fetchInitialData()
 })
 
 async function fetchInitialData() {

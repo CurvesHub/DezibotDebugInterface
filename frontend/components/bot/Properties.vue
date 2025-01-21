@@ -1,38 +1,57 @@
 <template>
-    <UTable :rows="properties" v-model="selected" by="Property" @select="select" @select:all="b => properties.forEach(e => select(e))" class="min-w-[30rem]" />
+    <UTable :rows="properties" :columns="columns" @select="select" v-model="selected" by="propName" class="min-w-[30rem]" />
 </template>
 
 <script setup lang="ts">
 import { Component } from '~/types/Dezibot'
+import { ref, watch } from 'vue'
 
+type Row = {
+    propName: string,
+    value: string
+}
 const props = defineProps({
     component: { type: Component, required: true },
 })
 
 const emit = defineEmits(["propsSelected"])
 
-const selected = ref<{Property: string, Value: string}[]>([])
+const selected = ref<Row[]>([])
+
+const columns = [
+    {
+        key: "i_fix_a_bug",
+        label: "I wont be displayed anyways"
+    } , {
+        key: "propName",
+        label: "Property"
+    } , {
+        key: "value",
+        label: "Value"
+    }
+]
 
 const properties = computed(() => {
     return props.component.properties.map((prop) => {
         return {
-            temp: false, // this does nothing
-            Property: prop.name, 
-            Value: prop.values.slice(-1)[0].value,
-        }
+            propName: prop.name,
+            value: prop.values.slice(-1)[0].value
+        } as Row
     })
 })
 
-function select(row: any) {
-    if (isNaN(Number(row.Value))) return
+watch(() => selected.value, (newValue, oldValue) => {
+    emit("propsSelected", newValue.map(e => e.propName))
+}, {deep: true})
 
-    const index = selected.value.findIndex(item => item.Property === row.Property)
+function select(row: Row) {
+    if (isNaN(Number(row.value))) return 
+    const index = selected.value.findIndex(item => item.propName === row.propName)
     if (index === -1) {
         selected.value.push(row)
     } else {
         selected.value.splice(index, 1)
     }
-    emit("propsSelected", selected.value.map(e => e.Property))
 }
 
 </script>

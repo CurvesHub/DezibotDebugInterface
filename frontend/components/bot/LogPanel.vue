@@ -34,11 +34,11 @@
             </template>
             <div class="max-h-[40rem] overflow-y-auto" ref="logsContainer">
                 <div v-for="log in logs" class="flex flex-row">
-                  <div class="mr-2" :class="getColor(log.level)">{{ log.timestampUtc }}</div>
-                  <div class="mr-2" :class="getColor(log.level)">{{ log.level }}:</div>
-                  <div class="mr-2">{{ log.className }}:</div>
-                  <div class="mr-2">{{ log.message }}</div>
-                  <div class="mr-2">{{ log.data ? `| ${log.data}` : '' }}</div>
+                    <div class="mr-2" :class="getColor(log.level)">{{ log.timestampUtc }}</div>
+                    <div class="mr-2" :class="getColor(log.level)">{{ log.level }}:</div>
+                    <div class="mr-2">{{ log.className }}:</div>
+                    <div class="mr-2">{{ log.message }}</div>
+                    <div class="mr-2">{{ log.data ? `| ${log.data}` : '' }}</div>
                 </div>
             </div>
         </UCard>
@@ -48,7 +48,7 @@
 import { Dezibot, LogEntry } from '~/types/Dezibot'
 
 const props = defineProps({
-  bot: { type: Dezibot, required: true },
+    bot: { type: Dezibot, required: true },
 })
 
 const emit = defineEmits(["hideLogsClick"])
@@ -98,25 +98,22 @@ const logLevels = ref({
 })
 
 function getSelectedLogLevels(levels: {selected: boolean, id: string}[]) {
-    console.log(levels)
-    const result = levels.filter(l => l.selected).map((level) => level.id)
-    console.log(result)
-    return result
+    return levels.filter(l => l.selected).map((level) => level.id)
 }
 
 function getColor(level: string): string {
-  switch (level.toLowerCase()) {
-    case 'info':
-      return 'text-sky-500';
-    case 'warn':
-      return 'text-yellow-500';
-    case 'error':
-      return 'text-red-500';
-    case 'debug':
-      return 'text-green-500';
-    default:
-      return 'text-black';
-  }
+    switch (level.toLowerCase()) {
+        case 'info':
+            return 'text-sky-500';
+        case 'warn':
+            return 'text-yellow-500';
+        case 'error':
+            return 'text-red-500';
+        case 'debug':
+            return 'text-green-500';
+        default:
+            return 'text-black';
+    }
 }
 
 onUpdated(() => {
