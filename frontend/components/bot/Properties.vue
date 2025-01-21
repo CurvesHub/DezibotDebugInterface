@@ -1,10 +1,17 @@
 <template>
-    <UTable :rows="properties" :columns="columns" @select="select" v-model="selected" by="propName" class="min-w-[30rem]" />
+    <UTable 
+    :rows="properties" 
+    :columns="columns" 
+    @select="select" 
+    v-model="selected" 
+    by="propName" 
+    class="min-w-[30rem]" 
+/>
 </template>
 
 <script setup lang="ts">
 import { Component } from '~/types/Dezibot'
-import { ref, watch } from 'vue'
+const { t } = useI18n()
 
 type Row = {
     propName: string,
@@ -20,14 +27,11 @@ const selected = ref<Row[]>([])
 
 const columns = [
     {
-        key: "i_fix_a_bug",
-        label: "I wont be displayed anyways"
-    } , {
         key: "propName",
-        label: "Property"
+        label: t("property_table_property")
     } , {
         key: "value",
-        label: "Value"
+        label: t("property_table_value")
     }
 ]
 

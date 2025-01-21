@@ -1,6 +1,6 @@
 <template>
     <div class="flex flex-row m-4">
-        <UCard class="min-w-[30rem]">
+        <UCard class="min-w-[33rem]">
             <template #header>
                 <div class="flex flex-row justify-between items-center">
                     <div class="text-xl font-bold">
@@ -12,17 +12,17 @@
                             size="sm"
                             :color="isLogsOpen ? 'primary' : 'white'"
                             variant="solid"
-                            label="Logs"
+                            :label="$t('logs_button')"
                             :trailing="false"
                             @click="isLogsOpen = !isLogsOpen"
-                        />
-
-                        <UButton
+                            />
+                            
+                            <UButton
                             icon="i-heroicons-arrow-trending-up"
                             size="sm"
                             :color="isGraphsOpen? 'primary' : 'white'"
                             variant="solid"
-                            label="Graphs"
+                            :label="$t('graphs_button')"
                             :trailing="false"
                             @click="isGraphsOpen = !isGraphsOpen"
                             class="ml-2"
