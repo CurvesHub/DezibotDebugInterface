@@ -204,7 +204,7 @@ public class UpdateDezibotEndpointsTests() : BaseDezibotTestFixture(nameof(Updat
         
         List<DezibotViewModel> dezibotMessages = [];
         connection.On(
-            methodName: "SendDezibotUpdateAsync",
+            methodName: "DezibotUpdated",
             (DezibotViewModel dezibot) => dezibotMessages.Add(dezibot));
 
         await connection.StartAsync();

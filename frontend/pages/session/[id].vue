@@ -21,7 +21,7 @@ onMounted(async () => {
     .withUrl("/dezibot-hub")
     .build()
 
-    connection.on("SendDezibotUpdateAsync", data => {
+    connection.on("DezibotUpdated", data => {
         const newState = bots.value
         const bot = newState.find((bot) => bot.ip == data.ip)
         if (!bot) {

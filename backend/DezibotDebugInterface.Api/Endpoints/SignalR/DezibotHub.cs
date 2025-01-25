@@ -13,8 +13,7 @@ namespace DezibotDebugInterface.Api.Endpoints.SignalR;
 /// The SignalR hub for sending updates about dezibots.
 /// </summary>
 /// <param name="scopeFactory">The service scope factory.</param>
-/// <param name="logger">The logger.</param>
-public sealed class DezibotHub(IServiceScopeFactory scopeFactory, ILogger logger) : Hub<IDezibotHubClient>
+public sealed class DezibotHub(IServiceScopeFactory scopeFactory) : Hub<IDezibotHubClient>
 {
     /// <summary>
     /// Allows a client to join a session and decide whether to receive updates or just the current session data.
@@ -33,6 +32,7 @@ public sealed class DezibotHub(IServiceScopeFactory scopeFactory, ILogger logger
 
         if (session is null)
         {
+            var logger = scope.ServiceProvider.GetRequiredService<ILogger>();
             logger.Error("Client with connection ID {ConnectionId} tried to join non-existent session {SessionId}.", Context.ConnectionId, sessionId);
             return;
         }
