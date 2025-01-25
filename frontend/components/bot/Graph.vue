@@ -13,6 +13,11 @@
                 />
             </div>
         </template>
+        <div v-if="data.length == 0" class="text-xl text-center text-gray-400">
+            <UIcon name="i-heroicons-information-circle" class="w-5 h-5" />
+            <br>
+            {{ $t("info_empty_graphs") }}
+        </div>
         <div class="overflow-y-auto">
             <Line v-for="prop in data" :data="prop" :options="chartOptions" class="min-w-64 min-h-64 max-h-[20rem]"/>
         </div>

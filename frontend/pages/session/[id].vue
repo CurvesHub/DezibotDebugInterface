@@ -2,7 +2,7 @@
 <div class="text-2xl font-bold">{{ route.params.id }}</div>
 <div class="flex flex-row">
     <UCard v-if="bots.length == 0" class="m-6">
-        Start a Dezibot with logging enabled to see it here.
+        {{ $t("info_empty_bots") }}
     </UCard>
     <div v-else v-for="bot in bots" class="flex flex-row m-4">
         <BotCard :bot="bot"/>
