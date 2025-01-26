@@ -21,14 +21,21 @@ public sealed class DezibotHub(IServiceScopeFactory scopeFactory) : Hub<IDezibot
     /// <param name="sessionId">The ID of the session to join.</param>
     /// <param name="continueSession">Whether to continue receiving updates.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    public async Task JoinSession(int sessionId, bool continueSession)
+    public async Task JoinSession(int? sessionId, bool continueSession)
     {
         await using var scope = scopeFactory.CreateAsyncScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
+        if (sessionId is null)
+        {
+            var logger = scope.ServiceProvider.GetRequiredService<ILogger>();
+            logger.Error("Client with connection ID {ConnectionId} tried to join a session without providing a session ID.", Context.ConnectionId);
+            return;
+        }
+
         var session = await dbContext.Sessions
-            .Include(session => session.SessionClientConnections.Where(client => client.Client!.ConnectionId == Context.ConnectionId))
             .Include(session => session.Dezibots)
+            .Include(session => session.SessionClientConnections.Where(client => client.Client!.ConnectionId == Context.ConnectionId))
             .FirstOrDefaultAsync(s => s.Id == sessionId);
 
         if (session is null)
@@ -49,9 +56,9 @@ public sealed class DezibotHub(IServiceScopeFactory scopeFactory) : Hub<IDezibot
         session.SessionClientConnections[0].ReceiveUpdates = continueSession;
         await dbContext.SaveChangesAsync();
         
-        foreach (var dezibot in session.Dezibots)
+        foreach (var dezibotViewModel in session.Dezibots.ToDezibotViewModels())
         {
-            await Clients.Caller.DezibotUpdated(dezibot.ToDezibotViewModel());
+            await Clients.Caller.DezibotUpdated(dezibotViewModel);
         }
     }
 
