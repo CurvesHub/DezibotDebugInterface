@@ -71,7 +71,9 @@ public static class UpdateDezibotEndpoints
         // Handle the session association
         var activeUsedSessions = await dbContext.Sessions
             .Include(session => session.Dezibots.Where(dezibot => dezibot.Ip == ip))
-            .Where(session => session.ClientConnections.Any(client => client.ContinueSession))
+            .Include(session => session.SessionClientConnections)
+            .ThenInclude(sessionClientConnection => sessionClientConnection.Client)
+            .Where(session => session.SessionClientConnections.Any(sessionClientConnection => sessionClientConnection.ReceiveUpdates))
             .ToListAsync();
 
         if (activeUsedSessions.Count is 0)
@@ -89,15 +91,20 @@ public static class UpdateDezibotEndpoints
             if (dezibot is null)
             {
                 // Create a new Dezibot for this specific session
-                dezibot = new Dezibot(ip, session.Id);
+                dezibot = new Dezibot { Ip = ip, SessionId = session.Id };
                 await dbContext.AddAsync(dezibot);
             }
 
             dezibot.UpdateDezibot(request.Value);
             
-            // Notify the client about the updated Dezibot
+            // Notify the clients about the updated Dezibot
+            var signalRClientConnections = session.SessionClientConnections
+                .Where(connection => connection.ReceiveUpdates)
+                .Select(connection => connection.Client!.ConnectionId)
+                .ToList();
+            
             await hubContext.Clients
-                .Clients(session.ClientConnections.Select(client => client.ConnectionId))
+                .Clients(signalRClientConnections)
                 .DezibotUpdated(dezibot.ToDezibotViewModel());
         }
 
@@ -149,39 +156,45 @@ public static class UpdateDezibotEndpoints
     
     private static void AddLogs(this Dezibot dezibot, UpdateDezibotLogsRequest request)
     {
-        dezibot.Logs.Add(new LogEntry(
-            dezibot.LastConnectionUtc,
-            request.LogLevel,
-            request.ClassName,
-            request.Message,
-            request.Data));
+        dezibot.Logs.Add(new LogEntry
+        {
+            TimestampUtc = dezibot.LastConnectionUtc,
+            LogLevel = request.LogLevel,
+            ClassName = request.ClassName,
+            Message = request.Message,
+            Data = request.Data,
+        });
     }
 
     private static void UpdateClassStates(this Dezibot dezibot, UpdateDezibotStatesRequest request)
     {
-        var newClasses = request.Data.Select(state => new Class(
-            name: state.Key,
-            properties: state.Value.Select(property => new Property(
-                name: property.Key,
-                values: [new TimeValue(dezibot.LastConnectionUtc, property.Value)])).ToList())).ToList();
+        var updatedClasses = request.Data.Select(state => new Class
+        {
+            Name = state.Key,
+            Properties = state.Value.Select(property => new Property
+            {
+                Name = property.Key,
+                Values = [new TimeValue { TimestampUtc = dezibot.LastConnectionUtc, Value = property.Value }]
+            }).ToList()
+        }).ToList();
 
         if (dezibot.Classes.Count is 0)
         {
-            dezibot.Classes.AddRange(newClasses);
+            dezibot.Classes.AddRange(updatedClasses);
             return;
         }
 
-        foreach (var newClass in newClasses)
+        foreach (var updatedClass in updatedClasses)
         {
-            var existingClass = dezibot.Classes.FirstOrDefault(@class => @class.Name == newClass.Name);
+            var existingClass = dezibot.Classes.FirstOrDefault(@class => @class.Name == updatedClass.Name);
 
             if (existingClass is null)
             {
-                dezibot.Classes.Add(newClass);
+                dezibot.Classes.Add(updatedClass);
                 continue;
             }
 
-            foreach (var newProperty in newClass.Properties)
+            foreach (var newProperty in updatedClass.Properties)
             {
                 var existingProperty = existingClass.Properties.FirstOrDefault(property => property.Name == newProperty.Name);
 

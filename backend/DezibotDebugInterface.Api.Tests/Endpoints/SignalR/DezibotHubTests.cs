@@ -4,6 +4,12 @@ namespace DezibotDebugInterface.Api.Tests.Endpoints.SignalR;
 public class DezibotHubTests
 {
     // TODO: Test the following cases:
-    // - OnConnectedAsync should create a new session when a client connects to the hub.
-    // - OnDisconnectedAsync should deactivate the session when the client disconnects from the hub.
+
+    
+    
+    /*
+     * You’ve handled sessions well, and the ContinueSession flag is used to filter connections that need updates.
+     * This works for pushing updates only to clients who opted in.
+     * Make sure this is tested with concurrent connections to avoid race conditions.
+     */
 }

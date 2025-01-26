@@ -1,7 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
 
-using JetBrains.Annotations;
-
 namespace DezibotDebugInterface.Api.DataAccess.Models;
 
 /// <summary>
@@ -16,14 +14,9 @@ public class Dezibot
     public int Id { get; init; }
     
     /// <summary>
-    /// The session identifier of the Dezibot.
-    /// </summary>
-    public int? SessionId { get; init; }
-    
-    /// <summary>
     /// Gets the IP address of the Dezibot, which uniquely identifies it.
     /// </summary>
-    public string Ip { get; init; }
+    public required string Ip { get; init; }
     
     /// <summary>
     /// Gets or sets the last connection time of the Dezibot in UTC.
@@ -41,21 +34,7 @@ public class Dezibot
     public List<Class> Classes { get; init; } = [];
 
     /// <summary>
-    /// Creates a new instance of the <see cref="Dezibot"/> class.
+    /// The session identifier of the Dezibot.
     /// </summary>
-    /// <param name="ip">The IP address of the Dezibot.</param>
-    /// <param name="sessionId">The session identifier of the Dezibot.</param>
-    public Dezibot(string ip, int? sessionId = null)
-    {
-        Ip = ip;
-        SessionId = sessionId;
-    }
-    
-    /// <summary>
-    /// Parameterless constructor for EF Core.
-    /// </summary>
-    [UsedImplicitly]
-#pragma warning disable CS8618, CS9264
-    private Dezibot() { }
-#pragma warning restore CS8618, CS9264
+    public int? SessionId { get; init; }
 }

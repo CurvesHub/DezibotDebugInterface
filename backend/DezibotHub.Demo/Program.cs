@@ -15,10 +15,10 @@ var connection = new HubConnectionBuilder()
 
 int counter = 0;
 
-connection.On<Dezibot>("SendDezibotUpdateAsync", dezibot =>
+connection.On<Dezibot>("DezibotUpdated", dezibot =>
 {
-    Console.WriteLine($"Received dezibot update: {dezibot.Ip} - {dezibot.LastConnectionUtc}");
-    Console.WriteLine($"Message count: {counter++}");
+    Console.WriteLine($"Received dezibot update {counter++}: {dezibot.Ip} - {dezibot.LastConnectionUtc} - Logs: {dezibot.Logs.Count} - Classes: {dezibot.Classes.Count}");
+    Console.WriteLine();
 });
 
 int maxRetries = 25;
@@ -34,6 +34,17 @@ while (connection.State != HubConnectionState.Connected && maxRetries-- > 0)
     }
 }
 
+app.MapGet("/joinSession", async () =>
+{
+    if (connection.State == HubConnectionState.Connected)
+    {
+        Console.WriteLine("Connected to hub, joining session with id: {4}");
+        await connection.SendAsync("JoinSession", 4, true);
+    }
+    return Results.Ok();
+});
+
+
 app.Run();
 
 namespace DezibotHub.Demo
@@ -44,7 +55,7 @@ namespace DezibotHub.Demo
         List<Dezibot.LogEntry> Logs,
         List<Dezibot.Class> Classes)
     {
-        public record LogEntry(DateTime TimestampUtc, string ClassName, string Message, string? Data);
+        public record LogEntry(DateTime TimestampUtc, string Level, string ClassName, string Message, string? Data);
 
         public record Class(string Name, List<Class.Property> Properties)
         {

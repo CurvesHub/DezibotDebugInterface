@@ -3,23 +3,23 @@ using System.Diagnostics.CodeAnalysis;
 namespace DezibotDebugInterface.Api.DataAccess.Models;
 
 /// <summary>
-/// Represents a property of a Dezibot class.
+/// Represents a client connected to the hub.
 /// </summary>
 [SuppressMessage("ReSharper", "EntityFramework.ModelValidation.UnlimitedStringLength", Justification = "The string fields wont be longer than 255 characters.")]
-public class Property
+public class DezibotHubClient
 {
     /// <summary>
-    /// The unique identifier of the property.
+    /// The unique identifier of the client connection.
     /// </summary>
     public int Id { get; init; }
     
     /// <summary>
-    /// The name of the property.
+    /// The connection ID of the client.
     /// </summary>
-    public required string Name { get; init; }
-
+    public required string ConnectionId { get; init; }
+    
     /// <summary>
-    /// The values of the property.
+    /// The session client connections of the client.
     /// </summary>
-    public required List<TimeValue> Values { get; init; }
+    public List<SessionClientConnection> Sessions { get; init; } = [];
 }

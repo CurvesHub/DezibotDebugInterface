@@ -30,7 +30,10 @@ public static class CreateSessionEndpoints
     
     private static async Task<IResult> CreateSessionAsync(ApplicationDbContext dbContext, CreateSessionRequest request)
     {
-        var session = new Session(string.IsNullOrWhiteSpace(request.Name) ? null : request.Name);
+        var session = new Session
+        {
+            Name = string.IsNullOrWhiteSpace(request.Name) ? null : request.Name
+        };
 
         await dbContext.Sessions.AddAsync(session);
         await dbContext.SaveChangesAsync();

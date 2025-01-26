@@ -31,7 +31,7 @@ public class DeleteSessionEndpointsTests() : BaseDezibotTestFixture(nameof(Delet
     public async Task DeleteAllInActiveSessionsAsync_WhenInActiveSessionExists_ShouldDeleteAllInActiveSessions()
     {
         // Arrange
-        var existingSessions = SessionFactory.CreateSessions(isActive: false);
+        var existingSessions = SessionFactory.CreateSessions();
         
         await using(var arrangeDbContext = ResolveDbContext())
         {
@@ -56,7 +56,7 @@ public class DeleteSessionEndpointsTests() : BaseDezibotTestFixture(nameof(Delet
     public async Task DeleteAllInActiveSessionsAsync_WhenActiveSessionExists_ShouldNotDeleteActiveSession()
     {
         // Arrange
-        var existingSessions = SessionFactory.CreateSessions(isActive: true);
+        var existingSessions = SessionFactory.CreateSessions();
         
         await using(var arrangeDbContext = ResolveDbContext())
         {
@@ -117,7 +117,7 @@ public class DeleteSessionEndpointsTests() : BaseDezibotTestFixture(nameof(Delet
     public async Task DeleteSessionByIdAsync_WhenSessionExistsAndNotActive_ShouldDeleteSession()
     {
         // Arrange
-        var existingSession = SessionFactory.CreateSession(isActive: false);
+        var existingSession = SessionFactory.CreateSession();
         
         await using(var arrangeDbContext = ResolveDbContext())
         {

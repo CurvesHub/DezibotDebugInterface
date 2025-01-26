@@ -45,14 +45,14 @@ public static class DeleteSessionEndpoints
     
     private static async Task<IResult> DeleteAllNotUsedSessionsAsync(ApplicationDbContext dbContext)
     {
-        await dbContext.Sessions.Where(session => !session.ClientConnections.Any()).ExecuteDeleteAsync();
+        await dbContext.Sessions.Where(session => !session.SessionClientConnections.Any()).ExecuteDeleteAsync();
         return Results.Ok("Deleted all sessions.");
     }
     
     private static async Task<IResult> DeleteSessionByIdAsync(ApplicationDbContext dbContext, int id)
     {
         var session = await dbContext.Sessions
-            .Include(session => session.ClientConnections)
+            .Include(session => session.SessionClientConnections)
             .FirstOrDefaultAsync(session => session.Id == id);
         
         if (session is null)
@@ -62,10 +62,10 @@ public static class DeleteSessionEndpoints
                 statusCode: (int)HttpStatusCode.NotFound);
         }
 
-        if (session.ClientConnections.Count > 0)
+        if (session.SessionClientConnections.Count > 0)
         {
             return Results.Problem(
-                detail: $"Session with ID {id} has {session.ClientConnections.Count} active clients using it and cannot be deleted.",
+                detail: $"Session with ID {id} has {session.SessionClientConnections.Count} active clients using it and cannot be deleted.",
                 statusCode: (int)HttpStatusCode.Conflict);
         }
 

@@ -1,7 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
 
-using JetBrains.Annotations;
-
 namespace DezibotDebugInterface.Api.DataAccess.Models;
 
 /// <summary>
@@ -27,29 +25,12 @@ public class Session
     public DateTimeOffset CreatedUtc { get; init; } = DateTimeOffset.UtcNow;
     
     /// <summary>
-    /// The SignalR client connection IDs for this session.
-    /// </summary>
-    public List<HubClientConnection> ClientConnections { get; init; } = [];
-    
-    /// <summary>
     /// The dezibots associated with this session.
     /// </summary>
     public List<Dezibot> Dezibots { get; init; } = [];
     
     /// <summary>
-    /// Creates a new instance of the <see cref="Session"/> class.
+    /// The session client connections of the session.
     /// </summary>
-    /// <param name="name">The name of the session.</param>
-    public Session(string? name = null)
-    {
-        Name = name;
-    }
-    
-    /// <summary>
-    /// Parameterless constructor for EF Core.
-    /// </summary>
-    [UsedImplicitly]
-#pragma warning disable CS8618, CS9264
-    private Session() { }
-#pragma warning restore CS8618, CS9264
+    public List<SessionClientConnection> SessionClientConnections { get; init; } = [];
 }

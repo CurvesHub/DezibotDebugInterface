@@ -27,6 +27,7 @@ public sealed class DezibotHub(IServiceScopeFactory scopeFactory) : Hub<IDezibot
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
         var session = await dbContext.Sessions
+            .Include(session => session.SessionClientConnections.Where(client => client.Client!.ConnectionId == Context.ConnectionId))
             .Include(session => session.Dezibots)
             .FirstOrDefaultAsync(s => s.Id == sessionId);
 
@@ -37,7 +38,15 @@ public sealed class DezibotHub(IServiceScopeFactory scopeFactory) : Hub<IDezibot
             return;
         }
         
-        session.ClientConnections.Add(new HubClientConnection(Context.ConnectionId, continueSession));
+        if (session.SessionClientConnections.Count is 0)
+        {
+            session.SessionClientConnections.Add(new SessionClientConnection
+            {
+                Client = new DezibotHubClient { ConnectionId = Context.ConnectionId }
+            });
+        }
+
+        session.SessionClientConnections[0].ReceiveUpdates = continueSession;
         await dbContext.SaveChangesAsync();
         
         foreach (var dezibot in session.Dezibots)
@@ -47,23 +56,26 @@ public sealed class DezibotHub(IServiceScopeFactory scopeFactory) : Hub<IDezibot
     }
 
     /// <inheritdoc />
-    /// The client is removed from the sessions when they disconnect.
+    /// The client is removed when the connection is lost.
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
         await using var scope = scopeFactory.CreateAsyncScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        await using var transaction = await dbContext.Database.BeginTransactionAsync();
 
-        var sessions = await dbContext.Sessions
-            .Where(session => session.ClientConnections.Any(connection => connection.ConnectionId == Context.ConnectionId))
-            .Include(session => session.ClientConnections.Where(connection => connection.ConnectionId == Context.ConnectionId))
-            .ToListAsync();
-
-        foreach (var clientConnections in sessions.SelectMany(session => session.ClientConnections))
+        try
         {
-            dbContext.RemoveRange(clientConnections);
+            await dbContext.Clients.Where(client => client.ConnectionId == Context.ConnectionId).ExecuteDeleteAsync();
+            await transaction.CommitAsync();
         }
-        
-        await dbContext.SaveChangesAsync();
+        catch (Exception e)
+        {
+            var logger = scope.ServiceProvider.GetRequiredService<ILogger>();
+            logger.Error(e, "Failed to remove client.");
+            await transaction.RollbackAsync();
+            throw;
+        }
+
         await base.OnDisconnectedAsync(exception);
     }
 }

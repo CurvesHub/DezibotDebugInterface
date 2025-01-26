@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 
 using DezibotDebugInterface.Api.DataAccess.Models;
+using DezibotDebugInterface.Api.DataAccess.Models.Enums;
 using DezibotDebugInterface.Api.Endpoints.Common;
 using DezibotDebugInterface.Api.Endpoints.UpdateDezibot;
 using DezibotDebugInterface.Api.Tests.TestCommon;
@@ -213,8 +214,17 @@ public class UpdateDezibotEndpointsTests() : BaseDezibotTestFixture(nameof(Updat
         await using(var arrangeDbContext = ResolveDbContext())
         {
             connection.ConnectionId.Should().NotBeNullOrEmpty();
-            var activeSession = new Session(connection.ConnectionId!);
-            activeSession.Dezibots.Add(new Dezibot(_logRequest.Ip, activeSession.Id));
+            var activeSession = new Session
+            {
+                SessionClientConnections =
+                [
+                    new SessionClientConnection
+                    {
+                        Client = new DezibotHubClient { ConnectionId = connection.ConnectionId! }
+                    }
+                ]
+            };
+            activeSession.Dezibots.Add(new Dezibot{ Ip = _logRequest.Ip, SessionId = activeSession.Id });
             arrangeDbContext.Sessions.Add(activeSession);
             await arrangeDbContext.SaveChangesAsync();
         }
@@ -235,12 +245,14 @@ public class UpdateDezibotEndpointsTests() : BaseDezibotTestFixture(nameof(Updat
         dezibot.Should().NotBeNull();
         dezibot!.ToDezibotViewModel().Should().BeEquivalentTo(dezibotMessage);
         LogsContainSingle(
-            dezibotMessage.Logs.Select(log => new LogEntry(
-                log.TimestampUtc,
-                Enum.Parse<DezibotLogLevel>(log.Level),
-                log.ClassName,
-                log.Message,
-                log.Data)).ToList(),
+            dezibotMessage.Logs.Select(log => new LogEntry
+            {
+                TimestampUtc = log.TimestampUtc,
+                LogLevel = Enum.Parse<DezibotLogLevel>(log.Level),
+                ClassName = log.ClassName,
+                Message = log.Message,
+                Data = log.Data
+            }).ToList(),
             dezibot!.LastConnectionUtc);
         
         // Cleanup
