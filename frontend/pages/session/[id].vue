@@ -36,8 +36,8 @@ onMounted(async () => {
 
     try {
         await connection.start()
-        // TODO send to correct method 
-        await connection.send("JoinSession", route.params.id, false)
+        // TODO implement the continue session logic
+        await connection.send("JoinSession", parseInt(route.params.id), true)
     } catch (err) {
         console.error("Could not start SignalR connection", err)
     }
