@@ -12,7 +12,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DezibotDebugInterface.Api.Tests.Endpoints.Sessions;
 
-// TODO: Fix test with new session handling
 public class GetSessionEndpointsTests() : BaseDezibotTestFixture(nameof(GetSessionEndpointsTests))
 {
     private const string GetAllSessionIdentifiersRoute = "/api/sessions/available";

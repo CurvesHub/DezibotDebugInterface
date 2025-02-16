@@ -12,7 +12,6 @@ using Xunit.Abstractions;
 
 namespace DezibotDebugInterface.Api.Tests.Endpoints;
 
-// TODO: Fix test with new session handling
 public class StressTests(ITestOutputHelper outputHelper) : BaseDezibotTestFixture(nameof(StressTests))
 {
     [Theory]

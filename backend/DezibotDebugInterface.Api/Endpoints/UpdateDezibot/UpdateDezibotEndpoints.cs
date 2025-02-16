@@ -71,6 +71,9 @@ public static class UpdateDezibotEndpoints
         // Handle the session association
         var activeUsedSessions = await dbContext.Sessions
             .Include(session => session.Dezibots.Where(dezibot => dezibot.Ip == ip))
+            .ThenInclude(dezibot => dezibot.Classes)
+            .ThenInclude(@class => @class.Properties)
+            .ThenInclude(property => property.Values)
             .Include(session => session.SessionClientConnections)
             .ThenInclude(sessionClientConnection => sessionClientConnection.Client)
             .Where(session => session.SessionClientConnections.Any(sessionClientConnection => sessionClientConnection.ReceiveUpdates))

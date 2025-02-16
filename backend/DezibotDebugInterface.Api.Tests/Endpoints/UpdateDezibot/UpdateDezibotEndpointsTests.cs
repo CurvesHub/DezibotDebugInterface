@@ -15,7 +15,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DezibotDebugInterface.Api.Tests.Endpoints.UpdateDezibot;
 
-// TODO: Fix test with new session handling
 public class UpdateDezibotEndpointsTests() : BaseDezibotTestFixture(nameof(UpdateDezibotEndpointsTests))
 {
     private readonly UpdateDezibotLogsRequest _logRequest = new("1.1.1.1", DezibotLogLevel.INFO,"TestClass", "TestMessage", "TestData");
@@ -116,6 +115,10 @@ public class UpdateDezibotEndpointsTests() : BaseDezibotTestFixture(nameof(Updat
         // Assert
         await using var assertDbContext = ResolveDbContext();
         var dezibot = await assertDbContext.Dezibots
+            .Include(dezibot => dezibot.Logs)
+            .Include(dezibot => dezibot.Classes)
+            .ThenInclude(@class => @class.Properties)
+            .ThenInclude(property => property.Values)
             .FirstOrDefaultAsync(dezibot => dezibot.Ip == (isLogRequest ? _logRequest.Ip : _stateRequest.Ip));
         
         dezibot.Should().NotBeNull();
@@ -156,6 +159,10 @@ public class UpdateDezibotEndpointsTests() : BaseDezibotTestFixture(nameof(Updat
         // Assert
         await using var assertDbContext = ResolveDbContext();
         var dezibot = await assertDbContext.Dezibots
+            .Include(dezibot => dezibot.Logs)
+            .Include(dezibot => dezibot.Classes)
+            .ThenInclude(@class => @class.Properties)
+            .ThenInclude(property => property.Values)
             .FirstOrDefaultAsync(dezibot => dezibot.Ip == activeSession.Dezibots[0].Ip);
         
         dezibot.Should().NotBeNull();
@@ -191,7 +198,13 @@ public class UpdateDezibotEndpointsTests() : BaseDezibotTestFixture(nameof(Updat
         
         // Assert
         await using var dbContext = ResolveDbContext();
-        var dezibot = await dbContext.Dezibots.Where(dezibot => dezibot.Ip == _logRequest.Ip).FirstOrDefaultAsync();
+        var dezibot = await dbContext.Dezibots
+            .Include(dezibot => dezibot.Logs)
+            .Include(dezibot => dezibot.Classes)
+            .ThenInclude(@class => @class.Properties)
+            .ThenInclude(property => property.Values)
+            .Where(dezibot => dezibot.Ip == _logRequest.Ip)
+            .FirstOrDefaultAsync();
 
         dezibot.Should().NotBeNull();
         LogsContainSingle(dezibot!.Logs, dezibot.LastConnectionUtc);

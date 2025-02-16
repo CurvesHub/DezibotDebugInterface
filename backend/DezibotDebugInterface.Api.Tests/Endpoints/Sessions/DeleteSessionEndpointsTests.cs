@@ -12,26 +12,26 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DezibotDebugInterface.Api.Tests.Endpoints.Sessions;
 
-// TODO: Fix test with new session handling
 public class DeleteSessionEndpointsTests() : BaseDezibotTestFixture(nameof(DeleteSessionEndpointsTests))
 {
-    private const string DeleteAllSessionsRoute = "/api/sessions";
+    private const string DeleteAllNotUsedSessionsRoute = "/api/sessions";
     private const string DeleteSessionByIdRoute = "/api/session/{id:int}";
     private const string DeleteDezibotFromSessionRoute = "/api/session/{id:int}/dezibot/{ip}";
     
     [Fact]
-    public async Task DeleteAllInActiveSessionsAsync_WhenSessionNotExists_ShouldDeleteAllInActiveSessions()
+    public async Task DeleteAllNotUsedSessionsAsync_WhenNoSessionsExists_ShouldDeleteAllNotUsedSessions()
     {
         // Act && Assert
-        var response = await DeleteAsync<string>(DeleteAllSessionsRoute, HttpStatusCode.OK);
+        var response = await DeleteAsync<string>(DeleteAllNotUsedSessionsRoute, HttpStatusCode.OK);
         response.Should().Be("Deleted all sessions.");
     }
     
     [Fact]
-    public async Task DeleteAllInActiveSessionsAsync_WhenInActiveSessionExists_ShouldDeleteAllInActiveSessions()
+    public async Task DeleteAllNotUsedSessionsAsync_WhenNotUsedSessionExists_ShouldDeleteAllNotUsedSessions()
     {
         // Arrange
         var existingSessions = SessionFactory.CreateSessions();
+        existingSessions.ForEach(session => session.SessionClientConnections.Clear());
         
         await using(var arrangeDbContext = ResolveDbContext())
         {
@@ -40,7 +40,7 @@ public class DeleteSessionEndpointsTests() : BaseDezibotTestFixture(nameof(Delet
         }
         
         // Act
-        var response = await DeleteAsync<string>(DeleteAllSessionsRoute, HttpStatusCode.OK);
+        var response = await DeleteAsync<string>(DeleteAllNotUsedSessionsRoute, HttpStatusCode.OK);
         
         // Assert
         response.Should().Be("Deleted all sessions.");
@@ -53,7 +53,7 @@ public class DeleteSessionEndpointsTests() : BaseDezibotTestFixture(nameof(Delet
     }
     
     [Fact]
-    public async Task DeleteAllInActiveSessionsAsync_WhenActiveSessionExists_ShouldNotDeleteActiveSession()
+    public async Task DeleteAllNotUsedSessionsAsync_WhenUsedSessionExists_ShouldNotDeleteUsedSession()
     {
         // Arrange
         var existingSessions = SessionFactory.CreateSessions();
@@ -65,7 +65,7 @@ public class DeleteSessionEndpointsTests() : BaseDezibotTestFixture(nameof(Delet
         }
         
         // Act
-        var response = await DeleteAsync<string>(DeleteAllSessionsRoute, HttpStatusCode.OK);
+        var response = await DeleteAsync<string>(DeleteAllNotUsedSessionsRoute, HttpStatusCode.OK);
         
         // Assert
         response.Should().Be("Deleted all sessions.");
@@ -81,17 +81,16 @@ public class DeleteSessionEndpointsTests() : BaseDezibotTestFixture(nameof(Delet
     public async Task DeleteSessionByIdAsync_WhenSessionNotExists_ShouldReturnNotFound()
     {
         // Act && Assert
-        var response = await DeleteAsync<ProblemDetails>(DeleteSessionByIdRoute, HttpStatusCode.NotFound, 1);
+        var response = await DeleteAsync<ProblemDetails>(DeleteSessionByIdRoute, HttpStatusCode.NotFound, id: 1);
         response.Should().NotBeNull();
         response!.Detail.Should().Be("Session with ID 1 not found.");
     }
     
     [Fact]
-    public async Task DeleteSessionByIdAsync_WhenSessionExistsAndIsActive_ShouldReturnConflict()
+    public async Task DeleteSessionByIdAsync_WhenUsedSessionExists_ShouldReturnConflict()
     {
         // Arrange
         var existingSession = SessionFactory.CreateSession();
-        //existingSession.IsActive = true;
         
         await using(var arrangeDbContext = ResolveDbContext())
         {
@@ -104,7 +103,7 @@ public class DeleteSessionEndpointsTests() : BaseDezibotTestFixture(nameof(Delet
         
         // Assert
         response.Should().NotBeNull();
-        response!.Detail.Should().Be("Session is active and cannot be deleted.");
+        response!.Detail.Should().Be($"Session with ID {existingSession.Id} has {existingSession.SessionClientConnections.Count} active clients using it and cannot be deleted.");
         
         await using(var assertDbContext = ResolveDbContext())
         {
@@ -114,10 +113,11 @@ public class DeleteSessionEndpointsTests() : BaseDezibotTestFixture(nameof(Delet
     }
     
     [Fact]
-    public async Task DeleteSessionByIdAsync_WhenSessionExistsAndNotActive_ShouldDeleteSession()
+    public async Task DeleteSessionByIdAsync_WhenNotUsedSessionExists_ShouldDeleteSession()
     {
         // Arrange
         var existingSession = SessionFactory.CreateSession();
+        existingSession.SessionClientConnections.Clear();
         
         await using(var arrangeDbContext = ResolveDbContext())
         {
@@ -142,7 +142,7 @@ public class DeleteSessionEndpointsTests() : BaseDezibotTestFixture(nameof(Delet
     public async Task DeleteDezibotFromSession_WhenSessionNotExists_ShouldReturnNotFound()
     {
         // Act && Assert
-        var response = await DeleteAsync<ProblemDetails>(DeleteDezibotFromSessionRoute, HttpStatusCode.NotFound, 1, "1.1.1.1");
+        var response = await DeleteAsync<ProblemDetails>(DeleteDezibotFromSessionRoute, HttpStatusCode.NotFound, id: 1, ip: "1.1.1.1");
         response.Should().NotBeNull();
         response!.Detail.Should().Be("The session with ID 1 does not exist.");
     }

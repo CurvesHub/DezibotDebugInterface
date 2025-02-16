@@ -13,6 +13,8 @@ public static class SessionFactory
 {
     private static readonly DateTimeOffset StartOf2024 = DateTimeOffset.Parse("2024-01-01T00:00:00Z", CultureInfo.InvariantCulture);
     private static int _sessionId = 1;
+    private static int _sessionClientConnectionId = 1;
+    private static int _dezibotHubClientId = 1;
 
     /// <summary>
     /// Creates a session.
@@ -43,15 +45,29 @@ public static class SessionFactory
             {
                 Id = _sessionId++,
                 CreatedUtc = createdUtc ?? StartOf2024.AddSeconds(index - 1),
-                Dezibots = dezibots?.Invoke() ?? DezibotFactory.CreateDezibots(amount: amount),
-                SessionClientConnections = 
-                [
-                    new SessionClientConnection
-                    {
-                        SessionId = _sessionId,
-                        Client = clientConnectionId is null ? null : new DezibotHubClient{ ConnectionId = clientConnectionId }
-                    }
-                ]
+                Dezibots = dezibots?.Invoke() ?? DezibotFactory.CreateDezibots(amount),
+                SessionClientConnections = CreateSessionClientConnections(amount, clientConnectionId: clientConnectionId)
+            })
+            .ToList();
+    }
+    
+    public static List<SessionClientConnection> CreateSessionClientConnections(
+        int amount = 10,
+        Session? session = null,
+        string? clientConnectionId = null)
+    {
+        return Enumerable
+            .Range(1, amount)
+            .Select(index => new SessionClientConnection
+            {
+                Id = _sessionClientConnectionId++,
+                Session = session,
+                ReceiveUpdates = true,
+                Client = new DezibotHubClient
+                {
+                    Id = _dezibotHubClientId++,
+                    ConnectionId = clientConnectionId ?? Guid.NewGuid().ToString()
+                }
             })
             .ToList();
     }

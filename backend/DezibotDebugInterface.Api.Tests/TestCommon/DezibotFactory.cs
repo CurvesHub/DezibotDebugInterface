@@ -48,8 +48,8 @@ public static class DezibotFactory
             .Range(1, amount)
             .Select(index => new Dezibot
             {
-                Id = _dezibotId++,
-                Ip = ip ?? $"{_dezibotId}.{_dezibotId}.{_dezibotId}.{_dezibotId}",
+                Id = _dezibotId,
+                Ip = ip ?? $"{_dezibotId}.{_dezibotId}.{_dezibotId}.{_dezibotId++}",
                 LastConnectionUtc = lastConnectionUtc?.AddSeconds(index - 1) ?? StartOf2024.AddSeconds(index - 1),
                 Classes = classes?.Invoke() ?? CreateClasses(amount: 1),
                 Logs = logs?.Invoke() ?? CreateLogEntries(amount: 1)
