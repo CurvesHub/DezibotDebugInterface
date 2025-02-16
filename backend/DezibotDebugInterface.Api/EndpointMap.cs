@@ -25,7 +25,7 @@ public static class EndpointMap
             .MapCreateSessionEndpoints()
             .MapDeleteSessionEndpoints()
             .MapUpdateDezibotEndpoint()
-            .MapHub<DezibotHub>("/api/dezibot-hub").AllowAnonymous();
+            .MapHub<DezibotHub>("/api/dezibot-hub").RequireCors().AllowAnonymous();
     }
     
     /// <summary>
