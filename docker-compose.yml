@@ -24,7 +24,8 @@ services:
       dockerfile: Dockerfile
     environment:
       - NODE_ENV=production
-      - BACKEND_URL=http://dezibotdebuginterface.api:8080
+      - BACKEND_URL=http://dezibotdebuginterface.api:8080 # works only in docker-compose for http requests from the nuxt server to the api
+      - BACKEND_URL_OUTSIDE_DOCKER=http://localhost:5160  # Can be an ip address, is used when outside of docker e.g. in the browser
     ports:
       - "3000:3000"
     networks:

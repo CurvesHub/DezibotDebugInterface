@@ -7,18 +7,19 @@ builder.Services.AddProjectDependencies(builder.Configuration);
 
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policyBuilder =>
+    options.AddPolicy("AllowFrontendAndBrowserOrigins", policyBuilder =>
     {
         policyBuilder
-            .AllowAnyOrigin()
+            .WithOrigins("http://localhost:3000", "http://dezibotdebuginterface.web:3000")
             .AllowAnyMethod()
-            .AllowAnyHeader();
+            .AllowAnyHeader()
+            .AllowCredentials();
     });
 });
 
 var app = builder.Build();
 
-app.UseCors();
+app.UseCors("AllowFrontendAndBrowserOrigins");
 app.MapProjectEndpoints();
 
 app.UseExceptionHandler("/error");

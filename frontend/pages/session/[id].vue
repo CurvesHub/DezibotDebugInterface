@@ -20,8 +20,9 @@ const bots = ref<Dezibot[]>([])
 let connection: signalR.HubConnection
 const { data: sessionData } = await useFetch<Session>(`/api/session/${route.params.id}`)
 onMounted(async () => {
+  const server = process.env.BACKEND_URL_OUTSIDE_DOCKER || "http://localhost:5160"
   connection = new signalR.HubConnectionBuilder()
-    .withUrl("/dezibot-hub")
+    .withUrl(`${server}/api/dezibot-hub`)
     .build()
 
     connection.on("DezibotUpdated", data => {
