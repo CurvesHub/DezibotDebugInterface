@@ -2,7 +2,6 @@ class Dezibot {
     ip: string
     components: Component[] = []
     logs: LogEntry[] = [] // message and data
-    battery: number = 1.0
 
     constructor(ip: string) {
         this.ip = ip
@@ -13,7 +12,6 @@ class Dezibot {
 
         json.components = json.classes
         json.classes = undefined
-        json.battery = 0.14
         
         return json
     }

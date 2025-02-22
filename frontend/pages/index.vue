@@ -71,9 +71,11 @@
             </UCard>
         </div>
     </div>
+    <Snackbar ref="snackbarRef" color="red" variant="subtle"/>
 </template>
 
 <script setup lang="ts">
+    import type { VNodeRef } from 'vue'
     import { type Session } from '~/types/Session'
     const { t } = useI18n()
     type SessionEntry = {id: number, label: string}
@@ -88,6 +90,7 @@
     const isNewSessionNamerOpen = ref(false)
     const isLoading = ref(false)
     const newSessionName = ref("")
+    const snackbarRef = ref<VNodeRef | null>(null);
 
     function onSelected(selected: any) {
         isSessionChooserOpen.value = false
@@ -115,12 +118,23 @@
 
     async function deleteSession() {
         isLoading.value = true
-        const {data} = await useFetch(`/api/session/${selected?.value?.id}`, {method: "delete"} as object)
-        const index = sessions.value.findIndex(session => session.id == selected?.value?.id)
-        if (index > -1) {
-            sessions.value.splice(index, 1)
-            selected.value = sessions.value.at(index-1)
+        const { error } = await useFetch(`/api/session/${selected?.value?.id}`, {
+            method: "delete",
+        } as object)
+        
+        const statusCode = error.value?.statusCode ?? 1000
+        if (statusCode < 300) {
+            const index = sessions.value.findIndex(session => session.id == selected?.value?.id)
+            if (index > -1) {
+                sessions.value.splice(index, 1)
+                selected.value = sessions.value.at(index-1)
+            }
+        } else if (statusCode == 409){
+            snackbarRef.value?.showSnackbar(t("error"), t("session_picker_delete_session_error_active_clients"), 5000)
+        } else {
+            snackbarRef.value?.showSnackbar(t("error"), t("session_picker_delete_session_error"), 5000)
         }
+                
         isLoading.value = false
     }
 
