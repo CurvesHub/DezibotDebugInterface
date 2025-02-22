@@ -1,5 +1,5 @@
 <template>
-<div class="text-2xl font-bold">{{ route.params.id }}</div>
+<div class="text-2xl font-bold mt-4 ml-4">{{ sessionData?.name }}</div>
 <div class="flex flex-row">
     <UCard v-if="bots.length == 0" class="m-6">
         {{ $t("info_empty_bots") }}
@@ -13,10 +13,12 @@
 <script setup lang="ts">
 import * as signalR from '@microsoft/signalr'
 import { Dezibot } from '~/types/Dezibot'
+import type { Session } from '~/types/Session'
+
 const route = useRoute()
 const bots = ref<Dezibot[]>([])
 let connection: signalR.HubConnection
-
+const { data: sessionData } = await useFetch<Session>(`/api/session/${route.params.id}`)
 onMounted(async () => {
   connection = new signalR.HubConnectionBuilder()
     .withUrl("/dezibot-hub")

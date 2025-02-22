@@ -32,6 +32,9 @@ export default defineI18nConfig(() => ({
             session_picker_create_session: "Create New Session",
             session_picker_create_session_name_prompt: "Enter the name for the new session:",
             session_picker_create_session_name_placeholder: "Name...",
+            error: "Error",
+            session_picker_delete_session_error: "An error occurred while deleting the session.",
+            session_picker_delete_session_error_active_clients: "Cannot delete session with connected clients."
         },
         de: {
             info_empty_graphs: "Wähle in der Tabelle links Zeilen aus um hier coole Graphen zu sehen!",
@@ -63,7 +66,9 @@ export default defineI18nConfig(() => ({
             session_picker_create_session: "Sitzung erstellen",
             session_picker_create_session_name_prompt: "Gib einen Namen für die Sitzung ein:",
             session_picker_create_session_name_placeholder: "Name...",
-
+            error: "Fehler",
+            session_picker_delete_session_error: "Beim Löschen der Sitzung ist ein Fehler aufgetreten.",
+            session_picker_delete_session_error_active_clients: "Kann keine Sitzung mit aktiven Nutzern löschen.",
         }
     }
 }))
