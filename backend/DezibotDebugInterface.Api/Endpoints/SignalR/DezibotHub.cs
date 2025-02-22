@@ -35,6 +35,9 @@ public sealed class DezibotHub(IServiceScopeFactory scopeFactory) : Hub<IDezibot
 
         var session = await dbContext.Sessions
             .Include(session => session.Dezibots)
+            .ThenInclude(dezibot => dezibot.Classes)
+            .ThenInclude(@class => @class.Properties)
+            .ThenInclude(property => property.Values)
             .Include(session => session.SessionClientConnections.Where(client => client.Client!.ConnectionId == Context.ConnectionId))
             .FirstOrDefaultAsync(s => s.Id == sessionId);
 
