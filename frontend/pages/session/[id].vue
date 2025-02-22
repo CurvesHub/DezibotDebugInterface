@@ -17,8 +17,11 @@ const route = useRoute()
 const bots = ref<Dezibot[]>([])
 
 onMounted(async () => {
+  const server = "http://host.docker.internal:8080"//"http://dezibotdebuginterface.api:8080" //process.env.BACKEND_URL || "http://localhost:5160"
+  console.log("Backend URL:", server)
+  const url = `${server}/api/dezibot-hub`
     let connection = new signalR.HubConnectionBuilder()
-    .withUrl("/dezibot-hub")
+    .withUrl(url)
     .build()
 
     connection.on("DezibotUpdated", data => {
