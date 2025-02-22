@@ -15,9 +15,10 @@ import * as signalR from '@microsoft/signalr'
 import { Dezibot } from '~/types/Dezibot'
 const route = useRoute()
 const bots = ref<Dezibot[]>([])
+let connection: signalR.HubConnection
 
 onMounted(async () => {
-    let connection = new signalR.HubConnectionBuilder()
+  connection = new signalR.HubConnectionBuilder()
     .withUrl("/dezibot-hub")
     .build()
 
@@ -40,6 +41,12 @@ onMounted(async () => {
         await connection.send("JoinSession", parseInt(route.params.id), true)
     } catch (err) {
         console.error("Could not start SignalR connection", err)
+    }
+})
+
+onBeforeUnmount(async () => {
+    if (connection) {
+        await connection.stop()
     }
 })
 </script>
