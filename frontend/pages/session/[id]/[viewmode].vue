@@ -58,15 +58,13 @@ onMounted(async () => {
 
 async function deleteBot(botIp: string) {
     const sessionId = route.params.id
-    const {error} = await useFetch(`/api/session/${sessionId}/deletebot/${botIp}`, {method: "delete"})
-    const statusCode = error.value?.statusCode ?? -1
-    
-    if (statusCode < 300) {
+    try {
+        await $fetch(`/api/session/${sessionId}/deletebot/${botIp}`, {method: "delete"}) 
         const index = bots.value.findIndex(bot => bot.ip == botIp)
         if (index > -1) {
             bots.value.splice(index, 1)
         }
-    } else {
+    } catch (error) {
         snackbarRef.value?.showSnackbar(t("error"), t("delete_bot_error"), 5000)
     }
 }

@@ -110,39 +110,43 @@
 
     async function createNewSession() {
         isLoading.value = true
-        const {data} = await useFetch<Session>("/api/session/new", {method:"post", body: {name: newSessionName.value}} as object)
-        const id = data.value?.id
-        const label = data.value?.name
-        if (id && label) {
-            const newSession: SessionEntry = {id: id, label: label}
-            sessions.value.push(newSession)
-            selected.value = newSession 
-        } else {
-            selected.value = undefined
-        }
-        newSessionName.value = ""
+        try {
+            const data = await $fetch<Session>("/api/session/new", {method:"post", body: {name: newSessionName.value}} as object)
+            const id = data.id
+            const label = data.name
+            if (id && label) {
+                const newSession: SessionEntry = {id: id, label: label}
+                sessions.value.push(newSession)
+                selected.value = newSession 
+            } else {
+                selected.value = undefined
+            }
+            newSessionName.value = ""
+        } catch (error) {}
         isLoading.value = false
     }
 
     async function deleteSession() {
         isLoading.value = true
-        const { error } = await useFetch(`/api/session/${selected?.value?.id}`, {
-            method: "delete",
-        } as object)
-        
-        const statusCode = error.value?.statusCode ?? -1
-        if (statusCode < 300) {
+        try {
+            await $fetch(`/api/session/${selected?.value?.id}`, {
+                method: "delete",
+            } as object)
+            
             const index = sessions.value.findIndex(session => session.id == selected?.value?.id)
             if (index > -1) {
                 sessions.value.splice(index, 1)
                 selected.value = sessions.value.at(index-1)
             }
-        } else if (statusCode == 409){
-            snackbarRef.value?.showSnackbar(t("error"), t("session_picker_delete_session_error_active_clients"), 5000)
-        } else {
-            snackbarRef.value?.showSnackbar(t("error"), t("session_picker_delete_session_error"), 5000)
+        } catch (error: any) {
+            const statusCode = error?.statusCode ?? -1
+            if (statusCode < 300) {
+            } else if (statusCode == 409){
+                snackbarRef.value?.showSnackbar(t("error"), t("session_picker_delete_session_error_active_clients"), 5000)
+            } else {
+                snackbarRef.value?.showSnackbar(t("error"), t("session_picker_delete_session_error"), 5000)
+            }
         }
-                
         isLoading.value = false
     }
 
