@@ -6,13 +6,15 @@ found [here](https://github.com/CurvesHub/dezibot).
 
 ## Table of Contents
 
-1. [Overview](#overview)
-2. [Getting Started](#getting-started)
+- [Dezibot Debug Interface](#dezibot-debug-interface)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+  - [Getting Started](#getting-started)
     - [Attention](#attention)
-3. [Dezibot Log Class](#dezibot-log-class)
-   - [Methods](#methods)
-   - [Example](#example)
-4. [Backend API](#backend-api)
+  - [Dezibot Log Class](#dezibot-log-class)
+    - [Methods](#methods)
+    - [Example](#example)
+  - [Backend API](#backend-api)
     - [Endpoints](#endpoints)
     - [Session Handling](#session-handling)
       - [Multiple Clients](#multiple-clients)
@@ -21,7 +23,7 @@ found [here](https://github.com/CurvesHub/dezibot).
     - [Example Requests for `PUT /api/dezibot/update`](#example-requests-for-put-apidezibotupdate)
       - [State Data](#state-data)
       - [Log Data](#log-data)
-5. [License](#license)
+  - [License](#license)
 
 ## Overview
 
@@ -37,33 +39,31 @@ The Dezibot Debug Interface consists of three main components:
 The main goal of the Dezibot Debug Interface is to provide a way to log data from the Dezibot and display it in a 
 user-friendly interface. This allows users to monitor the behavior of the Dezibot and debug any issues that may arise 
 during operation. The interface supports multiple Dezibots and user sessions, ensuring that each user can view the 
-data in real-time without interfering with other users.
+data in near real-time without interfering with other users.
 
 ## Getting Started
 
 All services are dockerized and can be started with docker-compose. Follow the instructions below to start the 
 services. This is a step-by-step guide on how to use the Dezibot Debug Interface with the example code provided in the
-`log_demo_simple.ino` file.
+`log_demo_simple.ino` file. In the following, the host is the machine running the docker stack. Clients are browsers that open the frontend URL.
 
 1. Clone the repository
 2. Configure the `docker-compose.yml` file with the desired environment variables
-    - `NUXT_PUBLIC_SERVER_URL`: This is the URL of the host machine where the backend server will be running
-      - For a client (browser) that runs on the same match as the backend/docker, you can use `http://localhost:5160`
-      - If there are clients (browsers) that runs on a different machines, use the IP address of the host machine 
-        where the backend server will be running
+    - `NUXT_PUBLIC_SERVER_URL`: This is the IP adress of the host machine
+      - If the only clients run on the host, you can use `http://localhost:5160`
+      - If there are other clients that run on different machines, use the IP address of the host machine
 3. Prepare Dezibot Code Example
-   - Start a mobile hotspot or use an active WiFi network
-   - Connect the host machine (where docker runs) to the WiFi network
+   - Ensure that you have access to a WiFi capable networkso the Dezibots can connect to it
    - Enter the Wifi SSID and password in the `log_demo_simple.ino` file
-   - Enter the IP address of the host machine where the backend server will be running
+   - Enter the IP address of the host machine
    - Load the code onto a Dezibot
 4. Run `docker-compose up` in the root directory of the project
    - The frontend is available at `http://localhost:3000`
    - The backend is available at `http://localhost:5160`
    - The backend API documentation is available at `http://localhost:5160/api`
+   - If the host is a different machine, use the IP adress of the host instead of `localhost` in the URLs above
 5. Open the frontend in a browser
-6. Start a new session or join an existing one
-   - Select a session from the dropdown list
+6. Create a new session or join an existing one by selecting a session from the dropdown list
    - Either click the `View` or the `Continue` button to join the session
      - `View` will only show the current session without receiving updates
      - `Continue` will show the current session and receive updates if a Dezibot sends data
@@ -176,7 +176,7 @@ The backend provides the following endpoints:
   - Provides the following methods/events:
     - `JoinSession` 
       - Invoked by a Client to join a session with the specified ID
-      - The Client can specify a `continueSession` parameter to decide weather to receive updates for the session
+      - The Client can specify a `continueSession` parameter to decide wether to receive updates for the session or not
     - `DezibotUpdated`
       - Invoked by the Backend when a Dezibot sends new data or a Client joins a session
       - Sends the latest dezibot to the client(s)
