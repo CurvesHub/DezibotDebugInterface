@@ -139,10 +139,10 @@ This example demonstrates how to initialize the `Log` class, log messages, log p
 
 ## Backend API
 
-...
+TODO: Describe the backend server, how to access it, and any relevant configuration or usage details.
 
 ### Endpoints
-
+TODO: Update the endpoints
 The backend provides the following endpoints:
 
 - `/api` - A UI to view the open API documentation of the API and test the endpoints
@@ -187,7 +187,7 @@ any relevant configuration or usage details.
 
 ## Frontend
 
-...
+TODO: Describe the frontend server, how to access it, and any relevant configuration or usage details.
 
 ## License
 
