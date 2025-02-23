@@ -19,13 +19,16 @@ import type { Session } from '~/types/Session'
 
 const { t } = useI18n()
 const route = useRoute()
-const snackbarRef = ref<VNodeRef | null>(null)
+const config = useRuntimeConfig()
 
+const snackbarRef = ref<VNodeRef | null>(null)
 const bots = ref<Dezibot[]>([])
-let connection: signalR.HubConnection
 const { data: sessionData } = await useFetch<Session>(`/api/session/${route.params.id}`)
+
+let connection: signalR.HubConnection
 onMounted(async () => {
-    const server = process.env.BACKEND_URL_OUTSIDE_DOCKER || "http://thisdidntexist:5160"
+    const server = config.public.serverUrl
+    
     connection = new signalR.HubConnectionBuilder()
         .withUrl(`${server}/api/dezibot-hub`)
         .build()
