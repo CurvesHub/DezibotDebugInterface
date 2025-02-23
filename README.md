@@ -48,7 +48,7 @@ services. This is a step-by-step guide on how to use the Dezibot Debug Interface
 1. Clone the repository
 2. Configure the `docker-compose.yml` file with the desired environment variables
     - `NUXT_PUBLIC_SERVER_URL`: This is the URL of the host machine where the backend server will be running
-      - For a client (browser) that runs on the same match as the backend/docker, you can use `http://localhost:5160`
+      - For a client (browser) that runs on the same machine as the backend/docker, you can use `http://localhost:5160`
       - If there are clients (browsers) that runs on a different machines, use the IP address of the host machine 
         where the backend server will be running
 3. Prepare Dezibot Code Example
@@ -60,7 +60,6 @@ services. This is a step-by-step guide on how to use the Dezibot Debug Interface
 4. Run `docker-compose up` in the root directory of the project
    - The frontend is available at `http://localhost:3000`
    - The backend is available at `http://localhost:5160`
-   - The backend API documentation is available at `http://localhost:5160/api`
 5. Open the frontend in a browser
 6. Start a new session or join an existing one
    - Select a session from the dropdown list
