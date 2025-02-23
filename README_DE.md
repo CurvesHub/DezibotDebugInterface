@@ -7,22 +7,24 @@ für den Dezibot kann [hier](https://github.com/CurvesHub/dezibot) gefunden werd
 
 ## Inhaltsverzeichnis
 
-1. [Überblick](#überblick)
-2. [Erste Schritte](#erste-schritte)
+- [Dezibot Debug Interface](#dezibot-debug-interface)
+  - [Inhaltsverzeichnis](#inhaltsverzeichnis)
+  - [Überblick](#überblick)
+  - [Erste Schritte](#erste-schritte)
     - [Achtung](#achtung)
-3. [Dezibot Log-Klasse](#dezibot-log-klasse)
+  - [Dezibot Log-Klasse](#dezibot-log-klasse)
     - [Methoden](#methoden)
-    - [Beispiel](#beispiel)
-4. [Backend-API](#backend-api)
+    - [Example](#example)
+  - [Backend API](#backend-api)
     - [Endpunkte](#endpunkte)
     - [Sitzungshandhabung](#sitzungshandhabung)
-        - [Mehrere Clients](#mehrere-clients)
-        - [Sitzungen löschen](#sitzungen-löschen)
-        - [Beispielszenarien](#beispielszenarien)
+      - [Mehrere Clients](#mehrere-clients)
+      - [Sitzungen löschen](#sitzungen-löschen)
+      - [Beispielszenarien](#beispielszenarien)
     - [Beispiel Request für `PUT /api/dezibot/update`](#beispiel-request-für-put-apidezibotupdate)
-        - [Statusdaten](#statusdaten)
-        - [Protokolldaten](#protokolldaten)
-5. [Lizenz](#lizenz)
+      - [Statusdaten](#statusdaten)
+      - [Protokolldaten](#protokolldaten)
+  - [Lizenz](#lizenz)
 
 
 ## Überblick
@@ -31,35 +33,35 @@ Die Dezibot Debug-Schnittstelle besteht aus drei Hauptkomponenten:
 
 1. **Dezibot**: Der Dezibot ist ein kleiner Roboter mit vielen Sensoren, der programmiert werden kann, um verschiedene Aufgaben auszuführen. Der Dezibot-Code ist dafür verantwortlich, Daten an den Backend-Server zu senden.
 2. **Backend-Server**: Der Backend-Server empfängt Daten vom Dezibot und speichert sie in einer Datenbank. Er stellt auch eine API für das Frontend bereit, um die Daten abzurufen.
-3. **Frontend-Server**: Der Frontend-Server zeigt die Daten des Dezibots in einer Weboberfläche an. Er ermöglicht es Benutzern, die Daten in Echtzeit zu sehen und zu analysieren.
+3. **Frontend-Server**: Der Frontend-Server zeigt die Daten des Dezibots in einer Weboberfläche an. Er ermöglicht es Benutzern, die Daten in nahezu Echtzeit zu sehen und zu analysieren.
 
-Das Hauptziel der Dezibot Debug-Schnittstelle ist es, eine Möglichkeit zu bieten, Daten vom Dezibot zu protokollieren und in einer benutzerfreundlichen Oberfläche anzuzeigen. Dies ermöglicht es Benutzern, das Verhalten des Dezibots zu überwachen und Probleme zu debuggen, die während des Betriebs auftreten können. Die Schnittstelle unterstützt mehrere Dezibots und Benutzersitzungen, sodass jeder Benutzer die Daten in Echtzeit sehen kann, ohne andere Benutzer zu stören.
+Das Hauptziel der Dezibot Debug-Schnittstelle ist es, eine Möglichkeit zu bieten, Daten vom Dezibot zu protokollieren und in einer benutzerfreundlichen Oberfläche anzuzeigen. Dies ermöglicht es Benutzern, das Verhalten des Dezibots zu überwachen und Probleme zu debuggen, die während des Betriebs auftreten können. Die Schnittstelle unterstützt mehrere Dezibots und Benutzersitzungen, sodass jeder Benutzer die Daten in nahezu Echtzeit sehen kann, ohne andere Benutzer zu stören.
 
 
 ## Erste Schritte
 
-Alle Dienste sind dockerisiert und können mit docker-compose gestartet werden. Befolgen Sie die folgenden Anweisungen, um die Dienste zu starten. Dies ist eine Schritt-für-Schritt-Anleitung zur Verwendung des Dezibot Debug Interface mit dem Beispielcode in der Datei `log_demo_simple.ino`.
+Alle Dienste sind dockerisiert und können mit docker-compose gestartet werden. Befolgen Sie die folgenden Anweisungen, um die Dienste zu starten. Dies ist eine Schritt-für-Schritt-Anleitung zur Verwendung des Dezibot Debug Interface mit dem Beispielcode in der Datei `log_demo_simple.ino`. Im Folgenden wird mit Host der Rechner bezeichnet, auf dem der Docker Stack läuft. Clients sind browser, die auf dem Host oder anderen Rechnern laufen.
 
 1. Klonen Sie das Repository
 2. Konfigurieren Sie die Datei `docker-compose.yml` mit den gewünschten Umgebungsvariablen
-    - `NUXT_PUBLIC_SERVER_URL`: Dies ist die URL des Host-Rechners, auf dem der Backend-Server läuft
-        - Für einen Client (Browser), der auf demselben Rechner wie das Backend/Docker läuft, können Sie `http://localhost:5160` verwenden
-        - Wenn Clients (Browser) auf anderen Rechnern laufen, verwenden Sie die IP-Adresse des Host-Rechners, auf dem der Backend-Server läuft
-3. Bereiten Sie das Dezibot-Codebeispiel vor
-    - Starten Sie einen mobilen Hotspot oder verwenden Sie ein aktives WLAN-Netzwerk
-    - Verbinden Sie den Host-Rechner (auf dem Docker läuft) mit dem WLAN-Netzwerk
+    - `NUXT_PUBLIC_SERVER_URL`: Dies ist die URL/IP des Host-Rechners
+        - Wenn die einzigen Clients auf dem Host laufen, kann `http://localhost:5160` verwendet werden
+        - Wenn auch auf anderen Rechnern Clients laufen, muss die IP-Adresse des Host-Rechners verwendet werden
+3. Bereiten Sie Ihren Dezibot-Code vor
+    - Stellen Sie sicher, dass sie Zugang zu einem WiFi-fähigen Netzwerk haben, sodass sich die Dezibots damit verbinden können und Daten an den Host Rechner senden können
+    - Verbinden Sie den Host-Rechner mit dem Netzwerk
     - Geben Sie die WLAN-SSID und das Passwort in der Datei `log_demo_simple.ino` ein
-    - Geben Sie die IP-Adresse des Host-Rechners ein, auf dem der Backend-Server läuft
+    - Geben Sie die IP-Adresse des Host-Rechners ein
     - Laden Sie den Code auf einen Dezibot
 4. Führen Sie `docker-compose up` im Stammverzeichnis des Projekts aus
     - Das Frontend ist verfügbar unter `http://localhost:3000`
     - Das Backend ist verfügbar unter `http://localhost:5160`
+    - Wenn der Host ein anderer Rechner ist, muss dessen IP-Adresse statt `localhost` genutzt werden, um auf die oben genannten Resourcen zugreifen zu können
 5. Öffnen Sie das Frontend in einem Browser
-6. Starten Sie eine neue Sitzung oder treten Sie einer bestehenden bei
-    - Wählen Sie eine Sitzung aus der Dropdown-Liste aus
-    - Klicken Sie entweder auf die Schaltfläche `Ansehen` oder `Fortsetzen`, um der Sitzung beizutreten
+6. Erstellen Sie eine neue Sitzung oder treten Sie einer bestehenden bei, indem Sie eine Sitzung aus der Dropdown-Liste auswählen oder eine neue erstellen und benennen
+    - Klicken Sie anschließend entweder auf die Schaltfläche `Ansehen` oder `Bearbeiten`, um der Sitzung beizutreten
         - `Ansehen` zeigt nur die aktuelle Sitzung an, ohne Updates zu erhalten
-        - `Fortsetzen` zeigt die aktuelle Sitzung an und erhält Updates, wenn ein Dezibot Daten sendet
+        - `Bearbeiten` zeigt die aktuelle Sitzung an und erhält Updates, wenn ein Dezibot Daten sendet
 7. Das Frontend zeigt die Daten der Sitzung mit den dazugehörigen Dezibots an
 
 ### Achtung
