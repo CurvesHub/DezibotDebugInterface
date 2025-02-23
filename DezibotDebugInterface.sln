@@ -9,7 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitignore = .gitignore
 		.gitmodules = .gitmodules
 		README.md = README.md
-		README_german.md = README_german.md
+		README_DE.md = README_DE.md
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DezibotDebugInterface.Api.Tests", "backend\DezibotDebugInterface.Api.Tests\DezibotDebugInterface.Api.Tests.csproj", "{841CD6DA-F97C-4EE5-A922-8F153AC22F7D}"

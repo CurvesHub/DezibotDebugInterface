@@ -4,6 +4,8 @@ The Dezibot Debug Interface provides a way to log data from a Dezibot to a backe
 interface. This repository contains the code for the backend and frontend server. The code for the Dezibot can be 
 found [here](https://github.com/CurvesHub/dezibot).
 
+The README is available in german (Deutsch) [here](README_DE.md).
+
 ## Table of Contents
 
 1. [Overview](#overview)
