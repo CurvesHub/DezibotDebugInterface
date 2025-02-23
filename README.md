@@ -4,6 +4,8 @@ The Dezibot Debug Interface provides a way to log data from a Dezibot to a backe
 interface. This repository contains the code for the backend and frontend server. The code for the Dezibot can be 
 found [here](https://github.com/CurvesHub/dezibot).
 
+The README is available in german (Deutsch) [here](README_DE.md).
+
 ## Table of Contents
 
 - [Dezibot Debug Interface](#dezibot-debug-interface)
@@ -265,3 +267,41 @@ tool like Postman.
 ## License
 
 This project is licensed under the GPL-3.0 license - see the [LICENSE](LICENSE) file for details.
+
+
+## Diagramms
+
+### Sequence Diagram
+
+```mermaid
+graph LR;
+Dezibot -->|Sends data| Backend[Backend Server];
+Backend -->|Stores data| Database[(Database)];
+Backend -->|Serves data| Frontend[Frontend Interface];
+Frontend -->|Displays data| User[User];
+```
+
+### Flowchart
+```mermaid
+flowchart TD;
+Start -->|Client connects| CheckSession{Session exists?};
+CheckSession -->|No| CreateSession[Create new session];
+CheckSession -->|Yes| RetrieveSession[Retrieve existing session];
+RetrieveSession --> UpdateData[Update session data];
+CreateSession --> UpdateData;
+UpdateData -->|Client disconnects| EndSession{Delete session?};
+EndSession -->|Yes| DeleteSession[Delete session];
+EndSession -->|No| KeepSession[Keep session active];
+```
+
+### Sequence Diagram for PUT /api/dezibot/update
+
+```mermaid
+sequenceDiagram;
+participant Client;
+participant Backend;
+Client->>Backend: PUT /api/dezibot/update with state data;
+Backend-->>Client: 200 OK;
+Client->>Backend: PUT /api/dezibot/update with log data;
+Backend-->>Client: 200 OK;
+```
