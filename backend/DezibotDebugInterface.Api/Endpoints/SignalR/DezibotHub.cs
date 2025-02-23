@@ -1,8 +1,11 @@
 using DezibotDebugInterface.Api.DataAccess;
 using DezibotDebugInterface.Api.DataAccess.Models;
+using DezibotDebugInterface.Api.Endpoints.Common;
 
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+
+using ILogger = Serilog.ILogger;
 
 namespace DezibotDebugInterface.Api.Endpoints.SignalR;
 
@@ -12,49 +15,77 @@ namespace DezibotDebugInterface.Api.Endpoints.SignalR;
 /// <param name="scopeFactory">The service scope factory.</param>
 public sealed class DezibotHub(IServiceScopeFactory scopeFactory) : Hub<IDezibotHubClient>
 {
-    /// <inheritdoc />
-    /// A new session is created when a new client connects to the hub.
-    public override async Task OnConnectedAsync()
+    /// <summary>
+    /// Allows a client to join a session and decide whether to receive updates or just the current session data.
+    /// </summary>
+    /// <param name="sessionId">The ID of the session to join.</param>
+    /// <param name="continueSession">Whether to continue receiving updates.</param>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    public async Task JoinSession(int? sessionId, bool continueSession)
     {
         await using var scope = scopeFactory.CreateAsyncScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        
-        string connectionId = Context.ConnectionId;
-        
-        // If the same client reconnects, the session is reactivated.
+
+        if (sessionId is null)
+        {
+            var logger = scope.ServiceProvider.GetRequiredService<ILogger>();
+            logger.Error("Client with connection ID {ConnectionId} tried to join a session without providing a session ID.", Context.ConnectionId);
+            return;
+        }
+
         var session = await dbContext.Sessions
-            .Where(session => session.ClientConnectionId == connectionId)
-            .FirstOrDefaultAsync();
+            .Include(session => session.Dezibots)
+            .ThenInclude(dezibot => dezibot.Classes)
+            .ThenInclude(@class => @class.Properties)
+            .ThenInclude(property => property.Values)
+            .Include(session => session.SessionClientConnections.Where(client => client.Client!.ConnectionId == Context.ConnectionId))
+            .FirstOrDefaultAsync(s => s.Id == sessionId);
 
         if (session is null)
         {
-            session = new Session(connectionId);
-            await dbContext.Sessions.AddAsync(session);
+            var logger = scope.ServiceProvider.GetRequiredService<ILogger>();
+            logger.Error("Client with connection ID {ConnectionId} tried to join non-existent session {SessionId}.", Context.ConnectionId, sessionId);
+            return;
         }
         
-        session.IsActive = true;
+        if (session.SessionClientConnections.Count is 0)
+        {
+            session.SessionClientConnections.Add(new SessionClientConnection
+            {
+                Client = new DezibotHubClient { ConnectionId = Context.ConnectionId }
+            });
+        }
+
+        session.SessionClientConnections[0].ReceiveUpdates = continueSession;
         await dbContext.SaveChangesAsync();
+        
+        foreach (var dezibotViewModel in session.Dezibots.ToDezibotViewModels())
+        {
+            await Clients.Caller.DezibotUpdated(dezibotViewModel);
+        }
     }
 
     /// <inheritdoc />
-    /// The client's session is deactivated when it disconnects from the hub.
+    /// The client is removed when the connection is lost.
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
         await using var scope = scopeFactory.CreateAsyncScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        
-        string connectionId = Context.ConnectionId;
-        
-        var session = await dbContext.Sessions
-            .Where(session => session.ClientConnectionId == connectionId)
-            .FirstOrDefaultAsync();
+        await using var transaction = await dbContext.Database.BeginTransactionAsync();
 
-        if (session is not null)
+        try
         {
-            session.IsActive = false;
-            await dbContext.SaveChangesAsync();
+            await dbContext.Clients.Where(client => client.ConnectionId == Context.ConnectionId).ExecuteDeleteAsync();
+            await transaction.CommitAsync();
         }
-        
+        catch (Exception e)
+        {
+            var logger = scope.ServiceProvider.GetRequiredService<ILogger>();
+            logger.Error(e, "Failed to remove client.");
+            await transaction.RollbackAsync();
+            throw;
+        }
+
         await base.OnDisconnectedAsync(exception);
     }
 }

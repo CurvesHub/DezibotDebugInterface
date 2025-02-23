@@ -8,14 +8,19 @@ namespace DezibotDebugInterface.Api.DataAccess;
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
 {
     /// <summary>
-    /// Gets or sets the Dezibots.
+    /// Gets the Dezibots.
     /// </summary>
     public DbSet<Dezibot> Dezibots { get; init; }
     
     /// <summary>
-    /// Gets or sets the Sessions.
+    /// Gets the Sessions.
     /// </summary>
     public DbSet<Session> Sessions { get; init; }
+    
+    /// <summary>
+    /// Gets the DezibotHubClients.
+    /// </summary>
+    public DbSet<DezibotHubClient> Clients { get; init; }
 
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder)

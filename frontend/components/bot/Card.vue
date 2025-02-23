@@ -38,8 +38,18 @@
             </UAccordion>
 
             <template #footer>
-                <UProgress :value="bot.battery*100" indicator class="h-10" :color="getBotBatColor()"/>
-            </template>
+                    <div class="flex flex-row-reverse">
+                        <UButton
+                            icon="i-heroicons-trash"
+                            size="sm"
+                            color="red"
+                            :variant="!isBotDeleteConfirmOpen ? 'outline' : 'solid'"
+                            :label="isBotDeleteConfirmOpen ? $t('confirmation') : $t('delete')"
+                            :trailing="false"
+                            @click="onDeleteButtonPressed"
+                        />
+                    </div>
+                </template>
         </UCard>
         
         <BotLogPanel :bot="bot" v-if="isLogsOpen" @hide-logs-click="isLogsOpen = !isLogsOpen"/>
@@ -55,12 +65,15 @@ const props = defineProps({
     bot: { type: Dezibot, required: true },
 })
 
-const items = computed(() => {
-    return props.bot.components.map(e => { return {label: getCompName(e.name), comp: JSON.stringify(e)} })
-})
+const emit = defineEmits(['deleteBot'])
 
 const isLogsOpen = ref(false)
 const isGraphsOpen = ref(false)
+const isBotDeleteConfirmOpen = ref(false)
+
+const items = computed(() => {
+    return props.bot.components.map(e => { return {label: getCompName(e.name), comp: JSON.stringify(e)} })
+})
 const selectedProperties = ref<Map<string, Property[]>>(new Map()) // map of compname to selected properties
 const propsState = computed(() => {
     const botProps = props.bot.components.flatMap((c) => c.properties)
@@ -85,11 +98,12 @@ function propsSelected(comp: Component, propNames: string[]) {
     }
 }
 
-function getBotBatColor(): string {
-    switch(true) {
-        case props.bot.battery < 0.1: return "red"
-        case props.bot.battery < 0.3: return "orange"
-        default: return "green"
+function onDeleteButtonPressed() {
+    if (!isBotDeleteConfirmOpen.value) {
+        isBotDeleteConfirmOpen.value = true
+    } else {
+        isBotDeleteConfirmOpen.value = true
+        emit("deleteBot")
     }
 }
 </script>

@@ -19,9 +19,9 @@ public static class DeleteSessionEndpoints
     /// <returns>The endpoint route builder with the session endpoints mapped to it.</returns>
     public static IEndpointRouteBuilder MapDeleteSessionEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapDelete("/api/sessions", DeleteAllInActiveSessionsAsync)
+        endpoints.MapDelete("/api/sessions", DeleteAllNotUsedSessionsAsync)
             .WithName("Delete All Sessions")
-            .WithSummary("Deletes all sessions.")
+            .WithSummary("Deletes all not used sessions.")
             .Produces<string>((int)HttpStatusCode.OK, ContentTypes.ApplicationJson)
             .WithOpenApi();
         
@@ -43,15 +43,18 @@ public static class DeleteSessionEndpoints
         return endpoints;
     }
     
-    private static async Task<IResult> DeleteAllInActiveSessionsAsync(ApplicationDbContext dbContext)
+    private static async Task<IResult> DeleteAllNotUsedSessionsAsync(ApplicationDbContext dbContext)
     {
-        await dbContext.Sessions.Where(session => !session.IsActive).ExecuteDeleteAsync();
+        await dbContext.Sessions.Where(session => !session.SessionClientConnections.Any()).ExecuteDeleteAsync();
         return Results.Ok("Deleted all sessions.");
     }
     
     private static async Task<IResult> DeleteSessionByIdAsync(ApplicationDbContext dbContext, int id)
     {
-        var session = await dbContext.Sessions.FirstOrDefaultAsync(session => session.Id == id);
+        var session = await dbContext.Sessions
+            .Include(session => session.SessionClientConnections)
+            .FirstOrDefaultAsync(session => session.Id == id);
+        
         if (session is null)
         {
             return Results.Problem(
@@ -59,10 +62,10 @@ public static class DeleteSessionEndpoints
                 statusCode: (int)HttpStatusCode.NotFound);
         }
 
-        if (session.IsActive)
+        if (session.SessionClientConnections.Count > 0)
         {
             return Results.Problem(
-                detail: "Session is active and cannot be deleted.",
+                detail: $"Session with ID {id} has {session.SessionClientConnections.Count} active clients using it and cannot be deleted.",
                 statusCode: (int)HttpStatusCode.Conflict);
         }
 

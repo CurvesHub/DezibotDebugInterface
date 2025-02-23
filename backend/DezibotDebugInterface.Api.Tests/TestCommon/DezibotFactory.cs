@@ -1,6 +1,7 @@
 using System.Globalization;
 
 using DezibotDebugInterface.Api.DataAccess.Models;
+using DezibotDebugInterface.Api.DataAccess.Models.Enums;
 
 #pragma warning disable S107 // Methods should not have too many parameters - This is a factory for creating test data.
 
@@ -45,9 +46,10 @@ public static class DezibotFactory
     {
         return Enumerable
             .Range(1, amount)
-            .Select(index => new Dezibot(ip ?? $"{_dezibotId}.{_dezibotId}.{_dezibotId}.{_dezibotId}")
+            .Select(index => new Dezibot
             {
-                Id = _dezibotId++,
+                Id = _dezibotId,
+                Ip = ip ?? $"{_dezibotId}.{_dezibotId}.{_dezibotId}.{_dezibotId++}",
                 LastConnectionUtc = lastConnectionUtc?.AddSeconds(index - 1) ?? StartOf2024.AddSeconds(index - 1),
                 Classes = classes?.Invoke() ?? CreateClasses(amount: 1),
                 Logs = logs?.Invoke() ?? CreateLogEntries(amount: 1)
@@ -75,14 +77,14 @@ public static class DezibotFactory
     {
         return Enumerable
             .Range(1, amount)
-            .Select(index => new LogEntry(
-                timestampUtc: timestampUtc?.AddSeconds(index - 1) ?? StartOf2024.AddSeconds(index - 1),
-                logLevel: logLevel ?? DezibotLogLevel.INFO, 
-                className: className ?? $"Class {index}",
-                message: message ?? $"Message {index}",
-                data: data ?? $"Data {index}")
+            .Select(index => new LogEntry
             {
-                Id = _logEntryId++
+                Id = _logEntryId++,
+                TimestampUtc = timestampUtc?.AddSeconds(index - 1) ?? StartOf2024.AddSeconds(index - 1),
+                LogLevel = logLevel ?? DezibotLogLevel.INFO,
+                ClassName = className ?? $"Class {index}",
+                Message = message ?? $"Message {index}",
+                Data = data ?? $"Data {index}"
             })
             .ToList();
     }
@@ -101,11 +103,11 @@ public static class DezibotFactory
     {
         return Enumerable
             .Range(1, amount)
-            .Select(index => new Class(
-                name: className ?? $"Class {index}",
-                properties: properties?.Invoke() ?? CreateProperties(amount: 1))
+            .Select(index => new Class
             {
-                Id = _classId++
+                Id = _classId++,
+                Name = className ?? $"Class {index}",
+                Properties = properties?.Invoke() ?? CreateProperties(amount: 1)
             })
             .ToList();
     }
@@ -124,11 +126,11 @@ public static class DezibotFactory
     {
         return Enumerable
             .Range(1, amount)
-            .Select(index => new Property(
-                name: propertyName ?? $"Property {index}",
-                values: timeValues?.Invoke() ?? CreateTimeValues(amount: 1))
+            .Select(index => new Property
             {
-                Id = _propertyId++
+                Id = _propertyId++,
+                Name = propertyName ?? $"Property {index}",
+                Values = timeValues?.Invoke() ?? CreateTimeValues(amount: 1)
             })
             .ToList();
     }
@@ -147,11 +149,11 @@ public static class DezibotFactory
     {
         return Enumerable
             .Range(1, amount)
-            .Select(index => new TimeValue(
-                timestampUtc: timestampUtc?.AddSeconds(index - 1) ?? StartOf2024.AddSeconds(index - 1),
-                value: value ?? $"Value {index}")
+            .Select(index => new TimeValue
             {
-                Id = _timeValueId++
+                Id = _timeValueId++,
+                TimestampUtc = timestampUtc?.AddSeconds(index - 1) ?? StartOf2024.AddSeconds(index - 1),
+                Value = value ?? $"Value {index}"
             })
             .ToList();
     }

@@ -1,4 +1,4 @@
-using DezibotDebugInterface.Api.DataAccess.Models;
+using DezibotDebugInterface.Api.DataAccess.Models.Enums;
 
 using JetBrains.Annotations;
 

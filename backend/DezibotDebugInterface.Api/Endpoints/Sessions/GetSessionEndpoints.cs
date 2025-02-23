@@ -38,7 +38,7 @@ public static class GetSessionEndpoints
             .ProducesProblem((int)HttpStatusCode.NotFound, ContentTypes.ApplicationProblemJson)
             .WithOpenApi();
         
-        endpoints.MapGet("api/session/{id:int}/dezibots/{ip}", GetDezibotFromSessionAsync)
+        endpoints.MapGet("api/session/{id:int}/dezibot/{ip}", GetDezibotFromSessionAsync)
             .WithName("Get Dezibot By Ip")
             .WithSummary("Returns a dezibot by its IP address.")
             .Produces<DezibotViewModel>((int)HttpStatusCode.OK, ContentTypes.ApplicationProblemJson)
@@ -61,6 +61,9 @@ public static class GetSessionEndpoints
     {
         var sessions = await dbContext.Sessions
             .Include(session => session.Dezibots)
+            .ThenInclude(dezibot => dezibot.Classes)
+            .ThenInclude(@class => @class.Properties)
+            .ThenInclude(property => property.Values)
             .Select(session => session.ToSessionViewModel())
             .ToListAsync();
 
@@ -71,6 +74,9 @@ public static class GetSessionEndpoints
     {
         var session = await dbContext.Sessions
             .Include(session => session.Dezibots)
+            .ThenInclude(dezibot => dezibot.Classes)
+            .ThenInclude(@class => @class.Properties)
+            .ThenInclude(property => property.Values)
             .Where(session => session.Id == id)
             .Select(session => session.ToSessionViewModel())
             .FirstOrDefaultAsync();
@@ -89,6 +95,9 @@ public static class GetSessionEndpoints
     {
         var session = await dbContext.Sessions
             .Include(session => session.Dezibots.Where(dezibot => dezibot.Ip == ip))
+            .ThenInclude(dezibot => dezibot.Classes)
+            .ThenInclude(@class => @class.Properties)
+            .ThenInclude(property => property.Values)
             .Where(session => session.Id == id)
             .Select(session => session.ToSessionViewModel())
             .FirstOrDefaultAsync();

@@ -10,8 +10,7 @@ services:
       context: .
       dockerfile: backend/DezibotDebugInterface.Api/Dockerfile
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      CORS_ALLOWED_ORIGIN: http://dezibotdebuginterface.web:3000
+      ASPNETCORE_ENVIRONMENT: Production
     ports:
       - "5160:8080"
     networks:
@@ -24,8 +23,10 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     environment:
-      - NODE_ENV=development
-      - BACKEND_URL=http://dezibotdebuginterface.api:8080 # TODO: Fix CORS for production
+      - NODE_ENV=production
+      - NUXT_INTERNAL_SERVER_URL=http://dezibotdebuginterface.api:8080 # Works only for request from within the docker network
+      # Each client machine need the following IP address for the Signal R connection to work so please replace it
+      - NUXT_PUBLIC_SERVER_URL=http://localhost:5160  # Replace with the host machine IP address (where the API/Docker is running) 
     ports:
       - "3000:3000"
     networks:

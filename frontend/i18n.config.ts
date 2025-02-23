@@ -26,6 +26,19 @@ export default defineI18nConfig(() => ({
             comp_name_communication: "Communication",
             comp_name_rgb_sensor: "RGB Sensor",
             comp_name_infrared: "Infrared Light",
+            session_picker_heading: "Sessions",
+            session_picker_text: "Select a Session...",
+            session_picker_connect_button: "Continue",
+            session_picker_view_button: "View",
+            session_picker_create_session: "Create New Session",
+            session_picker_create_session_name_prompt: "Enter the name for the new session:",
+            session_picker_create_session_name_placeholder: "Name...",
+            error: "Error",
+            session_picker_delete_session_error: "An error occurred while deleting the session.",
+            session_picker_delete_session_error_active_clients: "Cannot delete session with connected clients.",
+            delete: "Delete",
+            delete_bot_error: "An error occured while deleting the bot.",
+            confirmation: "Sure?"
         },
         de: {
             info_empty_graphs: "Wähle in der Tabelle links Zeilen aus um hier coole Graphen zu sehen!",
@@ -51,6 +64,19 @@ export default defineI18nConfig(() => ({
             comp_name_communication: "Kommunikation",
             comp_name_rgb_sensor: "RGB Sensor",
             comp_name_infrared: "Infrarotlicht",
+            session_picker_heading: "Sitzungen",
+            session_picker_text: "Wähle eine Sitzung...",
+            session_picker_connect_button: "Bearbeiten",
+            session_picker_view_button: "Ansehen",
+            session_picker_create_session: "Sitzung erstellen",
+            session_picker_create_session_name_prompt: "Gib einen Namen für die Sitzung ein:",
+            session_picker_create_session_name_placeholder: "Name...",
+            error: "Fehler",
+            session_picker_delete_session_error: "Beim Löschen der Sitzung ist ein Fehler aufgetreten.",
+            session_picker_delete_session_error_active_clients: "Kann keine Sitzung mit aktiven Nutzern löschen.",
+            delete: "Löschen",
+            delete_bot_error: "Beim Löschen des Bots ist ein Fehler aufgetreten.",
+            confirmation: "Sicher?"
         }
     }
 }))

@@ -22,9 +22,10 @@ public static class EndpointMap
         endpoints
             .MapOpenApiRelatedEndpoints()
             .MapGetSessionEndpoints()
+            .MapCreateSessionEndpoints()
             .MapDeleteSessionEndpoints()
             .MapUpdateDezibotEndpoint()
-            .MapHub<DezibotHub>("/api/dezibot-hub").AllowAnonymous();
+            .MapHub<DezibotHub>("/api/dezibot-hub").RequireCors("AllowFrontendAndBrowserOrigins").AllowAnonymous();
     }
     
     /// <summary>

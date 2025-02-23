@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 
-namespace DezibotDebugInterface.Api.DataAccess.Models;
+namespace DezibotDebugInterface.Api.DataAccess.Models.Enums;
 
 /// <summary>
 /// Represents the log level of a log message.

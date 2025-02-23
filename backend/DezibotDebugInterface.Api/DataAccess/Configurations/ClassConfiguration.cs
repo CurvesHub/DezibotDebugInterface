@@ -11,12 +11,11 @@ public class ClassConfiguration : IEntityTypeConfiguration<Class>
     /// <inheritdoc />
     public void Configure(EntityTypeBuilder<Class> builder)
     {
-        builder.ToTable("Classes");
         builder.HasKey(@class => @class.Id);
         
         builder.Property(@class => @class.Name).IsRequired();
         
-        builder.HasMany(@class => @class.Properties).WithMany();
         builder.Navigation(@class => @class.Properties).AutoInclude();
+        builder.HasMany(@class => @class.Properties).WithMany();
     }
 }

@@ -2,6 +2,8 @@ using DezibotDebugInterface.Api.DataAccess;
 
 using Microsoft.EntityFrameworkCore;
 
+using Serilog;
+
 namespace DezibotDebugInterface.Api;
 
 /// <summary>
@@ -16,7 +18,14 @@ public static class DependencyInjection
     /// <param name="configuration">The configuration.</param>
     public static void AddProjectDependencies(this IServiceCollection services, IConfiguration configuration)
     {
+        Log.Logger = new LoggerConfiguration()
+            .ReadFrom.Configuration(configuration)
+            .Enrich.FromLogContext()
+            .WriteTo.Console()
+            .CreateLogger();
+
         services
+            .AddSerilog(Log.Logger)
             .AddSqliteDatabase(configuration)
             .AddOpenApi()
             .AddSignalR();

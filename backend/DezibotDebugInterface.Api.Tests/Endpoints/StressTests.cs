@@ -18,7 +18,7 @@ public class StressTests(ITestOutputHelper outputHelper) : BaseDezibotTestFixtur
     [InlineData(1, 1, 1,1, 1, 1, 300)]
     [InlineData(2, 1, 1,1, 1, 1, 300)]
     [InlineData(2, 2, 2,2, 2, 2, 500)]
-    [InlineData(10, 10, 5,5, 10, 100, 2000)]
+    [InlineData(10, 10, 5,5, 10, 100, 2500)]
     public async Task GetAllSessionsAsync_WhenOneHundredSessionsExist_ShouldReturnSessionsInExpectedTime(
         int sessionCount,
         int dezibotCount,

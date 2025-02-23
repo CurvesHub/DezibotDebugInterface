@@ -25,12 +25,9 @@ public static class ViewModelConverter
     /// <returns>The converted <see cref="SessionIdentifier"/>.</returns>
     public static SessionIdentifier ToSessionIdentifier(this Session session)
     {
-        return new SessionIdentifier(
-            Id: session.Id,
-            IsActive: session.IsActive,
-            CreatedUtc: session.CreatedUtc);
+        return new SessionIdentifier(session.Id, session.Name ?? string.Empty, session.CreatedUtc);
     }
-    
+
     /// <summary>
     /// Converts a collection of <see cref="Session"/>s to a collection of <see cref="SessionViewModel"/>s.
     /// </summary>
@@ -48,11 +45,7 @@ public static class ViewModelConverter
     /// <returns>The converted <see cref="SessionViewModel"/>.</returns>
     public static SessionViewModel ToSessionViewModel(this Session session)
     {
-        return new SessionViewModel(
-            Id: session.Id,
-            IsActive: session.IsActive,
-            CreatedUtc: session.CreatedUtc,
-            Dezibots: session.Dezibots.ToDezibotViewModels());
+        return new SessionViewModel(session.Id, session.Name ?? string.Empty, session.CreatedUtc, session.Dezibots.ToDezibotViewModels());
     }
     
     /// <summary>

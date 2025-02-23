@@ -3,14 +3,14 @@
         <template #header>
             <div class="flex flex-row">
                 <UButton
-                icon="i-heroicons-arrow-left-circle"
-                size="sm"
-                color="white"
-                variant="solid"
-                label=""
-                :trailing="false"
-                @click="emit('hideLogsClick')"
-                class="max-h-8"
+                    icon="i-heroicons-arrow-left-circle"
+                    size="sm"
+                    color="white"
+                    variant="solid"
+                    label=""
+                    :trailing="false"
+                    @click="emit('hideLogsClick')"
+                    class="max-h-8"
                 />
                 <UInput
                     icon="i-heroicons-magnifying-glass-20-solid"
@@ -61,8 +61,8 @@ const searchQuery = ref("")
 const logs = computed(() => {
     return props.bot.logs
         .filter((l) => {
-          console.log(l.level);
-          return getSelectedLogLevels(Object.values(logLevels.value)).includes(l.level.toLowerCase())})
+            return getSelectedLogLevels(Object.values(logLevels.value)).includes(l.level.toLowerCase())
+        })
         .filter((l) => {
             if (searchQuery.value.length <= 0) {
                 return true

@@ -69,12 +69,17 @@ public static class UpdateDezibotEndpoints
         }
 
         // Handle the session association
-        var activeSessions = await dbContext.Sessions
-            .Include(session => session.Dezibots)
-            .Where(session => session.IsActive)
+        var activeUsedSessions = await dbContext.Sessions
+            .Include(session => session.Dezibots.Where(dezibot => dezibot.Ip == ip))
+            .ThenInclude(dezibot => dezibot.Classes)
+            .ThenInclude(@class => @class.Properties)
+            .ThenInclude(property => property.Values)
+            .Include(session => session.SessionClientConnections)
+            .ThenInclude(sessionClientConnection => sessionClientConnection.Client)
+            .Where(session => session.SessionClientConnections.Any(sessionClientConnection => sessionClientConnection.ReceiveUpdates))
             .ToListAsync();
 
-        if (activeSessions.Count is 0)
+        if (activeUsedSessions.Count is 0)
         {
             // No active sessions -> ignore the data
             // Since the bot can easily be restarted we won't have to care about data loss
@@ -82,21 +87,28 @@ public static class UpdateDezibotEndpoints
         }
         
         // Update Dezibots tied to active sessions
-        foreach (var activeSession in activeSessions)
+        foreach (var session in activeUsedSessions)
         {
-            var dezibot = activeSession.Dezibots.FirstOrDefault(bot => bot.Ip == ip);
+            var dezibot = session.Dezibots.FirstOrDefault(bot => bot.Ip == ip);
             
             if (dezibot is null)
             {
                 // Create a new Dezibot for this specific session
-                dezibot = new Dezibot(ip, activeSession.Id);
+                dezibot = new Dezibot { Ip = ip, SessionId = session.Id };
                 await dbContext.AddAsync(dezibot);
             }
 
             dezibot.UpdateDezibot(request.Value);
+            
+            // Notify the clients about the updated Dezibot
+            var signalRClientConnections = session.SessionClientConnections
+                .Where(connection => connection.ReceiveUpdates)
+                .Select(connection => connection.Client!.ConnectionId)
+                .ToList();
+            
             await hubContext.Clients
-                .Client(activeSession.ClientConnectionId)
-                .SendDezibotUpdateAsync(dezibot.ToDezibotViewModel());
+                .Clients(signalRClientConnections)
+                .DezibotUpdated(dezibot.ToDezibotViewModel());
         }
 
         await dbContext.SaveChangesAsync();
@@ -147,39 +159,45 @@ public static class UpdateDezibotEndpoints
     
     private static void AddLogs(this Dezibot dezibot, UpdateDezibotLogsRequest request)
     {
-        dezibot.Logs.Add(new LogEntry(
-            dezibot.LastConnectionUtc,
-            request.LogLevel,
-            request.ClassName,
-            request.Message,
-            request.Data));
+        dezibot.Logs.Add(new LogEntry
+        {
+            TimestampUtc = dezibot.LastConnectionUtc,
+            LogLevel = request.LogLevel,
+            ClassName = request.ClassName,
+            Message = request.Message,
+            Data = request.Data,
+        });
     }
 
     private static void UpdateClassStates(this Dezibot dezibot, UpdateDezibotStatesRequest request)
     {
-        var newClasses = request.Data.Select(state => new Class(
-            name: state.Key,
-            properties: state.Value.Select(property => new Property(
-                name: property.Key,
-                values: [new TimeValue(dezibot.LastConnectionUtc, property.Value)])).ToList())).ToList();
+        var updatedClasses = request.Data.Select(state => new Class
+        {
+            Name = state.Key,
+            Properties = state.Value.Select(property => new Property
+            {
+                Name = property.Key,
+                Values = [new TimeValue { TimestampUtc = dezibot.LastConnectionUtc, Value = property.Value }]
+            }).ToList()
+        }).ToList();
 
         if (dezibot.Classes.Count is 0)
         {
-            dezibot.Classes.AddRange(newClasses);
+            dezibot.Classes.AddRange(updatedClasses);
             return;
         }
 
-        foreach (var newClass in newClasses)
+        foreach (var updatedClass in updatedClasses)
         {
-            var existingClass = dezibot.Classes.FirstOrDefault(@class => @class.Name == newClass.Name);
+            var existingClass = dezibot.Classes.FirstOrDefault(@class => @class.Name == updatedClass.Name);
 
             if (existingClass is null)
             {
-                dezibot.Classes.Add(newClass);
+                dezibot.Classes.Add(updatedClass);
                 continue;
             }
 
-            foreach (var newProperty in newClass.Properties)
+            foreach (var newProperty in updatedClass.Properties)
             {
                 var existingProperty = existingClass.Properties.FirstOrDefault(property => property.Name == newProperty.Name);
 

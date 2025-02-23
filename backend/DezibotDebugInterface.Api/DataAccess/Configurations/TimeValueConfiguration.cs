@@ -11,9 +11,8 @@ public class TimeValueConfiguration : IEntityTypeConfiguration<TimeValue>
     /// <inheritdoc />
     public void Configure(EntityTypeBuilder<TimeValue> builder)
     {
-        builder.ToTable("PropertyValues");
         builder.HasKey(value => value.Id);
-        
+
         builder.Property(value => value.TimestampUtc).IsRequired();
         builder.Property(value => value.Value).IsRequired();
     }
