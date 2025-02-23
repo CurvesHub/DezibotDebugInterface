@@ -10,7 +10,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontendAndBrowserOrigins", policyBuilder =>
     {
         policyBuilder
-            .WithOrigins("http://localhost:3000", "http://dezibotdebuginterface.web:3000")
+            .SetIsOriginAllowed(_ => true)
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials();
