@@ -24,8 +24,9 @@ services:
       dockerfile: Dockerfile
     environment:
       - NODE_ENV=production
-      - NUXT_INTERNAL_SERVER_URL=http://dezibotdebuginterface.api:8080 # works only in docker-compose for http requests from the nuxt server to the api
-      - NUXT_PUBLIC_SERVER_URL=http://localhost:5160  # Can be an ip address, is used when outside of docker e.g. in the browser
+      - NUXT_INTERNAL_SERVER_URL=http://dezibotdebuginterface.api:8080 # Works only for request from within the docker network
+      # Each client machine need the following IP address for the Signal R connection to work so please replace it
+      - NUXT_PUBLIC_SERVER_URL=http://localhost:5160  # Replace with the host machine IP address (where the API/Docker is running) 
     ports:
       - "3000:3000"
     networks:

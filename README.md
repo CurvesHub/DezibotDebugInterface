@@ -47,6 +47,10 @@ services. This is a step-by-step guide on how to use the Dezibot Debug Interface
 
 1. Clone the repository
 2. Configure the `docker-compose.yml` file with the desired environment variables
+    - `NUXT_PUBLIC_SERVER_URL`: This is the URL of the host machine where the backend server will be running
+      - For a client (browser) that runs on the same match as the backend/docker, you can use `http://localhost:5160`
+      - If there are clients (browsers) that runs on a different machines, use the IP address of the host machine 
+        where the backend server will be running
 3. Prepare Dezibot Code Example
    - Start a mobile hotspot or use an active WiFi network
    - Connect the host machine (where docker runs) to the WiFi network
@@ -68,8 +72,9 @@ services. This is a step-by-step guide on how to use the Dezibot Debug Interface
 ### Attention
 
 When writing a Dezibot main program, make sure to call `Log::begin(ssid, password, url)` before calling `dezibot.
-begin()`. Otherwise, the initial setup logs and debug data will not be sent to the backend server. If `Log::begin
-(ssid, password, url)` is **not** called, all called methods of the `Log` class will return immediately.
+begin()`. Otherwise, the initial setup logs and debug data will not be sent to the backend server.
+
+If `Log::begin(ssid, password, url)` is **not** called, all called methods of the `Log` class will return immediately.
 
 ## Dezibot Log Class
 
@@ -115,7 +120,7 @@ log levels and can send data periodically or on-demand.
 
 const char* ssid = "hotspot";
 const char* password = "password";
-String ipAdress = "192.168.1.100";
+String ipAdress = "xxx.xxx.xxx.xxx";
 
 Dezibot dezibot = Dezibot();
 
@@ -139,7 +144,8 @@ void loop() {
 ```
 
 This example demonstrates how to initialize the `Log` class, log messages, log property changes, and send state data 
-to the server. The `Log::update()` method sends the current state data to the server every 3 seconds.
+to the server. The `Log::update()` method sends the current state data to the server every 3 seconds. But the `Log::d()`
+methods will send the log data immediately.
 
 ## Backend API
 
@@ -258,4 +264,4 @@ tool like Postman.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the GPL-3.0 license - see the [LICENSE](LICENSE) file for details.
