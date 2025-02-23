@@ -1,20 +1,28 @@
-# Use a Node.js image
-FROM node:18
+ARG NODE_VERSION=22.0.0
 
-# Set working directory
-WORKDIR /app
+FROM node:${NODE_VERSION}-slim AS base
 
-# Copy package.json and yarn.lock
-COPY package.json yarn.lock ./
+ARG PORT=3000
 
-# Install dependencies
+WORKDIR /src
+
+# ---------------------------- Build
+FROM base AS build
+
+COPY --link package.json yarn.lock .
 RUN yarn install
 
-# Copy the rest of the application files
-COPY . .
+COPY --link . .
 
-# Expose the Nuxt development port
-EXPOSE 3000
+RUN yarn build
 
-# Command to start Nuxt in development mode
-CMD ["yarn", "dev", "-o"]
+# ---------------------------- Run
+FROM base
+
+ENV PORT=$PORT
+ENV NODE_ENV=production
+
+COPY --from=build /src/.output /src/.output
+COPY --from=build /src/node_modules /src/node_modules
+
+CMD [ "node", ".output/server/index.mjs" ]

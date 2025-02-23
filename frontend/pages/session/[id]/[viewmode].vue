@@ -25,7 +25,7 @@ const bots = ref<Dezibot[]>([])
 let connection: signalR.HubConnection
 const { data: sessionData } = await useFetch<Session>(`/api/session/${route.params.id}`)
 onMounted(async () => {
-    const server = process.env.BACKEND_URL_OUTSIDE_DOCKER || "http://localhost:5160"
+    const server = process.env.BACKEND_URL_OUTSIDE_DOCKER || "http://thisdidntexist:5160"
     connection = new signalR.HubConnectionBuilder()
         .withUrl(`${server}/api/dezibot-hub`)
         .build()
@@ -57,7 +57,6 @@ async function deleteBot(botIp: string) {
     const sessionId = route.params.id
     const {error} = await useFetch(`/api/session/${sessionId}/deletebot/${botIp}`, {method: "delete"})
     const statusCode = error.value?.statusCode ?? -1
-    console.log(statusCode);
     
     if (statusCode < 300) {
         const index = bots.value.findIndex(bot => bot.ip == botIp)

@@ -8,7 +8,6 @@ class Dezibot {
     }
 
     static fromJson(json: any): Dezibot {
-        console.log(json);
 
         json.components = json.classes
         json.classes = undefined
