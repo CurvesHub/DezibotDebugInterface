@@ -60,12 +60,20 @@
                 <template #footer>
                     <div class="flex flex-row-reverse">
                         <UButton 
-                        :label="$t('session_picker_connect_button')" 
-                        class="h-8" 
-                        trailing-icon="i-heroicons-arrow-right-circle" 
-                        :disabled="selected == undefined && !isLoading"
-                        @click="connectToSession"
-                    />
+                            :label="$t('session_picker_connect_button')" 
+                            class="h-8" 
+                            trailing-icon="i-heroicons-arrow-right-circle" 
+                            :disabled="selected == undefined && !isLoading"
+                            @click="connectToSession"
+                        />
+                        <UButton 
+                            :label="$t('session_picker_view_button')" 
+                            class="h-8 mr-2"
+                            variant="outline"
+                            trailing-icon="i-heroicons-eye" 
+                            :disabled="selected == undefined && !isLoading"
+                            @click="viewSession"
+                        />
                     </div>
                 </template>
             </UCard>
@@ -122,7 +130,7 @@
             method: "delete",
         } as object)
         
-        const statusCode = error.value?.statusCode ?? 1000
+        const statusCode = error.value?.statusCode ?? -1
         if (statusCode < 300) {
             const index = sessions.value.findIndex(session => session.id == selected?.value?.id)
             if (index > -1) {
@@ -139,6 +147,10 @@
     }
 
     function connectToSession() {
-        navigateTo(`/session/${selected.value?.id}`)
+        navigateTo(`/session/${selected.value?.id}/edit`)
+    }
+
+    function viewSession() {
+        navigateTo(`/session/${selected.value?.id}/view`)
     }
 </script>

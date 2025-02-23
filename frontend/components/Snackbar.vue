@@ -22,6 +22,7 @@
                     :value="100*timeLeft/duration"
                     class="-mb-2 mt-2"
                     :color="props.color ?? 'primary'"
+                    size="sm"
                 />
             </template>
         </UAlert>
@@ -60,15 +61,16 @@ function startTimer(duration: number) {
     if (isRunning.value) return
     isRunning.value = true
     timeLeft.value = duration
+    const updateIntervalMs = 70
 
     timer = setInterval(() => {
         if (timeLeft.value > 0) {
-            timeLeft.value -= 10
+            timeLeft.value -= updateIntervalMs
         } else {
             clearInterval(timer)
             isRunning.value = false
         }
-    }, 10)
+    }, updateIntervalMs)
 }
 
 function closeButtonClicked() {
