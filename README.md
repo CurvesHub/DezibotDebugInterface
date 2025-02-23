@@ -7,16 +7,15 @@ found [here](https://github.com/CurvesHub/dezibot).
 ## Table of Contents
 
 1. [Overview](#overview)
-2. [Installation](#installation)
-3. [Usage](#usage)
+2. [Installation](#getting-started)
     - [Attention](#attention)
-4. [Dezibot Log Class](#dezibot-log-class)
+3. [Dezibot Log Class](#dezibot-log-class)
    - [Methods](#methods)
    - [Example](#example)
-5. [Backend API](#backend-api)
-6. [Session Handling](#session-handling)
-7. [Models](#models)
-8. [License](#license)
+4. [Backend API](#backend-api)
+[Session Handling](#session-handling)
+6. [Models](#models)
+7. [License](#license)
 
 ## Overview
 
@@ -34,14 +33,12 @@ user-friendly interface. This allows users to monitor the behavior of the Dezibo
 during operation. The interface supports multiple Dezibots and user sessions, ensuring that each user can view the 
 data in real-time without interfering with other users.
 
-## Installation
+## Getting Started
 
 All services are dockerized and can be started with docker-compose. Follow the instructions below to start the services.
 
 1. Clone the repository
 2. Configure the `docker-compose.yml` file with the desired environment variables
-
-## Usage
 
 This is a step-by-step guide on how to use the Dezibot Debug Interface with the example code provided in the 
 `log_demo_simple.ino` file.
@@ -185,11 +182,6 @@ any relevant configuration or usage details.
 }
 ```
 
-## Frontend
-
-TODO: Describe the frontend server, how to access it, and any relevant configuration or usage details.
-
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-TODO: Create LICENSE file
