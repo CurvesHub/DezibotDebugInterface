@@ -25,7 +25,7 @@
                 <div class="flex-wrap">
                     <UButton 
                         v-for="(value, key) in logLevels" 
-                        class="ml-2 mb-2 min-w-14 justify-center" :color="value.color" 
+                        class="ml-2 min-w-14 justify-center" :color="value.color" 
                         :variant="value.selected ? 'solid' : 'outline'" 
                         :label="value.name" 
                         @click="value.selected = !value.selected"

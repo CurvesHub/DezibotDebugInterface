@@ -1,6 +1,6 @@
 <template>
-    <div class="flex flex-row m-4">
-        <UCard class="min-w-[33rem]">
+    <div class="flex flex-row m-4 min-h-full">
+        <UCard class="min-w-[33rem] flex flex-col min-h-full">
             <template #header>
                 <div class="flex flex-row justify-between items-center">
                     <div class="text-xl font-bold">
@@ -15,9 +15,9 @@
                             :label="$t('logs_button')"
                             :trailing="false"
                             @click="isLogsOpen = !isLogsOpen"
-                            />
+                        />
                             
-                            <UButton
+                        <UButton
                             icon="i-heroicons-arrow-trending-up"
                             size="sm"
                             :color="isGraphsOpen? 'primary' : 'white'"
@@ -30,26 +30,26 @@
                     </div>
                 </div>
             </template>
+
             <UAccordion :items="items" color="gray" variant="solid" multiple>
                 <template #item="{item}">
                     <BotProperties :component="JSON.parse(item.comp)" @propsSelected="(propNames : string[]) => propsSelected(JSON.parse(item.comp), propNames)"/>
                 </template>
-
             </UAccordion>
-
+                
             <template #footer>
-                    <div class="flex flex-row-reverse">
-                        <UButton
-                            icon="i-heroicons-trash"
-                            size="sm"
-                            color="red"
-                            :variant="!isBotDeleteConfirmOpen ? 'outline' : 'solid'"
-                            :label="isBotDeleteConfirmOpen ? $t('confirmation') : $t('delete')"
-                            :trailing="false"
-                            @click="onDeleteButtonPressed"
-                        />
-                    </div>
-                </template>
+                <div class="flex flex-row-reverse">
+                    <UButton
+                        icon="i-heroicons-trash"
+                        size="sm"
+                        color="red"
+                        :variant="!isBotDeleteConfirmOpen ? 'outline' : 'solid'"
+                        :label="isBotDeleteConfirmOpen ? $t('confirmation') : $t('delete')"
+                        :trailing="false"
+                        @click="onDeleteButtonPressed"
+                    />
+                </div>
+            </template>
         </UCard>
         
         <BotLogPanel :bot="bot" v-if="isLogsOpen" @hide-logs-click="isLogsOpen = !isLogsOpen"/>

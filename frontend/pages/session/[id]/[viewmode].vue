@@ -4,9 +4,12 @@
     <UCard v-if="bots.length == 0" class="m-6">
         {{ $t("info_empty_bots") }}
     </UCard>
-    <div v-else v-for="bot in bots" class="flex flex-row m-4">
-        <BotCard :bot="bot" @delete-bot="deleteBot(bot.ip)"/>
+    <div v-else class="flex flex-row flex-wrap max-w-full">
+        <div v-for="bot in bots" class="mb-4">
+            <BotCard :bot="bot" @delete-bot="deleteBot(bot.ip)"/>
+        </div>
     </div>
+
 </div>
 <Snackbar ref="snackbarRef" color="red" variant="subtle"/>
 </template>
@@ -67,6 +70,20 @@ async function deleteBot(botIp: string) {
     } catch (error) {
         snackbarRef.value?.showSnackbar(t("error"), t("delete_bot_error"), 5000)
     }
+}
+
+function updateBotData(data: any) {
+    const newState = bots.value
+    const bot = newState.find((bot) => bot.ip == data.ip)
+    const newBot = Dezibot.fromJson(JSON.parse(JSON.stringify(data)))
+    if (!bot) {
+        newState.push(newBot)
+    }
+    else {
+        newState[newState.indexOf(bot)] = newBot
+    }
+    
+    bots.value = newState
 }
 
 onBeforeUnmount(async () => {
