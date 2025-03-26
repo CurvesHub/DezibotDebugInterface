@@ -100,10 +100,20 @@ const logLevels = ref({
     }
 })
 
+/**
+ * Returns the log levels that are selected
+ * @param levels The log levels
+ * @returns The selected log levels
+ */
 function getSelectedLogLevels(levels: {selected: boolean, id: string}[]) {
     return levels.filter(l => l.selected).map((level) => level.id)
 }
 
+/**
+ * Returns the color of the log level to display
+ * @param level The log level
+ * @returns The color of the log level
+ */
 function getColor(level: string): string {
     switch (level.toLowerCase()) {
         case 'info':

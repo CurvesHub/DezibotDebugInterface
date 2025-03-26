@@ -48,8 +48,14 @@ watch(() => selected.value, (newValue, oldValue) => {
     emit("propsSelected", newValue.map(e => e.propName))
 }, {deep: true})
 
+/**
+ * Handles the selection of a row
+ * @param row The selected row
+ */
 function select(row: Row) {
+    // if the value cant be turned into a number, it cant be plotted in a useful manner
     if (isNaN(Number(row.value))) return 
+    
     const index = selected.value.findIndex(item => item.propName === row.propName)
     if (index === -1) {
         selected.value.push(row)

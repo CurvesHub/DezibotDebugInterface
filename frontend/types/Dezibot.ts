@@ -10,8 +10,7 @@ class Dezibot {
     static fromJson(json: any): Dezibot {
 
         json.components = json.classes
-        json.classes = undefined
-        
+        delete json.classes        
         return json
     }
 }
@@ -54,22 +53,6 @@ class LogEntry {
         this.message = message
         this.data = data
     }
-}
-
-type ApiDezibot = {
-    ip: string
-    logs: any[]
-    classes: ApiComponent[]
-}
-
-type ApiComponent = {
-    name: string
-    properties: ApiProperty[]
-}
-
-type ApiProperty = {
-    name: string
-    values: {timestampUtc: string, value: string}[]
 }
 
 export {Dezibot, Component, LogEntry, Property}

@@ -38,7 +38,7 @@
             </UAccordion>
                 
             <template #footer>
-                <div class="flex flex-row-reverse">
+                <div class="flex flex-row-reverse content-end">
                     <UButton
                         icon="i-heroicons-trash"
                         size="sm"
@@ -74,7 +74,10 @@ const isBotDeleteConfirmOpen = ref(false)
 const items = computed(() => {
     return props.bot.components.map(e => { return {label: getCompName(e.name), comp: JSON.stringify(e)} })
 })
-const selectedProperties = ref<Map<string, Property[]>>(new Map()) // map of compname to selected properties
+
+// map of compname to selected properties
+const selectedProperties = ref<Map<string, Property[]>>(new Map()) 
+
 const propsState = computed(() => {
     const botProps = props.bot.components.flatMap((c) => c.properties)
     const result: Property[] = []
@@ -84,7 +87,11 @@ const propsState = computed(() => {
     return result
 })
 
-
+/**
+ * Updates the selected properties of a component to display them in a graph
+ * @param comp The component of which props were selected
+ * @param propNames The props that were selected
+ */
 function propsSelected(comp: Component, propNames: string[]) {
     const filtered = comp.properties.filter(e => propNames.includes(e.name))
     const copy = selectedProperties.value
@@ -98,6 +105,9 @@ function propsSelected(comp: Component, propNames: string[]) {
     }
 }
 
+/**
+ * Open confirmation dialog for the delete request
+ */
 function onDeleteButtonPressed() {
     if (!isBotDeleteConfirmOpen.value) {
         isBotDeleteConfirmOpen.value = true

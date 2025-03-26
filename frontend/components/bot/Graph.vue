@@ -59,6 +59,7 @@ const props = defineProps({
     props: { type: Array<Property>, required: true },
 })
 
+// data for the chart
 const data: ComputedRef<ChartData[]> = computed(() => {
     return props.props.map((prop) => {
         return {
